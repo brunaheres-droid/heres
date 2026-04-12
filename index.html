@@ -163,12 +163,17 @@ select,input[type=number],input[type=text]{width:100%;padding:9px 11px;border:1p
 .info-box{background:#f9f6f0;border-left:3px solid var(--camel);padding:10px 12px;border-radius:0 8px 8px 0;margin-top:8px;}
 .info-box p{font-size:13px;color:var(--mid);line-height:1.7;}
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="topbar">
   <div class="topbar-brand">Heres</div>
-  <div class="topbar-date" id="topbar-date"></div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span id="conn-status" style="font-size:9px;color:var(--camel);opacity:0;transition:opacity .5s;"></span>
+    <div class="topbar-date" id="topbar-date"></div>
+  </div>
 </div>
 
 <div class="content">
@@ -440,9 +445,67 @@ const RITUAIS_DATA = [
 
 let ST = { vendas:[], config:{metaDia:800,metaMes:15000}, checklist:{} };
 let payLbl='', payTipo='', descOn=false;
+let db = null;
 
-function load(){ try{ const s=localStorage.getItem('heres_v4'); if(s) ST=JSON.parse(s); if(!ST.checklist) ST.checklist={}; }catch(e){} }
-function save(){ try{ localStorage.setItem('heres_v4',JSON.stringify(ST)); }catch(e){} }
+function initFirebase(){
+  try{
+    firebase.initializeApp({
+      apiKey:"AIzaSyC6dOhUnAmn3YuCN74jHWz5EsfoaI9yYLc",
+      authDomain:"heres-app-3e71f.firebaseapp.com",
+      projectId:"heres-app-3e71f",
+      storageBucket:"heres-app-3e71f.firebasestorage.app",
+      messagingSenderId:"155615760966",
+      appId:"1:155615760966:web:9a642d8b3205104f1cf047"
+    });
+    db = firebase.firestore();
+
+    db.collection('heres').doc('vendas').onSnapshot(snap=>{
+      ST.vendas = snap.exists ? (snap.data().list||[]) : [];
+      renderPainel(); renderHoje(); renderComm();
+    });
+    db.collection('heres').doc('config').onSnapshot(snap=>{
+      if(snap.exists) ST.config = snap.data();
+      renderPainel();
+      const cd=document.getElementById('c-dia'); const cm=document.getElementById('c-mes');
+      if(cd) cd.value=ST.config.metaDia; if(cm) cm.value=ST.config.metaMes;
+    });
+    db.collection('heres').doc('checklist').onSnapshot(snap=>{
+      ST.checklist = snap.exists ? (snap.data()||{}) : {};
+      buildChecklist();
+    });
+    db.collection('heres').doc('customTasks').onSnapshot(snap=>{
+      if(snap.exists && snap.data().tasks){ applyCustomTasks(snap.data().tasks); buildChecklist(); }
+    });
+    showStatus('Conectado');
+  }catch(e){
+    showStatus('Offline');
+    loadLocal(); renderPainel(); renderHoje(); buildChecklist();
+  }
+}
+
+function showStatus(msg){
+  const el=document.getElementById('conn-status');
+  if(el){ el.textContent=msg; el.style.opacity='1'; setTimeout(()=>el.style.opacity='0',3000); }
+}
+
+async function save(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('vendas').set({list:ST.vendas}); }catch(e){ saveLocal(); }
+}
+async function saveConfig(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('config').set(ST.config); }catch(e){ saveLocal(); }
+}
+async function saveChecklist(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('checklist').set(ST.checklist||{}); }catch(e){ saveLocal(); }
+}
+async function saveCustomTasksCloud(){
+  if(!db) return;
+  try{ const custom=WEEK_TASKS.map(d=>d.groups.map(g=>[...g.tasks])); await db.collection('heres').doc('customTasks').set({tasks:custom}); }catch(e){}
+}
+function saveLocal(){ try{ localStorage.setItem('heres_v4',JSON.stringify(ST)); }catch(e){} }
+function loadLocal(){ try{ const s=localStorage.getItem('heres_v4'); if(s){ const d=JSON.parse(s); ST.vendas=d.vendas||[]; ST.config=d.config||{metaDia:800,metaMes:15000}; ST.checklist=d.checklist||{}; } }catch(e){} }
 function fmt(v){ return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function today(){ return new Date().toISOString().split('T')[0]; }
 function weekKey(){ const d=new Date(); const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1); return new Date(d.setDate(diff)).toISOString().split('T')[0]; }
@@ -485,9 +548,8 @@ function registrar(){
   if(descOn) toggleDesc();
   document.getElementById('prev-pct').textContent='Selecione pagamento e valor'; document.getElementById('prev-val').textContent='—';
   const t=document.getElementById('toast-venda'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
-  renderHoje(); renderPainel();
 }
-function deletar(id){ ST.vendas=ST.vendas.filter(v=>v.id!==id); save(); renderHoje(); renderPainel(); }
+function deletar(id){ ST.vendas=ST.vendas.filter(v=>v.id!==id); save(); }
 
 function renderPainel(){
   const td=today();
@@ -521,7 +583,7 @@ function renderHoje(){
 // CHECKLIST
 function clKey(di,gi,ti){ return weekKey()+'_'+di+'_'+gi+'_'+ti; }
 function isDone(di,gi,ti){ return !!(ST.checklist&&ST.checklist[clKey(di,gi,ti)]); }
-function setDone(di,gi,ti,v){ if(!ST.checklist) ST.checklist={}; ST.checklist[clKey(di,gi,ti)]=v; save(); }
+function setDone(di,gi,ti,v){ if(!ST.checklist) ST.checklist={}; ST.checklist[clKey(di,gi,ti)]=v; saveChecklist(); }
 
 function toggleTask(di,gi,ti){
   const k='t'+di+'_'+gi+'_'+ti;
@@ -604,11 +666,19 @@ function saveEditTask(di, gi, ti){
   buildChecklist();
 }
 
-function saveCustomTasks(){
-  try {
-    const custom = WEEK_TASKS.map(d => d.groups.map(g => [...g.tasks]));
-    localStorage.setItem('heres_tasks_custom', JSON.stringify(custom));
-  } catch(e){}
+function saveCustomTasks(){ saveCustomTasksCloud(); }
+
+function applyCustomTasks(custom){
+  custom.forEach((dayTasks,di)=>{
+    if(!WEEK_TASKS[di]) return;
+    dayTasks.forEach((groupTasks,gi)=>{
+      if(!WEEK_TASKS[di].groups[gi]) return;
+      groupTasks.forEach((task,ti)=>{
+        if(WEEK_TASKS[di].groups[gi].tasks[ti]!==undefined)
+          WEEK_TASKS[di].groups[gi].tasks[ti]=task;
+      });
+    });
+  });
 }
 
 function loadCustomTasks(){
@@ -616,16 +686,7 @@ function loadCustomTasks(){
     const s = localStorage.getItem('heres_tasks_custom');
     if(!s) return;
     const custom = JSON.parse(s);
-    custom.forEach((dayTasks, di) => {
-      if(!WEEK_TASKS[di]) return;
-      dayTasks.forEach((groupTasks, gi) => {
-        if(!WEEK_TASKS[di].groups[gi]) return;
-        groupTasks.forEach((task, ti) => {
-          if(WEEK_TASKS[di].groups[gi].tasks[ti] !== undefined)
-            WEEK_TASKS[di].groups[gi].tasks[ti] = task;
-        });
-      });
-    });
+    applyCustomTasks(custom);
   } catch(e){}
 }
 
@@ -736,20 +797,20 @@ function renderComm(){
 function salvarConfig(){
   ST.config.metaDia=parseFloat(document.getElementById('c-dia').value)||800;
   ST.config.metaMes=parseFloat(document.getElementById('c-mes').value)||15000;
-  save();
+  saveConfig();
   const t=document.getElementById('toast-config'); t.textContent='Metas salvas!'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
-  renderPainel();
 }
 function limparMes(){
   if(confirm('Zerar todas as vendas do mês?')){
     const td=today().slice(0,7); ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));
-    save(); renderPainel(); renderHoje(); renderComm();
+    save();
   }
 }
 
 const d=new Date();
 document.getElementById('topbar-date').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
-load(); loadCustomTasks(); renderPainel(); buildChecklist(); buildRituais();
+buildRituais();
+initFirebase();
 </script>
 </body>
 </html>
