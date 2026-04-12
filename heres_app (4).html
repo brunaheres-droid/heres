@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Heres — App da Loja</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f0e8;--card:#fff;--dark:#2c2a26;--mid:#6a5a4a;--light:#e8e2d8;
+  --terra:#a07060;--camel:#c8b89a;--green:#3a6a48;--blue:#3a5878;
+  --text:#2c2a26;--muted:#888078;--border:#e0d8cc;
+}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;}
+.topbar{background:var(--dark);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-brand{font-size:15px;font-weight:700;letter-spacing:0.18em;color:#f5f0e8;text-transform:uppercase;}
+.topbar-date{font-size:11px;color:var(--camel);}
+.content{padding:12px 12px 0;}
+.navbar{position:fixed;bottom:0;left:0;right:0;background:var(--dark);display:flex;border-top:1px solid #444;}
+.nav-btn{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:transparent;}
+.nav-btn.active .nav-icon{background:var(--terra);}
+.nav-icon{width:28px;height:28px;border-radius:8px;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;background:#444;}
+.nav-icon svg{width:14px;height:14px;}
+.nav-label{font-size:9px;color:#aaa;letter-spacing:0.05em;text-transform:uppercase;}
+.nav-btn.active .nav-label{color:var(--camel);}
+.screen{display:none;}
+.screen.active{display:block;}
+.card{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;}
+.card-header{padding:10px 14px;background:#f9f6f0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:700;color:var(--dark);}
+.card-body{padding:12px 14px;}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.metric{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:11px 13px;}
+.metric-lbl{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.metric-val{font-size:20px;font-weight:700;color:var(--dark);}
+.metric-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.prog-wrap{margin-bottom:10px;}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.prog-lbl{font-size:11px;font-weight:600;color:var(--dark);}
+.prog-pct{font-size:11px;color:var(--muted);}
+.prog-bar{height:7px;background:var(--light);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;background:var(--camel);transition:width .6s;}
+.prog-fill.good{background:var(--green);}
+.prog-fill.warn{background:#c8a870;}
+.rank-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.rank-item:last-child{border-bottom:none;}
+.rank-pos{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.r1{background:var(--camel);color:#5a4030;}
+.r2{background:var(--light);color:var(--muted);}
+.r3{background:var(--light);color:var(--muted);}
+.rank-info{flex:1;}
+.rank-name{font-size:13px;font-weight:700;}
+.rank-detail{font-size:10px;color:var(--muted);}
+.rank-total{text-align:right;}
+.rank-val{font-size:14px;font-weight:700;}
+.form-row{margin-bottom:10px;}
+.form-lbl{font-size:11px;font-weight:700;color:var(--mid);margin-bottom:4px;display:block;}
+select,input[type=number],input[type=text]{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card);color:var(--dark);}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pay-btn{padding:9px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;background:var(--card);text-align:center;}
+.pay-btn.on{border-color:var(--terra);color:var(--terra);background:#fdf5f2;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--card);}
+.toggle-row.on{border-color:#c8a870;background:#fdf8ee;}
+.toggle-title{font-size:12px;font-weight:700;color:var(--dark);}
+.toggle-sub{font-size:10px;color:var(--muted);}
+.toggle-sw{width:36px;height:20px;border-radius:10px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0;}
+.toggle-sw.on{background:#c8a870;}
+.toggle-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;}
+.toggle-knob.on{left:18px;}
+.preview-box{background:#f9f6f0;border-radius:8px;padding:9px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);}
+.preview-lbl{font-size:10px;color:var(--muted);}
+.preview-pct{font-size:10px;color:var(--muted);margin-top:1px;}
+.preview-val{font-size:16px;font-weight:700;color:var(--dark);}
+.btn-primary{width:100%;padding:11px;border:none;border-radius:8px;background:var(--dark);color:#f5f0e8;font-size:13px;font-weight:700;cursor:pointer;margin-top:2px;}
+.btn-primary:active{transform:scale(.98);}
+.btn-sec{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:12px;color:var(--muted);cursor:pointer;margin-top:8px;}
+.toast{display:none;background:var(--green);color:#fff;border-radius:8px;padding:8px 14px;text-align:center;font-size:12px;font-weight:600;margin-bottom:10px;}
+.toast.show{display:block;}
+.sale-item{border:1px solid var(--border);border-radius:8px;padding:9px 12px;background:var(--card);margin-bottom:6px;}
+.sale-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.sale-who{font-size:12px;font-weight:700;}
+.sale-meta{font-size:10px;color:var(--muted);margin-top:1px;}
+.sale-right{text-align:right;}
+.sale-val{font-size:14px;font-weight:700;}
+.sale-pay{font-size:10px;color:var(--muted);}
+.sale-bottom{display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+.sale-comm{font-size:11px;color:var(--muted);}
+.sale-tipo{font-size:10px;color:var(--muted);}
+.promo-pill{display:inline-block;font-size:9px;font-weight:700;background:#fdf8ee;color:#c8a070;border:1px solid #c8a070;border-radius:20px;padding:1px 5px;margin-left:4px;}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--border);font-size:18px;line-height:1;padding:0 2px;}
+.del-btn:hover{color:var(--terra);}
+.empty{text-align:center;padding:2rem 1rem;font-size:13px;color:var(--muted);}
+.comm-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
+.comm-table th{background:#f9f6f0;padding:8px 10px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+.comm-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--dark);}
+.comm-table tr:last-child td{border-bottom:none;}
+.pct-n{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#f5f0e8;color:#7a5c3a;}
+.pct-p{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#fdf8ee;color:#c8a070;}
+.vend-comm{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--card);margin-bottom:8px;}
+.vc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.vc-name{font-size:13px;font-weight:700;}
+.vc-total{font-size:14px;font-weight:700;}
+.vc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-top:8px;border-top:1px solid var(--border);}
+.vc-stat{text-align:center;}
+.vc-lbl{font-size:9px;color:var(--muted);margin-bottom:2px;}
+.vc-val{font-size:13px;font-weight:700;}
+
+/* CHECKLIST */
+.cl-intro{background:var(--dark);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;}
+.cl-accent{width:3px;background:var(--terra);border-radius:2px;align-self:stretch;flex-shrink:0;}
+.cl-txt{font-size:12px;color:#f5f0e8;line-height:1.7;}
+.cl-time{font-size:14px;font-weight:700;color:var(--camel);display:block;margin-top:2px;}
+.day-block{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+.day-block-hdr{padding:12px 14px;background:#f5f0e8;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.day-block-name{font-size:15px;font-weight:700;}
+.day-block-prog{font-size:11px;color:var(--muted);}
+.day-block-body{}
+.tg{border-bottom:1px solid var(--border);}
+.tg:last-child{border-bottom:none;}
+.tg-hdr{padding:9px 14px 6px;background:#faf7f2;}
+.tg-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--terra);}
+.tg-time{font-size:10px;color:var(--muted);margin-top:1px;}
+.ti{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.ti:hover{background:#faf7f2;}
+.ti.done{background:#f5f0e8;}
+.ti-cb{width:22px;height:22px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;background:#fff;transition:all .15s;}
+.ti.done .ti-cb{background:var(--green);border-color:var(--green);}
+.ti-txt{font-size:14px;color:var(--dark);line-height:1.5;flex:1;}
+.ti.done .ti-txt{color:var(--muted);text-decoration:line-through;}
+.prov-badge{display:inline-block;font-size:9px;font-weight:700;background:#2c2a26;color:#c8b89a;border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:middle;}
+.day-reset{font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;margin-left:8px;}
+.day-reset:hover{color:var(--terra);}
+.edit-bar{background:#fdf8ee;border:1px solid #e8d8a0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.edit-bar-txt{font-size:12px;color:#7a5c1a;font-weight:600;}
+.edit-bar-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid #c8a870;background:#fff;color:#7a5c1a;cursor:pointer;font-weight:700;white-space:nowrap;}
+.edit-bar-btn:hover{background:#fdf0d0;}
+.ti-edit-input{flex:1;font-size:14px;color:var(--dark);border:1px solid var(--camel);border-radius:6px;padding:5px 8px;background:#fff;outline:none;}
+.ti-edit-input:focus{border-color:var(--terra);}
+.ti.editing{background:#fffdf5 !important;cursor:default;}
+.edit-mode-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;margin-left:6px;}
+.edit-mode-btn:hover{border-color:var(--camel);color:#7a5c1a;}
+.edit-mode-btn.active{border-color:var(--camel);background:#fdf8ee;color:#7a5c1a;font-weight:700;}
+
+/* RITUAIS */
+.ritual-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;background:var(--card);}
+.ritual-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#f9f6f0;}
+.ritual-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ritual-day{font-size:14px;font-weight:700;color:var(--dark);}
+.ritual-time{font-size:11px;color:var(--muted);margin-left:auto;text-align:right;}
+.ritual-body{padding:14px;}
+.rsec{margin-bottom:14px;}
+.rsec:last-child{margin-bottom:0;}
+.rsec-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--terra);margin-bottom:8px;}
+.rstep{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);}
+.rstep:last-child{border-bottom:none;}
+.rn{font-size:12px;font-weight:700;color:var(--muted);width:22px;flex-shrink:0;padding-top:1px;}
+.rtxt{font-size:13px;color:var(--dark);line-height:1.5;}
+.rsub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.msg-box{background:#f5f0e8;border-radius:8px;padding:10px 12px;margin-top:8px;border:1px solid var(--border);}
+.msg-lbl{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.msg-txt{font-size:12px;color:var(--mid);line-height:1.8;}
+.cta-pill{display:inline-block;background:#f5f0e8;border:1px solid var(--border);border-radius:20px;padding:5px 11px;font-size:12px;color:var(--dark);margin:3px 3px 0 0;}
+.info-box{background:#f9f6f0;border-left:3px solid var(--camel);padding:10px 12px;border-radius:0 8px 8px 0;margin-top:8px;}
+.info-box p{font-size:13px;color:var(--mid);line-height:1.7;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">Heres</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span id="conn-status" style="font-size:9px;color:var(--camel);opacity:0;transition:opacity .5s;"></span>
+    <div class="topbar-date" id="topbar-date"></div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div id="s-painel" class="screen active">
+    <div class="metrics">
+      <div class="metric"><div class="metric-lbl">Hoje</div><div class="metric-val" id="m-hoje">R$ 0,00</div><div class="metric-sub" id="m-hoje-n">0 vendas</div></div>
+      <div class="metric"><div class="metric-lbl">Meta do dia</div><div class="metric-val" id="m-metadia">R$ 0,00</div><div class="metric-sub" id="m-metadia-f"></div></div>
+      <div class="metric"><div class="metric-lbl">Mês atual</div><div class="metric-val" id="m-mes">R$ 0,00</div><div class="metric-sub" id="m-mes-n">0 vendas</div></div>
+      <div class="metric"><div class="metric-lbl">Meta do mês</div><div class="metric-val" id="m-metames">R$ 0,00</div><div class="metric-sub" id="m-metames-f"></div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row"><span class="prog-lbl">Progresso do dia</span><span class="prog-pct" id="pct-dia">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="bar-dia" style="width:0%"></div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row"><span class="prog-lbl">Progresso do mês</span><span class="prog-pct" id="pct-mes">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="bar-mes" style="width:0%"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Ranking do mês</span></div>
+      <div class="card-body" id="ranking-list"></div>
+    </div>
+  </div>
+
+  <div id="s-venda" class="screen">
+    <div class="toast" id="toast-venda">Venda registrada!</div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Registrar venda</span></div>
+      <div class="card-body">
+        <div class="form-row"><label class="form-lbl">Vendedora</label>
+          <select id="f-vend"><option value="">Selecione...</option><option>Bruna</option><option>Ana</option><option>Jamile</option></select>
+        </div>
+        <div class="form-row"><label class="form-lbl">Valor (R$)</label>
+          <input type="number" id="f-val" placeholder="0,00" min="0" step="0.01" oninput="calcPreview()">
+        </div>
+        <div class="form-row"><label class="form-lbl">Nome do cliente (opcional)</label>
+          <input type="text" id="f-desc" placeholder="ex: Maria Silva">
+        </div>
+        <div class="form-row"><label class="form-lbl">Pagamento</label>
+          <div class="pay-grid">
+            <div class="pay-btn" onclick="selPay(this,'Pix','av')">Pix</div>
+            <div class="pay-btn" onclick="selPay(this,'Dinheiro','av')">Dinheiro</div>
+            <div class="pay-btn" onclick="selPay(this,'Cartão débito','cartao')">Cartão débito</div>
+            <div class="pay-btn" onclick="selPay(this,'Cartão crédito','cartao')">Cartão crédito</div>
+            <div class="pay-btn" onclick="selPay(this,'Boleto / parcelado','boleto')" style="grid-column:span 2;">Boleto / parcelado</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="toggle-row" id="desc-toggle" onclick="toggleDesc()">
+            <div><div class="toggle-title">Peça com desconto / promoção</div><div class="toggle-sub">Aplica tabela promocional</div></div>
+            <div class="toggle-sw" id="tsw"><div class="toggle-knob" id="tkn"></div></div>
+          </div>
+        </div>
+        <div class="preview-box">
+          <div><div class="preview-lbl">Comissão calculada</div><div class="preview-pct" id="prev-pct">Selecione pagamento e valor</div></div>
+          <div class="preview-val" id="prev-val">—</div>
+        </div>
+        <button class="btn-primary" onclick="registrar()">Registrar venda</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Vendas de hoje</span></div>
+      <div class="card-body" id="list-hoje"></div>
+    </div>
+  </div>
+
+  <div id="s-cal" class="screen">
+    <div class="cl-intro">
+      <div class="cl-accent"></div>
+      <div class="cl-txt" style="flex:1;">
+        <strong style="color:var(--camel);">Ana e Jamile</strong> — marcar cada tarefa ao concluir. Os dados ficam salvos.<br>
+        Stories da manhã até <span class="cl-time">10h30 — sem exceção.</span>
+      </div>
+      <button class="edit-mode-btn" id="edit-toggle-btn" onclick="promptEditMode()">Editar</button>
+    </div>
+    <div id="edit-bar-container"></div>
+    <div id="checklist-container"></div>
+  </div>
+
+  <div id="s-rituais" class="screen">
+    <div id="rituais-container"></div>
+  </div>
+
+  <div id="s-comm" class="screen">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Tabela de comissões</span></div>
+      <div class="card-body">
+        <table class="comm-table">
+          <thead><tr><th>Pagamento</th><th>Normal</th><th>Promoção</th></tr></thead>
+          <tbody>
+            <tr><td>Pix / Dinheiro (à vista)</td><td><span class="pct-n">5%</span></td><td><span class="pct-p">3%</span></td></tr>
+            <tr><td>Cartão débito / crédito</td><td><span class="pct-n">3%</span></td><td><span class="pct-p">2%</span></td></tr>
+            <tr><td>Boleto / parcelado</td><td><span class="pct-n">1%</span></td><td><span class="pct-p">1%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Comissões do mês</span></div>
+      <div class="card-body" id="comm-detalhe"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Configurar metas</span></div>
+      <div class="card-body">
+        <div class="toast" id="toast-config"></div>
+        <div class="form-row"><label class="form-lbl">Meta diária (R$)</label><input type="number" id="c-dia" placeholder="ex: 800" min="0"></div>
+        <div class="form-row"><label class="form-lbl">Meta mensal (R$)</label><input type="number" id="c-mes" placeholder="ex: 15000" min="0"></div>
+        <button class="btn-primary" onclick="salvarConfig()">Salvar metas</button>
+        <button class="btn-sec" onclick="limparMes()">Zerar dados do mês</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="navbar">
+  <button class="nav-btn active" onclick="nav('painel',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" fill="#f5f0e8"/><rect x="9" y="2" width="5" height="5" rx="1" fill="#f5f0e8"/><rect x="2" y="9" width="5" height="5" rx="1" fill="#f5f0e8"/><rect x="9" y="9" width="5" height="5" rx="1" fill="#f5f0e8"/></svg></div>
+    <div class="nav-label">Painel</div>
+  </button>
+  <button class="nav-btn" onclick="nav('venda',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="#f5f0e8" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="nav-label">Venda</div>
+  </button>
+  <button class="nav-btn" onclick="nav('cal',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#f5f0e8" stroke-width="1.3"/><path d="M3 6h10M6 2v2M10 2v2M5 9h2M9 9h2M5 12h2" stroke="#f5f0e8" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="nav-label">Checklist</div>
+  </button>
+  <button class="nav-btn" onclick="nav('rituais',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="#f5f0e8" stroke-width="1.4"/><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="#f5f0e8" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+    <div class="nav-label">Rituais</div>
+  </button>
+  <button class="nav-btn" onclick="nav('comm',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="#f5f0e8" stroke-width="1.5"/><path d="M8 5v1.5m0 3V11m-1.5-4.5h2.5a1 1 0 010 2H7a1 1 0 000 2h2.5" stroke="#f5f0e8" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+    <div class="nav-label">Comissões</div>
+  </button>
+</nav>
+
+<script>
+const COMM = { normal:{av:5,cartao:3,boleto:1}, promo:{av:3,cartao:2,boleto:1} };
+
+const WEEK_TASKS = [
+  { day:'Segunda-feira', color:'#a07060', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['Postar boas-vindas à semana','Postar loja organizada','Postar frase da marca'] },
+    { title:'Noite — Conteúdo', time:'18h', tasks:['Postar peça da semana em destaque','Mostrar o tecido da peça','Mostrar o caimento no corpo','Adicionar CTA no último slide'] },
+    { title:'Tarefas da loja', time:'durante o dia', tasks:['Limpeza completa da loja','Organizar araras por cor','Conferir etiquetas de preço','Verificar reposição de estoque'] },
+  ]},
+  { day:'Terça-feira', color:'#3a5878', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['Story educativo de estilo','Dica de estilo do dia','Mostrar exemplo de look'] },
+    { title:'Noite — Conteúdo de Provador', time:'18h', provador:true, tasks:['Gravar 5 a 8 looks vestidos no corpo','Mostrar o caimento de cada peça','Mostrar detalhes do tecido','Priorizar peças que precisam vender','Adicionar CTA em cada vídeo'] },
+    { title:'Tarefas da loja', time:'durante o dia', tasks:['Separar os looks antes das 15h','Organizar o provador','Escolher peças versáteis para gravar'] },
+  ]},
+  { day:'Quarta-feira', color:'#6a5a8a', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['Story de bastidores da loja','Mostrar ambiente da loja organizado','Mostrar organização das araras','Mostrar detalhes dos tecidos'] },
+    { title:'Noite — Conteúdo', time:'18h', tasks:['Story de engajamento','Publicar enquete com dois looks','Fazer pergunta de estilo para o público'] },
+    { title:'Tarefas da loja', time:'durante o dia', tasks:['Organizar estoque','Conferir peças vendidas','Separar peças para reposição'] },
+  ]},
+  { day:'Quinta-feira', color:'#3a6a48', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['1 peça, 3 formas de usar','Mostrar look de trabalho com a peça','Mostrar look casual com a peça','Mostrar look de noite com a peça'] },
+    { title:'Noite — Conteúdo', time:'18h', tasks:['Conteúdo educativo de estilo','Mostrar erro comum de guarda-roupa','Explicar a opção melhor','Adicionar CTA no final'] },
+    { title:'Tarefas da loja', time:'durante o dia', tasks:['Organizar provador','Conferir peças novas','Ajustar araras'] },
+  ]},
+  { day:'Sexta-feira', color:'#888078', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['Story de engajamento','Abrir caixa de perguntas','Perguntar o que o público quer ver'] },
+    { title:'Noite — Conteúdo de Provador', time:'18h', provador:true, tasks:['Gravar 5 looks diferentes dos da terça','Focar nas peças que precisam vender','Mostrar o caimento no corpo','Tirar fotos também além dos vídeos','Adicionar CTA em cada post'] },
+    { title:'Tarefas da loja', time:'durante o dia', tasks:['Preparar a loja para o sábado','Organizar a vitrine','Separar peças em destaque'] },
+  ]},
+  { day:'Sábado', color:'#c8a870', groups:[
+    { title:'Manhã — Conteúdo', time:'até 10h30', tasks:['Mostrar a vitrine do dia','Mostrar detalhes da vitrine','Convidar clientes para visitar','Adicionar link do WhatsApp no story'] },
+    { title:'Tarde — Conteúdo', time:'14h', tasks:['Story de bastidores — movimento na loja','Mostrar araras organizadas','Mostrar looks do dia'] },
+    { title:'Tarefas da loja + Planejamento', time:'antes de fechar', tasks:['Manter a loja organizada o dia todo','Repor peças experimentadas','Observar preferências das clientes','Definir temas da semana seguinte','Enviar plano da semana para Bruna'] },
+  ]},
+];
+
+const RITUAIS_DATA = [
+  { day:'Segunda-feira', color:'#a07060', time:'manhã 10h30 · noite 18h', sections:[
+    { title:'Manhã — até 10h30', steps:[
+      {n:'1',txt:'Fundo off-white, texto centralizado no primeiro slide',sub:'Escrever: "Mais uma semana para vestir com intenção."'},
+      {n:'2',txt:'Segundo slide: foto ou vídeo curto da loja organizada',sub:'Arara limpa, peças bem posicionadas, boa luz natural'},
+      {n:'3',txt:'Terceiro slide: frase da marca Heres',sub:'Fonte simples, sem filtro, sem gif exagerado'},
+      {n:'4',txt:'Último slide: CTA',sub:'Ex: "Fica de olho essa semana" ou "Manda mensagem"'},
+    ]},
+    { title:'18h — peça da semana', steps:[
+      {n:'1',txt:'Escolher a peça principal — priorizar a que tem mais estoque',sub:''},
+      {n:'2',txt:'Montar look completo: peça base + principal + toque final',sub:''},
+      {n:'3',txt:'Gravar o tecido de perto — câmera a 20cm da peça',sub:'Luz natural, sem sombra, sem zoom digital'},
+      {n:'4',txt:'Gravar vestida mostrando o caimento — câmera no tripé',sub:'Corpo inteiro visível, luz frontal'},
+      {n:'5',txt:'CTA no último slide',sub:'Ex: "Disponível na loja. Manda mensagem pra reservar."'},
+    ]},
+  ]},
+  { day:'Terça-feira', color:'#3a5878', time:'manhã 10h30 · provador 18h', sections:[
+    { title:'Manhã — até 10h30', steps:[
+      {n:'1',txt:'Primeiro slide: dica de estilo direta e objetiva',sub:'Ex: "Uma camisa aberta por cima muda qualquer look."'},
+      {n:'2',txt:'Segundo slide: foto do look aplicando a dica',sub:'Look completo, fundo limpo, boa iluminação'},
+      {n:'3',txt:'Terceiro slide: CTA com enquete',sub:'Ex: "Qual look você escolheria? A ou B?"'},
+    ]},
+    { title:'18h — BLOCO DE GRAVAÇÃO NO PROVADOR', steps:[
+      {n:'1',txt:'Separar as peças antes das 15h — 5 a 8 looks completos',sub:'Priorizar peças que têm mais estoque ou precisam vender'},
+      {n:'2',txt:'Organizar o provador: fundo limpo, espelho visível, luz acesa',sub:'Retirar tudo que não deve aparecer no fundo'},
+      {n:'3',txt:'Câmera no tripé, enquadramento de corpo inteiro',sub:'Testar antes de começar — garantir que tudo aparece'},
+      {n:'4',txt:'Para cada look: gravar 15 a 30 segundos',sub:'Mostrar de frente, girar de lado, mostrar detalhe do tecido'},
+      {n:'5',txt:'Abrir cada vídeo com gancho direto',sub:'Ex: "Esse look resolve qualquer reunião." — nunca "oi gente"'},
+      {n:'6',txt:'CTA no final de cada vídeo',sub:'Ex: "Disponível aqui na loja. Manda mensagem."'},
+    ]},
+  ]},
+  { day:'Quarta-feira', color:'#6a5a8a', time:'manhã 10h30 · tarde 18h', sections:[
+    { title:'Manhã — bastidores', steps:[
+      {n:'1',txt:'Gravar a loja antes de abrir — araras arrumadas, chão limpo',sub:''},
+      {n:'2',txt:'Câmera passando devagar pelas peças nas araras',sub:'5 a 8 segundos por arara — movimento lento e intencional'},
+      {n:'3',txt:'Close no detalhe de tecido de uma peça específica',sub:'Viscose, linho, canelado — mostrar a textura de perto'},
+      {n:'4',txt:'CTA: convidar para visitar',sub:'Ex: "Fica ainda melhor pessoalmente. Vem conhecer."'},
+    ]},
+    { title:'18h — engajamento', steps:[
+      {n:'1',txt:'Postar dois looks lado a lado com a mesma peça',sub:'Mesma peça, duas combinações diferentes'},
+      {n:'2',txt:'Adicionar enquete: "Qual você escolhe? A ou B?"',sub:'Sticker de enquete do Instagram — fácil de votar'},
+      {n:'3',txt:'Fazer pergunta de estilo para o público',sub:'Ex: "Qual é sua maior dificuldade na hora de se vestir?"'},
+    ]},
+  ]},
+  { day:'Quinta-feira', color:'#3a6a48', time:'manhã 10h30 · tarde 18h', sections:[
+    { title:'Manhã — 1 peça, 3 formas', steps:[
+      {n:'1',txt:'Escolher uma peça versátil — camisa, blazer ou calça neutra',sub:''},
+      {n:'2',txt:'Primeiro slide: "Uma peça. Três contextos diferentes."',sub:'Fundo limpo, fonte simples'},
+      {n:'3',txt:'Look 1 — trabalho: foto ou vídeo completo + legenda curta',sub:'Ex: "Trabalho — com calça preta e cinto camel."'},
+      {n:'4',txt:'Look 2 — casual: mesma peça, combinação diferente',sub:'Ex: "Casual — com jeans e tênis branco."'},
+      {n:'5',txt:'Look 3 — noite: terceira combinação',sub:'Ex: "Noite — com calça bege e sandália."'},
+      {n:'6',txt:'CTA no último slide',sub:'Ex: "Disponível na loja. Manda mensagem pra reservar."'},
+    ]},
+    { title:'18h — conteúdo educativo', steps:[
+      {n:'1',txt:'Mostrar um erro comum de guarda-roupa',sub:'Ex: misturar 3+ cores, peça amassada, look sem toque final'},
+      {n:'2',txt:'Mostrar a versão corrigida — mesmo look, ajuste simples',sub:'A diferença deve ser visível e óbvia'},
+      {n:'3',txt:'Explicar o motivo em 1 frase clara',sub:'Máximo 2 linhas no slide — direto ao ponto'},
+      {n:'4',txt:'CTA: convidar para visitar e experimentar',sub:'Ex: "Vem experimentar. A gente ajuda a montar o look."'},
+    ]},
+  ]},
+  { day:'Sexta-feira', color:'#888078', time:'manhã 10h30 · provador 18h', sections:[
+    { title:'Manhã — engajamento', steps:[
+      {n:'1',txt:'Abrir caixa de perguntas — sticker "Perguntas" do Instagram',sub:''},
+      {n:'2',txt:'Texto do slide: "O que você quer ver por aqui?"',sub:'Fundo neutro, fonte legível'},
+      {n:'3',txt:'Responder uma pergunta da semana anterior',sub:'Mostra que a marca ouve — fideliza o público'},
+    ]},
+    { title:'18h — PROVADOR — looks diferentes da terça', steps:[
+      {n:'1',txt:'Gravar 5 looks com combinações diferentes das da terça',sub:'Trocar as combinações, não necessariamente as peças'},
+      {n:'2',txt:'Focar nas peças com mais estoque ou mais urgentes',sub:'Verificar o estoque antes de começar a gravar'},
+      {n:'3',txt:'Tirar fotos além dos vídeos',sub:'Foto estática funciona bem como post de feed — fundo limpo'},
+      {n:'4',txt:'Gravar o caimento em movimento — andar na frente da câmera',sub:''},
+      {n:'5',txt:'CTA em cada vídeo e foto',sub:'Ex: "Clica no link do WhatsApp pra perguntar o tamanho."'},
+    ]},
+  ]},
+  { day:'Sábado', color:'#c8a870', time:'manhã 10h30 · tarde 14h · planejamento ao fechar', sections:[
+    { title:'Manhã — vitrine', steps:[
+      {n:'1',txt:'Fotografar a vitrine antes de abrir',sub:'Luz natural, câmera estável, evitar reflexo no vidro'},
+      {n:'2',txt:'Mostrar os detalhes das peças em destaque',sub:'Close no tecido, etiqueta não deve aparecer'},
+      {n:'3',txt:'Convidar para visitar',sub:'Ex: "Fica ainda mais bonita pessoalmente. Vem visitar."'},
+      {n:'4',txt:'Adicionar link do WhatsApp no story',sub:'Sticker LINK → colar o link → escrever "Falar no WhatsApp"'},
+    ]},
+    { title:'Tarde 14h — bastidores', steps:[
+      {n:'1',txt:'Gravar o movimento da loja',sub:'Espontâneo e leve — mostrar araras, looks do dia'},
+      {n:'2',txt:'Mostrar araras organizadas mesmo durante o movimento',sub:''},
+      {n:'3',txt:'Mostrar os looks mais experimentados do dia',sub:'O que mais agradou as clientes hoje?'},
+    ]},
+    { title:'Antes de fechar — planejamento semana seguinte', steps:[
+      {n:'1',txt:'Definir o tema de cada post da semana que vem',sub:''},
+      {n:'2',txt:'Montar e enviar a mensagem de plano para Bruna',sub:'"Seg — [formato]: [tema] / Ter — ... etc. Confirma?"'},
+      {n:'3',txt:'Aguardar confirmação de Bruna antes de produzir',sub:'Ninguém posta sem o ok da Bruna'},
+    ]},
+  ]},
+];
+
+let ST = { vendas:[], config:{metaDia:800,metaMes:15000}, checklist:{} };
+let payLbl='', payTipo='', descOn=false;
+let db = null;
+
+function initFirebase(){
+  try{
+    firebase.initializeApp({
+      apiKey:"AIzaSyC6dOhUnAmn3YuCN74jHWz5EsfoaI9yYLc",
+      authDomain:"heres-app-3e71f.firebaseapp.com",
+      projectId:"heres-app-3e71f",
+      storageBucket:"heres-app-3e71f.firebasestorage.app",
+      messagingSenderId:"155615760966",
+      appId:"1:155615760966:web:9a642d8b3205104f1cf047"
+    });
+    db = firebase.firestore();
+
+    db.collection('heres').doc('vendas').onSnapshot(snap=>{
+      ST.vendas = snap.exists ? (snap.data().list||[]) : [];
+      renderPainel(); renderHoje(); renderComm();
+    });
+    db.collection('heres').doc('config').onSnapshot(snap=>{
+      if(snap.exists) ST.config = snap.data();
+      renderPainel();
+      const cd=document.getElementById('c-dia'); const cm=document.getElementById('c-mes');
+      if(cd) cd.value=ST.config.metaDia; if(cm) cm.value=ST.config.metaMes;
+    });
+    db.collection('heres').doc('checklist').onSnapshot(snap=>{
+      ST.checklist = snap.exists ? (snap.data()||{}) : {};
+      buildChecklist();
+    });
+    db.collection('heres').doc('customTasks').onSnapshot(snap=>{
+      if(snap.exists && snap.data().tasks){ applyCustomTasks(snap.data().tasks); buildChecklist(); }
+    });
+    showStatus('Conectado');
+  }catch(e){
+    showStatus('Offline');
+    loadLocal(); renderPainel(); renderHoje(); buildChecklist();
+  }
+}
+
+function showStatus(msg){
+  const el=document.getElementById('conn-status');
+  if(el){ el.textContent=msg; el.style.opacity='1'; setTimeout(()=>el.style.opacity='0',3000); }
+}
+
+async function save(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('vendas').set({list:ST.vendas}); }catch(e){ saveLocal(); }
+}
+async function saveConfig(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('config').set(ST.config); }catch(e){ saveLocal(); }
+}
+async function saveChecklist(){
+  if(!db){ saveLocal(); return; }
+  try{ await db.collection('heres').doc('checklist').set(ST.checklist||{}); }catch(e){ saveLocal(); }
+}
+async function saveCustomTasksCloud(){
+  if(!db) return;
+  try{ const custom=WEEK_TASKS.map(d=>d.groups.map(g=>[...g.tasks])); await db.collection('heres').doc('customTasks').set({tasks:custom}); }catch(e){}
+}
+function saveLocal(){ try{ localStorage.setItem('heres_v4',JSON.stringify(ST)); }catch(e){} }
+function loadLocal(){ try{ const s=localStorage.getItem('heres_v4'); if(s){ const d=JSON.parse(s); ST.vendas=d.vendas||[]; ST.config=d.config||{metaDia:800,metaMes:15000}; ST.checklist=d.checklist||{}; } }catch(e){} }
+function fmt(v){ return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function weekKey(){ const d=new Date(); const day=d.getDay(); const diff=d.getDate()-day+(day===0?-6:1); return new Date(d.setDate(diff)).toISOString().split('T')[0]; }
+
+function nav(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='painel') renderPainel();
+  if(id==='venda') renderHoje();
+  if(id==='comm') renderComm();
+}
+
+function selPay(el,lbl,tipo){ document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); payLbl=lbl; payTipo=tipo; calcPreview(); }
+function toggleDesc(){
+  descOn=!descOn;
+  document.getElementById('desc-toggle').classList.toggle('on',descOn);
+  document.getElementById('tsw').classList.toggle('on',descOn);
+  document.getElementById('tkn').classList.toggle('on',descOn);
+  calcPreview();
+}
+function calcPreview(){
+  const v=parseFloat(document.getElementById('f-val').value)||0;
+  if(!payTipo||!v){ document.getElementById('prev-pct').textContent='Selecione pagamento e valor'; document.getElementById('prev-val').textContent='—'; return; }
+  const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
+  document.getElementById('prev-pct').textContent=pct+'% · '+(descOn?'promoção':'normal');
+  document.getElementById('prev-val').textContent=fmt(v*pct/100);
+}
+function registrar(){
+  const vend=document.getElementById('f-vend').value;
+  const val=parseFloat(document.getElementById('f-val').value);
+  const desc=document.getElementById('f-desc').value;
+  if(!vend||!val||val<=0||!payLbl){ alert('Preencha vendedora, valor e pagamento.'); return; }
+  const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
+  ST.vendas.push({id:Date.now(),vendedora:vend,valor:val,descricao:desc,pagamento:payLbl,payTipo,desconto:descOn,commPct:pct,commVal:val*pct/100,data:today(),hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+  save();
+  document.getElementById('f-vend').value=''; document.getElementById('f-val').value=''; document.getElementById('f-desc').value='';
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on')); payLbl=''; payTipo='';
+  if(descOn) toggleDesc();
+  document.getElementById('prev-pct').textContent='Selecione pagamento e valor'; document.getElementById('prev-val').textContent='—';
+  const t=document.getElementById('toast-venda'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
+}
+function deletar(id){ ST.vendas=ST.vendas.filter(v=>v.id!==id); save(); }
+
+function renderPainel(){
+  const td=today();
+  const vH=ST.vendas.filter(v=>v.data===td); const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
+  const tH=vH.reduce((a,v)=>a+v.valor,0); const tM=vM.reduce((a,v)=>a+v.valor,0);
+  const {metaDia,metaMes}=ST.config;
+  document.getElementById('m-hoje').textContent=fmt(tH);
+  document.getElementById('m-hoje-n').textContent=vH.length+' venda'+(vH.length!==1?'s':'');
+  document.getElementById('m-metadia').textContent=fmt(metaDia);
+  document.getElementById('m-metadia-f').textContent=Math.max(0,metaDia-tH)>0?'Faltam '+fmt(Math.max(0,metaDia-tH)):'Meta atingida!';
+  document.getElementById('m-mes').textContent=fmt(tM);
+  document.getElementById('m-mes-n').textContent=vM.length+' venda'+(vM.length!==1?'s':'');
+  document.getElementById('m-metames').textContent=fmt(metaMes);
+  document.getElementById('m-metames-f').textContent=Math.max(0,metaMes-tM)>0?'Faltam '+fmt(Math.max(0,metaMes-tM)):'Meta atingida!';
+  const pD=metaDia>0?Math.min(100,Math.round(tH/metaDia*100)):0;
+  const pM=metaMes>0?Math.min(100,Math.round(tM/metaMes*100)):0;
+  document.getElementById('pct-dia').textContent=pD+'%'; document.getElementById('pct-mes').textContent=pM+'%';
+  const bD=document.getElementById('bar-dia'); bD.style.width=pD+'%'; bD.className='prog-fill'+(pD>=100?' good':pD>=60?' warn':'');
+  const bM=document.getElementById('bar-mes'); bM.style.width=pM+'%'; bM.className='prog-fill'+(pM>=100?' good':pM>=60?' warn':'');
+  const rank=['Bruna','Ana','Jamile'].map(n=>{const vs=vM.filter(v=>v.vendedora===n);return{n,t:vs.reduce((a,v)=>a+v.valor,0),c:vs.reduce((a,v)=>a+v.commVal,0),q:vs.length};}).sort((a,b)=>b.t-a.t);
+  document.getElementById('ranking-list').innerHTML=rank.map((r,i)=>`<div class="rank-item"><div class="rank-pos ${['r1','r2','r3'][i]}">${['1º','2º','3º'][i]}</div><div class="rank-info"><div class="rank-name">${r.n}</div><div class="rank-detail">${r.q} venda${r.q!==1?'s':''} · comissão ${fmt(r.c)}</div></div><div class="rank-total"><div class="rank-val">${fmt(r.t)}</div></div></div>`).join('');
+}
+
+function renderHoje(){
+  const td=today(); const v=ST.vendas.filter(x=>x.data===td).sort((a,b)=>b.id-a.id);
+  const el=document.getElementById('list-hoje');
+  if(!v.length){ el.innerHTML='<div class="empty">Nenhuma venda hoje ainda.</div>'; return; }
+  el.innerHTML=v.map(x=>`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}</div><div class="sale-meta">${x.hora}${x.descricao?' · Cliente: '+x.descricao:''}</div></div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão ${x.commPct}% = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`).join('');
+}
+
+// CHECKLIST
+function clKey(di,gi,ti){ return weekKey()+'_'+di+'_'+gi+'_'+ti; }
+function isDone(di,gi,ti){ return !!(ST.checklist&&ST.checklist[clKey(di,gi,ti)]); }
+function setDone(di,gi,ti,v){ if(!ST.checklist) ST.checklist={}; ST.checklist[clKey(di,gi,ti)]=v; saveChecklist(); }
+
+function toggleTask(di,gi,ti){
+  const k='t'+di+'_'+gi+'_'+ti;
+  const newVal=!isDone(di,gi,ti);
+  setDone(di,gi,ti,newVal);
+  const item=document.getElementById('ti'+k);
+  const cb=document.getElementById('cb'+k);
+  if(item) item.classList.toggle('done',newVal);
+  if(cb) cb.innerHTML=newVal?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
+  updateProg(di);
+}
+function updateProg(di){
+  const day=WEEK_TASKS[di]; let tot=0,done=0;
+  day.groups.forEach((g,gi)=>g.tasks.forEach((_,ti)=>{ tot++; if(isDone(di,gi,ti)) done++; }));
+  const el=document.getElementById('prog'+di);
+  if(el) el.textContent=done+'/'+tot+' concluídas';
+}
+function resetDay(di){
+  if(!confirm('Zerar todas as tarefas deste dia?')) return;
+  WEEK_TASKS[di].groups.forEach((g,gi)=>g.tasks.forEach((_,ti)=>{
+    setDone(di,gi,ti,false);
+    const k='t'+di+'_'+gi+'_'+ti;
+    const item=document.getElementById('ti'+k);
+    const cb=document.getElementById('cb'+k);
+    if(item) item.classList.remove('done');
+    if(cb) cb.innerHTML='';
+  }));
+  updateProg(di);
+}
+function toggleDayOpen(di){
+  const body=document.getElementById('db'+di);
+  if(body) body.style.display=body.style.display==='none'?'':'none';
+}
+
+// EDIT MODE
+const EDIT_PASS = '1234';
+let editMode = false;
+
+function promptEditMode(){
+  if(editMode){ exitEditMode(); return; }
+  const pw = prompt('Senha para editar o checklist:');
+  if(pw === null) return;
+  if(pw !== EDIT_PASS){ alert('Senha incorreta.'); return; }
+  editMode = true;
+  document.getElementById('edit-toggle-btn').textContent = 'Sair da edição';
+  document.getElementById('edit-toggle-btn').classList.add('active');
+  document.getElementById('edit-bar-container').innerHTML =
+    `<div class="edit-bar"><span class="edit-bar-txt">Modo edição ativo — clique no texto de qualquer tarefa para editar.</span><button class="edit-bar-btn" onclick="exitEditMode()">Concluir</button></div>`;
+  buildChecklist();
+}
+
+function exitEditMode(){
+  editMode = false;
+  document.getElementById('edit-toggle-btn').textContent = 'Editar';
+  document.getElementById('edit-toggle-btn').classList.remove('active');
+  document.getElementById('edit-bar-container').innerHTML = '';
+  buildChecklist();
+}
+
+function startEditTask(di, gi, ti){
+  if(!editMode) return;
+  const k = 't'+di+'_'+gi+'_'+ti;
+  const item = document.getElementById('ti'+k);
+  const txtEl = item.querySelector('.ti-txt');
+  const current = WEEK_TASKS[di].groups[gi].tasks[ti];
+  item.classList.add('editing');
+  item.onclick = null;
+  txtEl.innerHTML = `<input class="ti-edit-input" id="inp${k}" value="${current.replace(/"/g,'&quot;')}" onblur="saveEditTask(${di},${gi},${ti})" onkeydown="if(event.key==='Enter')this.blur();" />`;
+  const inp = document.getElementById('inp'+k);
+  inp.focus(); inp.select();
+}
+
+function saveEditTask(di, gi, ti){
+  const k = 't'+di+'_'+gi+'_'+ti;
+  const inp = document.getElementById('inp'+k);
+  if(!inp) return;
+  const newVal = inp.value.trim();
+  if(newVal) WEEK_TASKS[di].groups[gi].tasks[ti] = newVal;
+  saveCustomTasks();
+  buildChecklist();
+}
+
+function saveCustomTasks(){ saveCustomTasksCloud(); }
+
+function applyCustomTasks(custom){
+  custom.forEach((dayTasks,di)=>{
+    if(!WEEK_TASKS[di]) return;
+    dayTasks.forEach((groupTasks,gi)=>{
+      if(!WEEK_TASKS[di].groups[gi]) return;
+      groupTasks.forEach((task,ti)=>{
+        if(WEEK_TASKS[di].groups[gi].tasks[ti]!==undefined)
+          WEEK_TASKS[di].groups[gi].tasks[ti]=task;
+      });
+    });
+  });
+}
+
+function loadCustomTasks(){
+  try {
+    const s = localStorage.getItem('heres_tasks_custom');
+    if(!s) return;
+    const custom = JSON.parse(s);
+    applyCustomTasks(custom);
+  } catch(e){}
+}
+
+function buildChecklist(){
+  const container=document.getElementById('checklist-container');
+  const wk=weekKey();
+  // Clean old checklist data (keep only current week)
+  if(ST.checklist){
+    Object.keys(ST.checklist).forEach(k=>{ if(!k.startsWith(wk)) delete ST.checklist[k]; });
+    save();
+  }
+  container.innerHTML=WEEK_TASKS.map((day,di)=>{
+    let tot=0,done=0;
+    day.groups.forEach((g,gi)=>g.tasks.forEach((_,ti)=>{ tot++; if(isDone(di,gi,ti)) done++; }));
+    const groupsHTML=day.groups.map((g,gi)=>{
+      const tasksHTML=g.tasks.map((task,ti)=>{
+        const d=isDone(di,gi,ti);
+        const k='t'+di+'_'+gi+'_'+ti;
+        const pb=g.provador?'<span class="prov-badge">provador</span>':'';
+        const clickHandler = editMode
+          ? `onclick="startEditTask(${di},${gi},${ti})"`
+          : `onclick="toggleTask(${di},${gi},${ti})"`;
+        const cbHTML = editMode
+          ? `<div class="ti-cb" style="background:var(--bg);border-color:var(--border);cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2v6" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/></svg></div>`
+          : `<div class="ti-cb" id="cb${k}">${d?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>`;
+        return`<div class="${'ti'+(d&&!editMode?' done':'')+( editMode?' editing':'')}" id="ti${k}" ${clickHandler}>${cbHTML}<div class="ti-txt">${task}${pb}</div></div>`;
+      }).join('');
+      const gtitle=g.title+(g.provador?' <span style="font-size:9px;background:#2c2a26;color:#c8b89a;border-radius:3px;padding:1px 5px;margin-left:4px;font-weight:700;letter-spacing:0;text-transform:none;">PROVADOR</span>':'');
+      return`<div class="tg"><div class="tg-hdr"><div class="tg-title">${gtitle}</div><div class="tg-time">${g.time}</div></div>${tasksHTML}</div>`;
+    }).join('');
+    return`<div class="day-block"><div class="day-block-hdr" onclick="toggleDayOpen(${di})"><span class="day-block-name" style="color:${day.color};">${day.day}</span><div style="display:flex;align-items:center;gap:6px;"><span class="day-block-prog" id="prog${di}">${done}/${tot} concluídas</span><button class="day-reset" onclick="event.stopPropagation();resetDay(${di})">zerar</button></div></div><div class="day-block-body" id="db${di}">${groupsHTML}</div></div>`;
+  }).join('');
+}
+
+function buildRituais(){
+  const container=document.getElementById('rituais-container');
+  const infoHTML=`
+  <div class="ritual-card">
+    <div class="ritual-hdr" style="background:#fdf8ee;">
+      <div class="ritual-dot" style="background:#c8a870;"></div>
+      <div class="ritual-day">O que é CTA?</div>
+      <div class="ritual-time">regra obrigatória</div>
+    </div>
+    <div class="ritual-body">
+      <div class="rsec">
+        <div class="rsec-title">Definição</div>
+        <p style="font-size:13px;color:var(--dark);line-height:1.7;">CTA significa <strong>Call to Action</strong> — pedir para a cliente tomar uma ação. Sem CTA, a pessoa vê o story e vai embora sem fazer nada.</p>
+        <div class="info-box"><p><strong>Regra:</strong> todo story deve terminar com um CTA. Sempre. Sem exceção.</p></div>
+      </div>
+      <div class="rsec">
+        <div class="rsec-title">Exemplos de CTA para usar</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">
+          <span class="cta-pill">Manda mensagem</span><span class="cta-pill">Clica no WhatsApp</span><span class="cta-pill">Pergunta o tamanho</span><span class="cta-pill">Vem visitar a loja</span><span class="cta-pill">Responde esse story</span><span class="cta-pill">Salva pra não esquecer</span><span class="cta-pill">Marca uma amiga</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ritual-card">
+    <div class="ritual-hdr" style="background:#eef4fa;">
+      <div class="ritual-dot" style="background:#3a5878;"></div>
+      <div class="ritual-day">Como colocar link do WhatsApp no story</div>
+      <div class="ritual-time">passo a passo</div>
+    </div>
+    <div class="ritual-body">
+      <div class="rsec">
+        <div class="rsec-title">Passo a passo</div>
+        <div class="rstep"><div class="rn">1</div><div><div class="rtxt">Abrir o Instagram e criar um novo story</div></div></div>
+        <div class="rstep"><div class="rn">2</div><div><div class="rtxt">Clicar no ícone de figurinhas (smile com estrelinhas)</div></div></div>
+        <div class="rstep"><div class="rn">3</div><div><div class="rtxt">Selecionar <strong>LINK</strong></div></div></div>
+        <div class="rstep"><div class="rn">4</div><div><div class="rtxt">Colar o link do WhatsApp da loja</div></div></div>
+        <div class="rstep"><div class="rn">5</div><div><div class="rtxt">Escrever o texto do botão (opções abaixo)</div></div></div>
+      </div>
+      <div class="rsec">
+        <div class="rsec-title">Formato do link</div>
+        <div class="msg-box"><div class="msg-lbl">Link</div><div class="msg-txt" style="font-family:monospace;font-style:normal;">https://wa.me/55XXXXXXXXXXX</div><div class="msg-txt" style="margin-top:4px;">Substitua os X pelo número com DDD.<br>Ex: https://wa.me/5511999999999</div></div>
+      </div>
+      <div class="rsec">
+        <div class="rsec-title">Textos para o botão</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"><span class="cta-pill">Falar no WhatsApp</span><span class="cta-pill">Pedir tamanho</span><span class="cta-pill">Quero essa peça</span><span class="cta-pill">Ver disponibilidade</span></div>
+      </div>
+    </div>
+  </div>`;
+
+  const dayHTML=RITUAIS_DATA.map(r=>{
+    const secsHTML=r.sections.map(sec=>{
+      const stepsHTML=sec.steps.map(s=>`<div class="rstep"><div class="rn">${s.n}</div><div><div class="rtxt">${s.txt}</div>${s.sub?`<div class="rsub">${s.sub}</div>`:''}</div></div>`).join('');
+      return`<div class="rsec"><div class="rsec-title">${sec.title}</div>${stepsHTML}</div>`;
+    }).join('');
+    return`<div class="ritual-card"><div class="ritual-hdr"><div class="ritual-dot" style="background:${r.color};"></div><div class="ritual-day">${r.day}</div><div class="ritual-time">${r.time}</div></div><div class="ritual-body">${secsHTML}</div></div>`;
+  }).join('');
+
+  container.innerHTML=infoHTML+dayHTML;
+}
+
+function renderComm(){
+  const td=today(); const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
+  document.getElementById('comm-detalhe').innerHTML=['Bruna','Ana','Jamile'].map(nome=>{
+    const vs=vM.filter(v=>v.vendedora===nome);
+    const tot=vs.reduce((a,v)=>a+v.valor,0); const comm=vs.reduce((a,v)=>a+v.commVal,0);
+    const norm=vs.filter(v=>!v.desconto).reduce((a,v)=>a+v.commVal,0);
+    const prom=vs.filter(v=>v.desconto).reduce((a,v)=>a+v.commVal,0);
+    return`<div class="vend-comm"><div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total">${fmt(comm)}</div></div><div class="vc-grid"><div class="vc-stat"><div class="vc-lbl">Vendas</div><div class="vc-val">${fmt(tot)}</div></div><div class="vc-stat"><div class="vc-lbl">Normal</div><div class="vc-val" style="color:#7a5c3a;">${fmt(norm)}</div></div><div class="vc-stat"><div class="vc-lbl">Promoção</div><div class="vc-val" style="color:#c8a070;">${fmt(prom)}</div></div></div></div>`;
+  }).join('');
+  document.getElementById('c-dia').value=ST.config.metaDia;
+  document.getElementById('c-mes').value=ST.config.metaMes;
+}
+
+function salvarConfig(){
+  ST.config.metaDia=parseFloat(document.getElementById('c-dia').value)||800;
+  ST.config.metaMes=parseFloat(document.getElementById('c-mes').value)||15000;
+  saveConfig();
+  const t=document.getElementById('toast-config'); t.textContent='Metas salvas!'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
+}
+function limparMes(){
+  if(confirm('Zerar todas as vendas do mês?')){
+    const td=today().slice(0,7); ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));
+    save();
+  }
+}
+
+const d=new Date();
+document.getElementById('topbar-date').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+buildRituais();
+initFirebase();
+</script>
+</body>
+</html>
