@@ -539,7 +539,7 @@ const REL_SENHA = '2007';
 const META_PIN = '1234';
 
 let ST = { vendas:[], config:{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}}}, checklist:{} };
-let CX = { entradas:[], saidas:[] }; // caixa do dia (Firestore por dia)
+let CX = { entradas:[], saidas:[] };
 let payLbl='', payTipo='', descOn=null;
 let cxCat='', cxPagSaida='';
 let db = null;
@@ -569,7 +569,6 @@ function initFirebase(){
       if(snap.exists){
         const d=snap.data();
         ST.config.metas = d.metas || {Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}};
-        // compatibilidade com config antigo (metaDia/metaMes global)
         if(d.metaDia && !d.metas) VENDEDORAS.forEach(v=>{ST.config.metas[v]={dia:d.metaDia,mes:d.metaMes||0};});
       }
       renderPainel(); buildMetasForm();
@@ -584,7 +583,6 @@ function initFirebase(){
     db.collection('heres').doc('customRituais').onSnapshot(snap=>{
       if(snap.exists && snap.data().rituais){ applyCustomRituais(snap.data().rituais); buildRituais(); }
     });
-    // caixa do dia
     const cxKey = 'caixa_' + today();
     db.collection('heres_caixa').doc(cxKey).onSnapshot(snap=>{
       if(snap.exists){ const d=snap.data(); CX.entradas=d.entradas||[]; CX.saidas=d.saidas||[]; }
@@ -628,8 +626,24 @@ function loadLocal(){try{const s=localStorage.getItem('heres_v5');if(s){const d=
 
 function fmt(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtN(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
-function today(){return new Date().toISOString().split('T')[0];}
-function weekKey(){const d=new Date();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().split('T')[0];}
+
+// ─── CORREÇÃO 1: today() e weekKey() com fuso de Brasília ───
+function today(){
+  return new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})
+    .split('/').reverse().join('-');
+}
+function weekKey(){
+  const now = new Date();
+  const brt = new Date(now.toLocaleString('en-US',{timeZone:'America/Sao_Paulo'}));
+  const day = brt.getDay();
+  const diff = brt.getDate() - day + (day===0?-6:1);
+  const seg = new Date(brt);
+  seg.setDate(diff);
+  const y = seg.getFullYear();
+  const m = String(seg.getMonth()+1).padStart(2,'0');
+  const d = String(seg.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+d;
+}
 
 // ─── NAV ────────────────────────────────────────────────────
 function nav(id,btn){
@@ -672,7 +686,6 @@ function registrar(){
   if(!vend||!val||val<=0||!payLbl){alert('Preencha vendedora, valor e pagamento.');return;}
   if(descOn===null){alert('Informe se a peça tem desconto ou promoção (campo obrigatório *).');return;}
   const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
-  // mapear pagamento para id caixa
   const pagMap={'Pix':'pix','Dinheiro':'dinheiro','Cartão débito':'debito','Cartão crédito':'credito','Boleto / parcelado':'boleto'};
   ST.vendas.push({id:Date.now(),vendedora:vend,valor:val,descricao:desc,pagamento:payLbl,payTipo,pagId:pagMap[payLbl]||'',desconto:descOn,commPct:pct,commVal:val*pct/100,data:today(),hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
   save();
@@ -696,7 +709,6 @@ function renderPainel(){
   document.getElementById('m-mes').textContent=fmt(tM);
   document.getElementById('m-mes-n').textContent=vM.length+' venda'+(vM.length!==1?'s':'');
 
-  // progresso individual do dia
   const progEl=document.getElementById('painel-prog-dia');
   progEl.innerHTML=VENDEDORAS.map(nome=>{
     const vv=vH.filter(v=>v.vendedora===nome);
@@ -711,7 +723,6 @@ function renderPainel(){
     </div>`;
   }).join('');
 
-  // ranking do mês com % da meta
   const rank=VENDEDORAS.map(n=>{
     const vs=vM.filter(v=>v.vendedora===n);
     const t=vs.reduce((a,v)=>a+v.valor,0);
@@ -827,7 +838,6 @@ function renderCaixa(){
   const sEl=document.getElementById('cx-saldo');
   sEl.textContent=fmt(saldo);sEl.className='val '+(saldo>=0?'green':'red');
 
-  // breakdown por pagamento
   const bdEl=document.getElementById('cx-pag-bd');
   bdEl.innerHTML=PAGS_CX.map(p=>{
     const deVendas=vendasHoje.filter(v=>v.pagId===p.id).reduce((a,v)=>a+v.valor,0);
@@ -842,7 +852,6 @@ function renderCaixa(){
     </div>`;
   }).join('');
 
-  // movimentações
   const all=[];
   vendasHoje.forEach(x=>all.push({...x,_tipo:'v'}));
   CX.entradas.forEach(x=>all.push({...x,_tipo:'e'}));
@@ -916,9 +925,15 @@ function salvarConfig(){
   saveConfig();
   const t=document.getElementById('toast-config');t.textContent='Metas salvas!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
 }
+
+// ─── CORREÇÃO 2: limparMes() com senha ──────────────────────
 function limparMes(){
-  if(confirm('Zerar todas as vendas do mês?')){
-    const td=today().slice(0,7);ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));save();
+  const pw=prompt('Digite a senha para zerar os dados do mês:');
+  if(pw!==REL_SENHA){alert('Senha incorreta.');return;}
+  if(confirm('Zerar todas as vendas do mês atual?')){
+    const td=today().slice(0,7);
+    ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));
+    save();
   }
 }
 
@@ -962,10 +977,10 @@ function relTab(t){
 function mudarMesV(d){relMesV+=d;if(relMesV<0){relMesV=11;relAnoV--;}if(relMesV>11){relMesV=0;relAnoV++;}renderRelVendas();}
 function mudarMesR(d){relMesR+=d;if(relMesR<0){relMesR=11;relAnoR--;}if(relMesR>11){relMesR=0;relAnoR++;}renderRelReceb();}
 
+// ─── CORREÇÃO 3: renderRelVendas() com vendas por dia ───────
 function renderRelVendas(){
   const pfx=relAnoV+'-'+(relMesV+1<10?'0':'')+(relMesV+1);
   const vM=ST.vendas.filter(v=>v.data.startsWith(pfx));
-  // mês anterior
   let mAnt=relMesV-1,aAnt=relAnoV;if(mAnt<0){mAnt=11;aAnt--;}
   const pfxAnt=aAnt+'-'+(mAnt+1<10?'0':'')+(mAnt+1);
   const vAnt=ST.vendas.filter(v=>v.data.startsWith(pfxAnt));
@@ -987,20 +1002,59 @@ function renderRelVendas(){
       <div class="metric"><div class="metric-lbl">vs mês anterior</div><div class="metric-val" style="font-size:15px;">${varPct!==null?'<span style="font-size:14px;padding:2px 8px;border-radius:20px;background:'+(varPct>=0?'#e8f4ec':'#f8ece8')+';color:'+(varPct>=0?'#3a6a48':'#a03020')+'">'+(varPct>=0?'+':'')+varPct+'%</span>':'—'}</div></div>
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Por vendedora</span></div><div class="card-body" id="rr-vend"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Vendas por dia</span></div><div class="card-body" id="rr-dias"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Por forma de pagamento</span></div><div class="card-body" id="rr-pag"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Com vs sem desconto</span></div><div class="card-body" id="rr-desc"></div></div>
   `;
+
   // por vendedora
   const totTot=totM||1;
   document.getElementById('rr-vend').innerHTML=VENDEDORAS.map(n=>{
     const vs=vM.filter(v=>v.vendedora===n);const t=vs.reduce((a,v)=>a+v.valor,0);const p=Math.round(t/totTot*100);
     return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;"><span style="font-size:13px;font-weight:700;">${n}</span><span style="font-size:13px;font-weight:700;">${fmt(t)}</span></div><div class="rel-prog-bar"><div class="rel-prog-fill" style="width:${p}%"></div></div><div style="font-size:10px;color:var(--muted);margin-top:3px;">${p}% do total · ${vs.length} vendas</div></div>`;
   }).join('');
+
+  // por dia — do mais recente para o mais antigo
+  const diasMap={};
+  vM.forEach(v=>{
+    if(!diasMap[v.data]) diasMap[v.data]={total:0,qtd:0,vendas:[]};
+    diasMap[v.data].total+=v.valor;
+    diasMap[v.data].qtd++;
+    diasMap[v.data].vendas.push(v);
+  });
+  const diasOrdenados=Object.keys(diasMap).sort((a,b)=>b.localeCompare(a));
+  const diasEl=document.getElementById('rr-dias');
+  if(!diasOrdenados.length){
+    diasEl.innerHTML='<div class="empty">Nenhuma venda neste mês.</div>';
+  } else {
+    diasEl.innerHTML=diasOrdenados.map(data=>{
+      const info=diasMap[data];
+      const [ano,mes,dia]=data.split('-');
+      const dataObj=new Date(Number(ano),Number(mes)-1,Number(dia));
+      const dataFmt=dataObj.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+      const detalhe=VENDEDORAS.map(n=>{
+        const t=info.vendas.filter(v=>v.vendedora===n).reduce((a,v)=>a+v.valor,0);
+        return t>0?`<span style="font-size:10px;color:var(--muted);">${n}: ${fmt(t)}</span>`:'';
+      }).filter(Boolean).join(' · ');
+      return`<div style="padding:8px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:13px;font-weight:700;color:var(--dark);">${dataFmt}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--green);">${fmt(info.total)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px;">
+          <span style="font-size:10px;color:var(--muted);">${detalhe}</span>
+          <span style="font-size:10px;color:var(--muted);">${info.qtd} venda${info.qtd!==1?'s':''}</span>
+        </div>
+      </div>`;
+    }).join('')+'<div style="height:4px;"></div>';
+  }
+
   // por pagamento
   document.getElementById('rr-pag').innerHTML=PAGS_CX.map(p=>{
     const t=vM.filter(v=>v.pagId===p.id||v.pagamento===p.label||v.pagamento.toLowerCase().includes(p.id)).reduce((a,v)=>a+v.valor,0);
     return`<div class="rel-row"><span class="nome">${p.label}</span><span class="rval">${fmt(t)}</span></div>`;
   }).join('');
+
   // desconto
   const comDesc=vM.filter(v=>v.desconto).reduce((a,v)=>a+v.valor,0);
   const semDesc=vM.filter(v=>!v.desconto).reduce((a,v)=>a+v.valor,0);
@@ -1027,7 +1081,6 @@ function renderRelReceb(){
     <div class="card"><div class="card-header"><span class="card-title">Saídas por categoria</span></div><div class="card-body">
       ${Object.values(CATS_SAIDA).map(c=>`<div class="rel-row"><span class="nome">${c}</span><span class="rval" style="color:var(--muted);">R$ 0,00</span></div>`).join('')}
     </div></div>`;
-  // quando Firestore tiver dados históricos do caixa, buscar aqui
   if(db){
     const pfx=relAnoR+'-'+(relMesR+1<10?'0':'')+(relMesR+1);
     db.collection('heres_caixa').get().then(snap=>{
@@ -1047,7 +1100,6 @@ function renderRelReceb(){
 
 function renderRelSemanal(){
   const el=document.getElementById('rel-semanal');
-  // gerar últimas 4 semanas
   const semanas=[];
   const now=new Date();
   for(let w=3;w>=0;w--){
@@ -1055,8 +1107,8 @@ function renderRelSemanal(){
     const d=seg.getDay();
     seg.setDate(seg.getDate()-(d===0?6:d-1)-w*7);
     const sex=new Date(seg);sex.setDate(seg.getDate()+5);
-    const segStr=seg.toISOString().split('T')[0];
-    const sexStr=sex.toISOString().split('T')[0];
+    const segStr=seg.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');
+    const sexStr=sex.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');
     const label=seg.toLocaleDateString('pt-BR',{day:'numeric',month:'short'})+' – '+sex.toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
     const vs=ST.vendas.filter(v=>v.data>=segStr&&v.data<=sexStr);
     const total=vs.reduce((a,v)=>a+v.valor,0);
@@ -1312,7 +1364,7 @@ function buildRituais(){
 
 // ─── INIT ────────────────────────────────────────────────────
 const d=new Date();
-document.getElementById('topbar-date').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+document.getElementById('topbar-date').textContent=d.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Sao_Paulo'});
 buildRituais();
 initFirebase();
 </script>
