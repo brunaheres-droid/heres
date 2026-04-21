@@ -351,13 +351,8 @@ select,input[type=number],input[type=text]{width:100%;padding:9px 11px;border:1p
       </div>
 
       <!-- VALOR -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <div class="form-row"><label class="form-lbl">Valor normal (R$)</label>
-          <input type="number" id="f-val-normal" placeholder="0,00" min="0" step="0.01" oninput="calcPreview()">
-        </div>
-        <div class="form-row"><label class="form-lbl">Valor promoção (R$)</label>
-          <input type="number" id="f-val-promo" placeholder="0,00" min="0" step="0.01" oninput="calcPreview()">
-        </div>
+      <div class="form-row"><label class="form-lbl">Valor (R$)</label>
+        <input type="number" id="f-val" placeholder="0,00" min="0" step="0.01" oninput="calcPreview()">
       </div>
 
       <div class="form-row"><label class="form-lbl">Pagamento</label>
@@ -370,10 +365,17 @@ select,input[type=number],input[type=text]{width:100%;padding:9px 11px;border:1p
         </div>
       </div>
 
+      <div class="form-row"><label class="form-lbl">Peça com desconto / promoção?<span class="obrig">*</span></label>
+        <div class="disc-row">
+          <div class="disc-btn" id="disc-nao" onclick="selDisc('nao')">Não</div>
+          <div class="disc-btn" id="disc-sim" onclick="selDisc('sim')">Sim — promoção</div>
+        </div>
+      </div>
+
       <div class="preview-box" id="preview-box">
         <div>
           <div class="preview-lbl">Comissão calculada</div>
-          <div class="preview-pct" id="prev-pct">Preencha os valores e pagamento</div>
+          <div class="preview-pct" id="prev-pct">Selecione pagamento, valor e desconto</div>
           <div id="preview-cashback-wrap" style="display:none;">
             <div class="preview-cashback-row">
               <span class="preview-cashback-lbl" id="preview-cashback-lbl">💰 Cashback gerado</span>
@@ -571,11 +573,12 @@ select,input[type=number],input[type=text]{width:100%;padding:9px 11px;border:1p
 <script>
 // ── CONSTANTES ────────────────────────────────────────────
 const COMM={normal:{av:5,cartao:3,boleto:1},promo:{av:3,cartao:2,boleto:1}};
-// Cashback: 15% normal, 10% promoção, 0% boleto parcelado
-const CASHBACK_NORMAL=0.15;
-const CASHBACK_PROMO=0.10;
+// Cashback: 10% fora de promoção, 0% promoção, 0% boleto parcelado
+const CASHBACK_NORMAL=0.10;
+const CASHBACK_PROMO=0.00;
 const CASHBACK_DIAS_INICIO=1;   // disponível após 1 dia
 const CASHBACK_VALIDADE=10;     // expira em 10 dias após a venda
+const CASHBACK_MULTIPLO=3;      // compra mínima = 3x o valor do cashback
 const VENDEDORAS=['Bruna','Ana','Jamile'];
 const PAGS_CX=[{id:'pix',label:'Pix'},{id:'dinheiro',label:'Dinheiro'},{id:'debito',label:'Cartão débito'},{id:'credito',label:'Cartão crédito'},{id:'boleto',label:'Boleto/parcelado'}];
 const CATS_SAIDA={fornecedor:'Fornecedor',retirada:'Retirada sócia',despesa:'Despesa da loja',troco:'Troco/devolução',outra:'Outra saída'};
@@ -588,7 +591,7 @@ const EDIT_PIN='1234';
 // ── ESTADO ───────────────────────────────────────────────
 let ST={vendas:[],config:{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}}},checklist:{}};
 let CX={entradas:[],saidas:[]};
-let payLbl='',payTipo='',cxCat='',cxPagSaida='';
+let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='';
 let db=null,relPin_str='',relAuthed=false;
 let relMesV=new Date().getMonth(),relAnoV=new Date().getFullYear();
 let relMesR=new Date().getMonth(),relAnoR=new Date().getFullYear();
@@ -600,11 +603,10 @@ let cashbackDisponivel=null; // {vendaId, valor, vencimento} ou null
 let cashbackAplicado=false;
 
 // ── CASHBACK: cálculo ─────────────────────────────────────
-function calcCashbackVenda(valNormal, valPromo, payTipo){
+function calcCashbackVenda(valor, descOn, payTipo){
   if(payTipo==='boleto') return 0;
-  const cbNormal=(valNormal||0)*CASHBACK_NORMAL;
-  const cbPromo=(valPromo||0)*CASHBACK_PROMO;
-  return cbNormal+cbPromo;
+  if(descOn===true) return 0; // promoção não gera cashback
+  return (valor||0)*CASHBACK_NORMAL;
 }
 
 // Retorna data string YYYY-MM-DD somando N dias
@@ -659,25 +661,29 @@ function onWppInput(val){
 function checkCashbackCliente(wpp){
   const disponiveis=getCashbacksDisponiveis(wpp);
   if(!disponiveis.length) return;
-  // Usa o primeiro cashback disponível
   const v=disponiveis[0];
   const fim=addDias(v.data, CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
-  cashbackDisponivel={vendaId:v.id, valor:v.cashbackVal, vencimento:fim};
-  // Mostra alerta
+  const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;
+  cashbackDisponivel={vendaId:v.id, valor:v.cashbackVal, vencimento:fim, minCompra};
   const alert=document.getElementById('cashback-alert');
   document.getElementById('cashback-alert-title').textContent=(v.cliNome?v.cliNome+' tem':'Cliente tem')+' cashback disponível!';
   document.getElementById('cashback-alert-val').textContent=fmt(v.cashbackVal);
-  document.getElementById('cashback-alert-sub').textContent='Válido até '+fmtDate(fim);
+  document.getElementById('cashback-alert-sub').textContent='Válido até '+fmtDate(fim)+' · compra mínima: '+fmt(minCompra);
   alert.classList.add('show');
 }
 
 function aplicarCashback(){
   if(!cashbackDisponivel) return;
+  const val=parseFloat(document.getElementById('f-val').value)||0;
+  if(val>0&&val<cashbackDisponivel.minCompra){
+    alert('Compra mínima de '+fmt(cashbackDisponivel.minCompra)+' para usar este cashback.');
+    return;
+  }
   cashbackAplicado=true;
   document.getElementById('cashback-alert').classList.remove('show');
   const aplEl=document.getElementById('cashback-applied');
   aplEl.style.display='flex';
-  document.getElementById('cashback-applied-txt').textContent='Cashback de '+fmt(cashbackDisponivel.valor)+' aplicado nesta venda';
+  document.getElementById('cashback-applied-txt').textContent='Cashback de '+fmt(cashbackDisponivel.valor)+' aplicado · mínimo '+fmt(cashbackDisponivel.minCompra);
   calcPreview();
 }
 
@@ -727,35 +733,28 @@ function nav(id,btn){document.querySelectorAll('.screen').forEach(s=>s.classList
 
 // ── VENDA ────────────────────────────────────────────────
 function selPay(el,lbl,tipo){document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');payLbl=lbl;payTipo=tipo;calcPreview();}
+function selDisc(v){descOn=(v==='sim');document.getElementById('disc-nao').classList.toggle('on',v==='nao');document.getElementById('disc-sim').classList.toggle('on',v==='sim');calcPreview();}
 
 function calcPreview(){
-  const vNormal=parseFloat(document.getElementById('f-val-normal').value)||0;
-  const vPromo=parseFloat(document.getElementById('f-val-promo').value)||0;
-  const total=vNormal+vPromo;
-  if(!payTipo||total<=0){
-    document.getElementById('prev-pct').textContent='Preencha os valores e pagamento';
+  const val=parseFloat(document.getElementById('f-val').value)||0;
+  if(!payTipo||descOn===null||!val){
+    document.getElementById('prev-pct').textContent='Selecione pagamento, valor e desconto';
     document.getElementById('prev-val').textContent='—';
     document.getElementById('preview-cashback-wrap').style.display='none';
     return;
   }
-  // Comissão
-  const commNormal=(COMM.normal[payTipo]||0)/100*vNormal;
-  const commPromo=(COMM.promo[payTipo]||0)/100*vPromo;
-  const totalComm=commNormal+commPromo;
-  let descComm=[];
-  if(vNormal>0) descComm.push('normal '+COMM.normal[payTipo]+'%');
-  if(vPromo>0) descComm.push('promoção '+COMM.promo[payTipo]+'%');
-  document.getElementById('prev-pct').textContent=descComm.join(' + ');
+  const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
+  const totalComm=val*pct/100;
+  document.getElementById('prev-pct').textContent=pct+'% · '+(descOn?'promoção':'normal');
   document.getElementById('prev-val').textContent=fmt(totalComm);
 
   // Cashback gerado
-  const cb=calcCashbackVenda(vNormal,vPromo,payTipo);
+  const cb=calcCashbackVenda(val,descOn,payTipo);
   const cbWrap=document.getElementById('preview-cashback-wrap');
   if(cb>0){
     cbWrap.style.display='block';
-    const lbl=payTipo==='boleto'?'⚠️ Sem cashback (boleto)':'💰 Cashback gerado';
-    document.getElementById('preview-cashback-lbl').textContent=lbl;
-    document.getElementById('preview-cashback-val').textContent=cb>0?fmt(cb):'—';
+    document.getElementById('preview-cashback-lbl').textContent='💰 Cashback gerado';
+    document.getElementById('preview-cashback-val').textContent=fmt(cb);
   } else {
     cbWrap.style.display='none';
   }
@@ -763,21 +762,18 @@ function calcPreview(){
 
 function registrar(){
   const vend=document.getElementById('f-vend').value;
-  const vNormal=parseFloat(document.getElementById('f-val-normal').value)||0;
-  const vPromo=parseFloat(document.getElementById('f-val-promo').value)||0;
+  const val=parseFloat(document.getElementById('f-val').value)||0;
   const cliNome=document.getElementById('f-cli-nome').value.trim();
   const cliWpp=document.getElementById('f-cli-wpp').value.trim().replace(/\D/g,'');
-  const total=vNormal+vPromo;
 
-  if(!vend||total<=0||!payLbl){alert('Preencha vendedora, valor e pagamento.');return;}
+  if(!vend||val<=0||!payLbl){alert('Preencha vendedora, valor e pagamento.');return;}
+  if(descOn===null){alert('Informe se a peça tem desconto ou promoção.');return;}
 
-  const commNormal=(COMM.normal[payTipo]||0)/100*vNormal;
-  const commPromo=(COMM.promo[payTipo]||0)/100*vPromo;
-  const totalComm=commNormal+commPromo;
-  const pctDisplay=(vNormal>0&&vPromo>0)?'misto':(vPromo>0?'promo':'normal');
+  const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
+  const totalComm=val*pct/100;
 
   // Cashback gerado
-  const cbGerado=calcCashbackVenda(vNormal,vPromo,payTipo);
+  const cbGerado=calcCashbackVenda(val,descOn,payTipo);
 
   // Se cashback foi aplicado, marcar a venda de origem como usada
   if(cashbackAplicado&&cashbackDisponivel){
@@ -789,16 +785,14 @@ function registrar(){
   ST.vendas.push({
     id:Date.now(),
     vendedora:vend,
-    valor:total,
-    valorNormal:vNormal,
-    valorPromo:vPromo,
+    valor:val,
     cliNome:cliNome||'',
     cliWpp:cliWpp||'',
     pagamento:payLbl,
     payTipo,
     pagId:pagMap[payLbl]||'',
-    desconto:vPromo>0,
-    commPct:pctDisplay,
+    desconto:descOn,
+    commPct:pct,
     commVal:totalComm,
     cashbackVal:cbGerado,
     cashbackUsado:false,
@@ -810,13 +804,14 @@ function registrar(){
 
   // Reset form
   document.getElementById('f-vend').value='';
-  document.getElementById('f-val-normal').value='';
-  document.getElementById('f-val-promo').value='';
+  document.getElementById('f-val').value='';
   document.getElementById('f-cli-nome').value='';
   document.getElementById('f-cli-wpp').value='';
   document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on'));
-  payLbl='';payTipo='';
-  document.getElementById('prev-pct').textContent='Preencha os valores e pagamento';
+  document.getElementById('disc-nao').classList.remove('on');
+  document.getElementById('disc-sim').classList.remove('on');
+  payLbl='';payTipo='';descOn=null;
+  document.getElementById('prev-pct').textContent='Selecione pagamento, valor e desconto';
   document.getElementById('prev-val').textContent='—';
   document.getElementById('preview-cashback-wrap').style.display='none';
   document.getElementById('cashback-alert').classList.remove('show');
