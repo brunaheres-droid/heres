@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#f5f0e8;--bg2:#ede8de;--card:#faf8f4;--card2:#fff;--dark:#1e1c18;--mid:#6a5a4a;--light:#e0d8cc;--light2:#ece6da;--terra:#9a6050;--terra2:#b87060;--camel:#c0a878;--camel2:#d4bc96;--green:#3a6040;--green2:#4a7850;--text:#1e1c18;--muted:#8a7a6a;--muted2:#b0a090;--border:#ddd5c8;--border2:#ece6da;--gold:#b89a58;--gold-bg:#fdf6e8;--gold-txt:#7a5a18;--red:#943028;--sans:Arial,'Helvetica Neue',sans-serif;
+  --bg:#f5f0e8;--bg2:#ede8de;--card:#faf8f4;--card2:#fff;--dark:#1e1c18;--mid:#6a5a4a;--light:#e0d8cc;--light2:#ece6da;--terra:#9a6050;--terra2:#b87060;--camel:#c0a878;--camel2:#d4bc96;--green:#3a6040;--green2:#4a7850;--text:#1e1c18;--muted:#8a7a6a;--muted2:#b0a090;--border:#ddd5c8;--border2:#ece6da;--gold:#b89a58;--gold-bg:#fdf6e8;--gold-txt:#7a5a18;--red:#943028;--vv:#3a5878;--vv-bg:#e8f0f8;--vv-border:#c8d8e8;--sans:Arial,'Helvetica Neue',sans-serif;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;-webkit-font-smoothing:antialiased;}
 .topbar{background:var(--dark);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -174,15 +174,23 @@ select:focus,input:focus{border-color:var(--camel);}
 .chk-item.done .chk-txt{color:var(--muted2);text-decoration:line-through;}
 .chk-tag{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;margin-right:5px;letter-spacing:.06em;}
 .chk-tag.heres{background:#f0ece8;color:var(--terra);}
-.chk-tag.viavogue{background:#e8f0f8;color:#3a5878;}
+.chk-tag.viavogue{background:var(--vv-bg);color:var(--vv);}
 .rit-item{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
 .rit-n{font-size:12px;font-weight:400;color:var(--muted2);width:20px;flex-shrink:0;padding-top:2px;}
 .rit-body{flex:1;}
 .rit-txt{font-size:13px;color:var(--dark);line-height:1.5;}
 .rit-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+/* STORY SEPARADO POR LOJA */
+.story-section-header{display:flex;align-items:center;gap:8px;padding:8px 0 6px;}
+.story-section-badge{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+.story-section-badge.heres{background:#f0ece8;color:var(--terra);}
+.story-section-badge.viavogue{background:var(--vv-bg);color:var(--vv);}
 .story-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;overflow:hidden;}
+.story-item.vv{border-color:var(--vv-border);}
 .story-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;background:var(--card);border-bottom:1px solid var(--border2);}
+.story-item.vv .story-hdr{background:var(--vv-bg);border-color:var(--vv-border);}
 .story-tipo{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dark);}
+.story-item.vv .story-tipo{color:var(--vv);}
 .story-hora{font-size:10px;color:var(--camel);}
 .story-body{padding:10px 13px;}
 .story-desc{font-size:12px;color:var(--muted);line-height:1.6;}
@@ -270,13 +278,19 @@ select:focus,input:focus{border-color:var(--camel);}
 .day-rel-detail{display:flex;gap:12px;margin-top:3px;flex-wrap:wrap;}
 .day-rel-chip{font-size:10px;color:var(--muted);}
 .day-rel-chip strong{color:var(--dark);}
-/* Lista individual de vendas */
 .venda-ind-item{padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-bottom:6px;}
 .venda-ind-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .venda-ind-nome{font-size:13px;font-weight:700;color:var(--dark);}
 .venda-ind-val{font-size:14px;font-weight:700;color:var(--green);}
 .venda-ind-sub{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;}
 .venda-ind-chip{font-size:10px;color:var(--muted);}
+/* PROVADOR BADGE */
+.provador-badge{display:inline-flex;align-items:center;gap:5px;background:#f0ece8;border:1px solid var(--terra);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--terra);margin-bottom:8px;}
+.provador-badge.vv{background:var(--vv-bg);border-color:var(--vv);color:var(--vv);}
+/* COMISSÃO MENSAL TOTAL */
+.comm-mes-total{background:var(--dark);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.comm-mes-total-lbl{font-size:10px;color:var(--camel2);letter-spacing:.12em;text-transform:uppercase;font-weight:700;}
+.comm-mes-total-val{font-size:22px;font-weight:700;color:#f5f0e8;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -299,6 +313,7 @@ select:focus,input:focus{border-color:var(--camel);}
       <div class="metric"><div class="metric-lbl">Hoje</div><div class="metric-val" id="m-hoje">R$ 0</div><div class="metric-sub" id="m-hoje-n">0 vendas</div></div>
       <div class="metric"><div class="metric-lbl">Mês atual</div><div class="metric-val" id="m-mes">R$ 0</div><div class="metric-sub" id="m-mes-n">0 vendas</div></div>
     </div>
+    <div class="card"><div class="card-header"><span class="card-title">Meta do mês</span></div><div class="card-body" id="painel-meta-mes"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Progresso do dia</span></div><div class="card-body" id="painel-prog-dia"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Ranking do mês</span></div><div class="card-body" id="ranking-list"></div></div>
   </div>
@@ -501,11 +516,13 @@ select:focus,input:focus{border-color:var(--camel);}
       <div class="rel-tabs">
         <button class="rel-tab active" onclick="relTab('vendas')">Vendas</button>
         <button class="rel-tab" onclick="relTab('lista')">Lista</button>
+        <button class="rel-tab" onclick="relTab('comissoes')">Comissões</button>
         <button class="rel-tab" onclick="relTab('dinheiro')">Dinheiro</button>
         <button class="rel-tab" onclick="relTab('semanal')">Semanal</button>
       </div>
       <div id="rel-vendas" class="rel-section active"></div>
       <div id="rel-lista" class="rel-section"></div>
+      <div id="rel-comissoes" class="rel-section"></div>
       <div id="rel-dinheiro" class="rel-section"></div>
       <div id="rel-semanal" class="rel-section"></div>
     </div>
@@ -553,6 +570,7 @@ const CATS_SAIDA={fornecedor:'Fornecedor',retirada:'Retirada sócia',despesa:'De
 const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
+const META_LOJA_MAIO=40000;
 
 let ST={vendas:[],config:{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}}},checklist:{}};
 let CX={entradas:[],saidas:[]};
@@ -561,6 +579,7 @@ let db=null,relPin_str='',relAuthed=false;
 let relMesV=new Date().getMonth(),relAnoV=new Date().getFullYear();
 let relMesDin=new Date().getMonth(),relAnoDin=new Date().getFullYear();
 let relMesL=new Date().getMonth(),relAnoL=new Date().getFullYear();
+let relMesComm=new Date().getMonth(),relAnoComm=new Date().getFullYear();
 let semanaEditMode=false,activeDayIdx=0;
 let cashbackDisponivel=null,cashbackAplicado=false;
 let _cxCache={};
@@ -601,10 +620,10 @@ async function save(){if(!db){saveLocal();return;}try{await db.collection('heres
 async function saveConfig(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('config').set({metas:ST.config.metas});}catch(e){saveLocal();}}
 async function saveChecklist(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('checklist').set(ST.checklist||{});}catch(e){saveLocal();}}
 async function saveCaixa(){const cxKey='caixa_'+today();if(!db)return;try{await db.collection('heres_caixa').doc(cxKey).set({entradas:CX.entradas,saidas:CX.saidas,data:today()});}catch(e){}}
-async function saveSemanaCustom(){if(!db)return;try{await db.collection('heres').doc('semanaCustom').set({data:SEMANA.map(d=>({rituais:d.rituais.map(r=>({txt:r.txt,sub:r.sub})),checklist:[...d.checklist],stories:d.stories.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})),whatsapp:d.whatsapp?d.whatsapp.map(w=>({label:w.label,msg:w.msg})):null,naofazer:d.naofazer.map(n=>({txt:n.txt,sub:n.sub}))}))});}catch(e){}}
-function applyCustomSemana(data){data.forEach((dd,i)=>{if(!SEMANA[i])return;if(dd.rituais)dd.rituais.forEach((r,ri)=>{if(SEMANA[i].rituais[ri]){SEMANA[i].rituais[ri].txt=r.txt;SEMANA[i].rituais[ri].sub=r.sub;}});if(dd.checklist)dd.checklist.forEach((c,ci)=>{if(SEMANA[i].checklist[ci]!==undefined)SEMANA[i].checklist[ci]=c;});if(dd.stories)dd.stories.forEach((s,si)=>{if(SEMANA[i].stories[si]){SEMANA[i].stories[si].tipo=s.tipo;SEMANA[i].stories[si].hora=s.hora;SEMANA[i].stories[si].desc=s.desc;SEMANA[i].stories[si].legenda=s.legenda;}});if(dd.whatsapp&&SEMANA[i].whatsapp)dd.whatsapp.forEach((w,wi)=>{if(SEMANA[i].whatsapp[wi]){SEMANA[i].whatsapp[wi].label=w.label;SEMANA[i].whatsapp[wi].msg=w.msg;}});if(dd.naofazer)dd.naofazer.forEach((n,ni)=>{if(SEMANA[i].naofazer[ni]){SEMANA[i].naofazer[ni].txt=n.txt;SEMANA[i].naofazer[ni].sub=n.sub;}});});}
-function saveLocal(){try{localStorage.setItem('heres_v5',JSON.stringify(ST));}catch(e){}}
-function loadLocal(){try{const s=localStorage.getItem('heres_v5');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}}};ST.checklist=d.checklist||{};}}catch(e){}}
+async function saveSemanaCustom(){if(!db)return;try{await db.collection('heres').doc('semanaCustom').set({data:SEMANA.map(d=>({rituais:d.rituais.map(r=>({txt:r.txt,sub:r.sub})),checklist:[...d.checklist],stories:d.stories.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})),storiesVV:d.storiesVV?d.storiesVV.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})):null,whatsapp:d.whatsapp?d.whatsapp.map(w=>({label:w.label,msg:w.msg})):null,naofazer:d.naofazer.map(n=>({txt:n.txt,sub:n.sub}))}))});}catch(e){}}
+function applyCustomSemana(data){data.forEach((dd,i)=>{if(!SEMANA[i])return;if(dd.rituais)dd.rituais.forEach((r,ri)=>{if(SEMANA[i].rituais[ri]){SEMANA[i].rituais[ri].txt=r.txt;SEMANA[i].rituais[ri].sub=r.sub;}});if(dd.checklist)dd.checklist.forEach((c,ci)=>{if(SEMANA[i].checklist[ci]!==undefined)SEMANA[i].checklist[ci]=c;});if(dd.stories)dd.stories.forEach((s,si)=>{if(SEMANA[i].stories[si]){SEMANA[i].stories[si].tipo=s.tipo;SEMANA[i].stories[si].hora=s.hora;SEMANA[i].stories[si].desc=s.desc;SEMANA[i].stories[si].legenda=s.legenda;}});if(dd.storiesVV&&SEMANA[i].storiesVV)dd.storiesVV.forEach((s,si)=>{if(SEMANA[i].storiesVV[si]){SEMANA[i].storiesVV[si].tipo=s.tipo;SEMANA[i].storiesVV[si].hora=s.hora;SEMANA[i].storiesVV[si].desc=s.desc;SEMANA[i].storiesVV[si].legenda=s.legenda;}});if(dd.whatsapp&&SEMANA[i].whatsapp)dd.whatsapp.forEach((w,wi)=>{if(SEMANA[i].whatsapp[wi]){SEMANA[i].whatsapp[wi].label=w.label;SEMANA[i].whatsapp[wi].msg=w.msg;}});if(dd.naofazer)dd.naofazer.forEach((n,ni)=>{if(SEMANA[i].naofazer[ni]){SEMANA[i].naofazer[ni].txt=n.txt;SEMANA[i].naofazer[ni].sub=n.sub;}});});}
+function saveLocal(){try{localStorage.setItem('heres_v6',JSON.stringify(ST));}catch(e){}}
+function loadLocal(){try{const s=localStorage.getItem('heres_v6');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0}}};ST.checklist=d.checklist||{};}}catch(e){}}
 
 function nav(id,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -658,8 +677,25 @@ function deletar(id){ST.vendas=ST.vendas.filter(v=>v.id!==id);save();}
 
 function renderPainel(){
   const td=today();const vH=ST.vendas.filter(v=>v.data===td);const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
-  document.getElementById('m-hoje').textContent=fmt(vH.reduce((a,v)=>a+v.valor,0));document.getElementById('m-hoje-n').textContent=vH.length+' venda'+(vH.length!==1?'s':'');
-  document.getElementById('m-mes').textContent=fmt(vM.reduce((a,v)=>a+v.valor,0));document.getElementById('m-mes-n').textContent=vM.length+' venda'+(vM.length!==1?'s':'');
+  const totH=vH.reduce((a,v)=>a+v.valor,0);const totM=vM.reduce((a,v)=>a+v.valor,0);
+  document.getElementById('m-hoje').textContent=fmt(totH);document.getElementById('m-hoje-n').textContent=vH.length+' venda'+(vH.length!==1?'s':'');
+  document.getElementById('m-mes').textContent=fmt(totM);document.getElementById('m-mes-n').textContent=vM.length+' venda'+(vM.length!==1?'s':'');
+
+  // Meta da loja (maio = 40k)
+  const metaLoja=META_LOJA_MAIO;const pctLoja=Math.min(100,Math.round(totM/metaLoja*100));
+  const faltam=Math.max(0,metaLoja-totM);const diasNoMes=31;const diaAtual=parseInt(td.split('-')[2]);const diasRestantes=Math.max(1,diasNoMes-diaAtual);const necessarioPorDia=faltam/diasRestantes;
+  const clsLoja=pctLoja>=100?'good':pctLoja>=60?'warn':'';
+  document.getElementById('painel-meta-mes').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+      <span style="font-size:13px;font-weight:700;">Meta Maio</span>
+      <span style="font-size:14px;font-weight:700;color:var(--green);">${fmt(totM)} <span style="font-size:11px;color:var(--muted);">/ ${fmtN(metaLoja)}</span></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill ${clsLoja}" style="width:${pctLoja}%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px;">
+      <span>${pctLoja}% da meta</span>
+      <span>${pctLoja<100?'Faltam '+fmt(faltam)+' · '+fmt(necessarioPorDia)+'/dia':'🎯 Meta atingida!'}</span>
+    </div>`;
+
   document.getElementById('painel-prog-dia').innerHTML=VENDEDORAS.map(nome=>{
     const vv=vH.filter(v=>v.vendedora===nome);const total=vv.reduce((a,v)=>a+v.valor,0);const meta=(ST.config.metas[nome]||{}).dia||0;const pct=meta>0?Math.min(100,Math.round(total/meta*100)):0;const cls=pct>=100?'good':pct>=60?'warn':'';
     return`<div style="padding:10px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;"><span style="font-size:13px;font-weight:700;">${nome}</span><span style="font-size:12px;color:var(--muted);">${fmt(total)}${meta?' / '+fmtN(meta):''}</span></div><div class="prog-bar"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;"><span>${meta?pct+'% da meta':'sem meta'}</span>${meta&&total<meta?'<span>faltam '+fmtN(meta-total)+'</span>':'<span style="color:var(--green)">'+(meta&&pct>=100?'meta atingida!':'')+'</span>'}</div></div>`;
@@ -732,16 +768,25 @@ function renderCliCashback(){
 }
 
 function buildMetasForm(){const el=document.getElementById('metas-form');if(!el)return;el.innerHTML=VENDEDORAS.map(v=>`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">${v}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div class="form-row" style="margin:0;"><label class="form-lbl">Meta diária</label><input type="number" id="meta-dia-${v}" value="${(ST.config.metas[v]||{}).dia||''}" placeholder="0" min="0"></div><div class="form-row" style="margin:0;"><label class="form-lbl">Meta mensal</label><input type="number" id="meta-mes-${v}" value="${(ST.config.metas[v]||{}).mes||''}" placeholder="0" min="0"></div></div></div>`).join('');}
-function renderComm(){const td=today();const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));document.getElementById('comm-detalhe').innerHTML=VENDEDORAS.map(nome=>{const vs=vM.filter(v=>v.vendedora===nome);const tot=vs.reduce((a,v)=>a+v.valor,0);const comm=vs.reduce((a,v)=>a+v.commVal,0);const norm=vs.filter(v=>!v.desconto).reduce((a,v)=>a+v.commVal,0);const prom=vs.filter(v=>v.desconto).reduce((a,v)=>a+v.commVal,0);return`<div class="vend-comm"><div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total">${fmt(comm)}</div></div><div class="vc-grid"><div class="vc-stat"><div class="vc-lbl">Vendas</div><div class="vc-val">${fmt(tot)}</div></div><div class="vc-stat"><div class="vc-lbl">Normal</div><div class="vc-val">${fmt(norm)}</div></div><div class="vc-stat"><div class="vc-lbl">Promoção</div><div class="vc-val">${fmt(prom)}</div></div></div></div>`;}).join('');buildMetasForm();}
+
+function renderComm(){
+  const td=today();const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
+  const totalCommMes=vM.reduce((a,v)=>a+v.commVal,0);
+  document.getElementById('comm-detalhe').innerHTML=
+    `<div class="comm-mes-total"><div><div class="comm-mes-total-lbl">Total comissões do mês</div><div style="font-size:10px;color:var(--stone);margin-top:3px;">${vM.length} vendas registradas</div></div><div class="comm-mes-total-val">${fmt(totalCommMes)}</div></div>`+
+    VENDEDORAS.map(nome=>{const vs=vM.filter(v=>v.vendedora===nome);const tot=vs.reduce((a,v)=>a+v.valor,0);const comm=vs.reduce((a,v)=>a+v.commVal,0);const norm=vs.filter(v=>!v.desconto).reduce((a,v)=>a+v.commVal,0);const prom=vs.filter(v=>v.desconto).reduce((a,v)=>a+v.commVal,0);return`<div class="vend-comm"><div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total">${fmt(comm)}</div></div><div class="vc-grid"><div class="vc-stat"><div class="vc-lbl">Vendas</div><div class="vc-val">${fmt(tot)}</div></div><div class="vc-stat"><div class="vc-lbl">Normal</div><div class="vc-val">${fmt(norm)}</div></div><div class="vc-stat"><div class="vc-lbl">Promoção</div><div class="vc-val">${fmt(prom)}</div></div></div></div>`;}).join('');
+  buildMetasForm();
+}
+
 function salvarConfig(){const pw=prompt('PIN para salvar metas:');if(pw!==META_PIN){alert('PIN incorreto.');return;}VENDEDORAS.forEach(v=>{ST.config.metas[v]={dia:parseFloat(document.getElementById('meta-dia-'+v).value)||0,mes:parseFloat(document.getElementById('meta-mes-'+v).value)||0};});saveConfig();const t=document.getElementById('toast-config');t.textContent='Metas salvas!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function limparMes(){const pw=prompt('Senha para zerar dados do mês:');if(pw!==REL_SENHA){alert('Senha incorreta.');return;}if(confirm('Zerar todas as vendas do mês atual?')){const td=today().slice(0,7);ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));save();}}
 
 function relPin(d){if(relPin_str.length>=4)return;relPin_str+=d;updateRelDots();if(relPin_str.length===4)checkRelSenha();}
 function relPinDel(){relPin_str=relPin_str.slice(0,-1);updateRelDots();document.getElementById('rel-pin-err').textContent='';}
 function updateRelDots(){for(let i=0;i<4;i++){const el=document.getElementById('rpd'+i);el.textContent=i<relPin_str.length?'●':'';el.classList.toggle('filled',i<relPin_str.length);}}
-function checkRelSenha(){if(relPin_str===REL_SENHA){relAuthed=true;document.getElementById('rel-lock-screen').style.display='none';document.getElementById('rel-area').style.display='block';renderRelVendas();renderRelLista();renderRelDinheiro();renderRelSemanal();}else{document.getElementById('rel-pin-err').textContent='Senha incorreta';relPin_str='';setTimeout(()=>updateRelDots(),300);}}
+function checkRelSenha(){if(relPin_str===REL_SENHA){relAuthed=true;document.getElementById('rel-lock-screen').style.display='none';document.getElementById('rel-area').style.display='block';renderRelVendas();renderRelLista();renderRelComissoes();renderRelDinheiro();renderRelSemanal();}else{document.getElementById('rel-pin-err').textContent='Senha incorreta';relPin_str='';setTimeout(()=>updateRelDots(),300);}}
 function relLogout(){relAuthed=false;relPin_str='';updateRelDots();document.getElementById('rel-pin-err').textContent='';document.getElementById('rel-lock-screen').style.display='block';document.getElementById('rel-area').style.display='none';}
-function relTab(t){['vendas','lista','dinheiro','semanal'].forEach((n,i)=>{document.querySelectorAll('.rel-tab')[i].classList.toggle('active',n===t);document.getElementById('rel-'+n).classList.toggle('active',n===t);if(n===t&&n==='dinheiro')renderRelDinheiro();if(n===t&&n==='lista')renderRelLista();});}
+function relTab(t){['vendas','lista','comissoes','dinheiro','semanal'].forEach((n,i)=>{document.querySelectorAll('.rel-tab')[i].classList.toggle('active',n===t);document.getElementById('rel-'+n).classList.toggle('active',n===t);if(n===t&&n==='dinheiro')renderRelDinheiro();if(n===t&&n==='lista')renderRelLista();if(n===t&&n==='comissoes')renderRelComissoes();});}
 
 function mudarMesV(d){relMesV+=d;if(relMesV<0){relMesV=11;relAnoV--;}if(relMesV>11){relMesV=0;relAnoV++;}renderRelVendas();}
 function renderRelVendas(){
@@ -777,11 +822,9 @@ function renderRelVendas(){
   document.getElementById('rr-desc').innerHTML=`<div class="rel-row"><div><div class="nome">Sem desconto</div><div class="rsub">${Math.round(semDesc/totDesc*100)}%</div></div><span class="rval">${fmt(semDesc)}</span></div><div class="rel-row"><div><div class="nome">Com desconto / promoção</div><div class="rsub">${Math.round(comDesc/totDesc*100)}%</div></div><span class="rval">${fmt(comDesc)}</span></div>`;
 }
 
-// ── LISTA INDIVIDUAL DE VENDAS ────────────────────────────
 function mudarMesL(d){relMesL+=d;if(relMesL<0){relMesL=11;relAnoL--;}if(relMesL>11){relMesL=0;relAnoL++;}renderRelLista();}
 function renderRelLista(){
-  const el=document.getElementById('rel-lista');
-  if(!el)return;
+  const el=document.getElementById('rel-lista');if(!el)return;
   const pfx=relAnoL+'-'+(relMesL+1<10?'0':'')+(relMesL+1);
   const vM=ST.vendas.filter(v=>v.data.startsWith(pfx)).sort((a,b)=>b.id-a.id);
   const total=vM.reduce((a,v)=>a+v.valor,0);
@@ -793,24 +836,57 @@ function renderRelLista(){
   <div id="lista-vendas-items"></div>`;
   const cont=document.getElementById('lista-vendas-items');
   if(!vM.length){cont.innerHTML='<div class="empty">Nenhuma venda neste mês.</div>';return;}
-  cont.innerHTML=vM.map(v=>{
-    const[ano,mes,dia]=v.data.split('-');
-    const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
-    const nomeCliente=v.cliNome||'Cliente não identificado';
-    return`<div class="venda-ind-item">
-      <div class="venda-ind-top">
-        <div class="venda-ind-nome">${nomeCliente}</div>
-        <div class="venda-ind-val">${fmt(v.valor)}</div>
+  cont.innerHTML=vM.map(v=>{const[ano,mes,dia]=v.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});return`<div class="venda-ind-item"><div class="venda-ind-top"><div class="venda-ind-nome">${v.cliNome||'Cliente não identificado'}</div><div class="venda-ind-val">${fmt(v.valor)}</div></div><div class="venda-ind-sub"><span class="venda-ind-chip">${dataFmt} · ${v.hora}</span><span class="venda-ind-chip">${v.vendedora}</span><span class="venda-ind-chip">${v.pagamento}</span>${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}${v.cliWpp?`<span class="venda-ind-chip">📱 ${v.cliWpp}</span>`:''}<span class="venda-ind-chip" style="color:var(--terra);">comissão: ${fmt(v.commVal)}</span></div></div>`;}).join('');
+}
+
+// ── RELATÓRIO DE COMISSÕES POR MÊS (NOVO) ──────────────────
+function mudarMesComm(d){relMesComm+=d;if(relMesComm<0){relMesComm=11;relAnoComm--;}if(relMesComm>11){relMesComm=0;relAnoComm++;}renderRelComissoes();}
+function renderRelComissoes(){
+  const el=document.getElementById('rel-comissoes');if(!el)return;
+  const pfx=relAnoComm+'-'+(relMesComm+1<10?'0':'')+(relMesComm+1);
+  const vM=ST.vendas.filter(v=>v.data.startsWith(pfx));
+  const totalComm=vM.reduce((a,v)=>a+v.commVal,0);
+  const totalVendas=vM.reduce((a,v)=>a+v.valor,0);
+
+  let html=`<div class="mes-nav"><button class="mes-nav-btn" onclick="mudarMesComm(-1)">‹</button><span class="mes-lbl">${MESES[relMesComm]} ${relAnoComm}</span><button class="mes-nav-btn" onclick="mudarMesComm(1)">›</button></div>`;
+
+  // Totalizador geral
+  html+=`<div class="comm-mes-total" style="margin-bottom:10px;"><div><div class="comm-mes-total-lbl">Total pago em comissões</div><div style="font-size:10px;color:var(--muted2);margin-top:3px;">${vM.length} vendas · ${fmt(totalVendas)} em vendas</div></div><div class="comm-mes-total-val">${fmt(totalComm)}</div></div>`;
+
+  // Por vendedora — detalhe completo
+  html+=`<div class="card"><div class="card-header"><span class="card-title">Por vendedora</span></div><div class="card-body">`;
+  VENDEDORAS.forEach(nome=>{
+    const vs=vM.filter(v=>v.vendedora===nome);
+    if(!vs.length){html+=`<div class="vend-comm"><div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total" style="color:var(--muted);">sem vendas</div></div></div>`;return;}
+    const totalV=vs.reduce((a,v)=>a+v.valor,0);
+    const totalC=vs.reduce((a,v)=>a+v.commVal,0);
+    const av=vs.filter(v=>v.payTipo==='av');const cartao=vs.filter(v=>v.payTipo==='cartao');const boleto=vs.filter(v=>v.payTipo==='boleto');
+    const commAv=av.reduce((a,v)=>a+v.commVal,0);const commCartao=cartao.reduce((a,v)=>a+v.commVal,0);const commBoleto=boleto.reduce((a,v)=>a+v.commVal,0);
+    const norm=vs.filter(v=>!v.desconto);const promo=vs.filter(v=>v.desconto);
+    html+=`<div class="vend-comm">
+      <div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total" style="color:var(--terra);">${fmt(totalC)}</div></div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">${vs.length} vendas · ${fmt(totalV)} em vendas</div>
+      <div class="vc-grid">
+        <div class="vc-stat"><div class="vc-lbl">Pix/Din</div><div class="vc-val">${fmt(commAv)}</div></div>
+        <div class="vc-stat"><div class="vc-lbl">Cartão</div><div class="vc-val">${fmt(commCartao)}</div></div>
+        <div class="vc-stat"><div class="vc-lbl">Boleto</div><div class="vc-val">${fmt(commBoleto)}</div></div>
       </div>
-      <div class="venda-ind-sub">
-        <span class="venda-ind-chip">${dataFmt} · ${v.hora}</span>
-        <span class="venda-ind-chip">${v.vendedora}</span>
-        <span class="venda-ind-chip">${v.pagamento}</span>
-        ${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}
-        ${v.cliWpp?`<span class="venda-ind-chip">📱 ${v.cliWpp}</span>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 10px;text-align:center;"><div style="font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;">Normal (${norm.length}v)</div><div style="font-size:13px;font-weight:700;">${fmt(norm.reduce((a,v)=>a+v.commVal,0))}</div></div>
+        <div style="background:var(--gold-bg);border-radius:8px;padding:8px 10px;text-align:center;"><div style="font-size:9px;color:var(--gold-txt);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;">Promoção (${promo.length}v)</div><div style="font-size:13px;font-weight:700;color:var(--gold-txt);">${fmt(promo.reduce((a,v)=>a+v.commVal,0))}</div></div>
       </div>
     </div>`;
-  }).join('');
+  });
+  html+='</div></div>';
+
+  // Histórico dia a dia
+  const diasMap={};vM.forEach(v=>{if(!diasMap[v.data])diasMap[v.data]={vendas:[],totalComm:0,totalVendas:0};diasMap[v.data].vendas.push(v);diasMap[v.data].totalComm+=v.commVal;diasMap[v.data].totalVendas+=v.valor;});
+  const diasOrd=Object.keys(diasMap).sort((a,b)=>b.localeCompare(a));
+  html+=`<div class="card"><div class="card-header"><span class="card-title">Por dia</span></div><div class="card-body">`;
+  if(!diasOrd.length){html+='<div class="empty">Nenhuma venda neste mês.</div>';}
+  else{diasOrd.forEach(data=>{const info=diasMap[data];const[ano,mes,dia]=data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});const porVend=VENDEDORAS.map(n=>{const c=info.vendas.filter(v=>v.vendedora===n).reduce((a,v)=>a+v.commVal,0);return c>0?`<span style="font-size:10px;color:var(--muted);">${n}: ${fmt(c)}</span>`:'';}).filter(Boolean).join(' · ');html+=`<div class="day-rel-row"><div class="day-rel-top"><span class="day-rel-date">${dataFmt}</span><span class="day-rel-saldo" style="color:var(--terra);">${fmt(info.totalComm)}</span></div><div class="day-rel-detail">${porVend?`<span class="day-rel-chip">${porVend}</span>`:''}${info.vendas.length>0?`<span class="day-rel-chip">${info.vendas.length} venda${info.vendas.length!==1?'s':''}</span>`:''}</div></div>`;});}
+  html+='</div></div>';
+  el.innerHTML=html;
 }
 
 function mudarMesDin(d){relMesDin+=d;if(relMesDin<0){relMesDin=11;relAnoDin--;}if(relMesDin>11){relMesDin=0;relAnoDin++;}renderRelDinheiro();}
@@ -848,6 +924,7 @@ function renderRelSemanal(){
   for(let w=3;w>=0;w--){const seg=new Date(now);const d=seg.getDay();seg.setDate(seg.getDate()-(d===0?6:d-1)-w*7);const sex=new Date(seg);sex.setDate(seg.getDate()+5);const segStr=seg.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');const sexStr=sex.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');const label=seg.toLocaleDateString('pt-BR',{day:'numeric',month:'short'})+' – '+sex.toLocaleDateString('pt-BR',{day:'numeric',month:'short'});const vs=ST.vendas.filter(v=>v.data>=segStr&&v.data<=sexStr);const total=vs.reduce((a,v)=>a+v.valor,0);const porVend={};VENDEDORAS.forEach(n=>{porVend[n]=vs.filter(v=>v.vendedora===n).reduce((a,v)=>a+v.valor,0);});semanas.push({label,total,porVend});}
   el.innerHTML=semanas.slice().reverse().map((s,i)=>{const ant=semanas[semanas.length-2-i];const varPct=ant&&ant.total>0?Math.round(((s.total-ant.total)/ant.total)*100):null;const varTag=varPct!==null?`<span class="var-tag ${varPct>=0?'up':'down'}">${varPct>=0?'+':''}${varPct}%</span>`:'';return`<div class="semana-box"><div class="semana-hdr"><span class="semana-titulo">${s.label}</span><span class="semana-total">${fmtN(s.total)} ${varTag}</span></div>${VENDEDORAS.map(n=>`<div class="semana-row"><span>${n}</span><span>${fmtN(s.porVend[n])}</span></div>`).join('')}</div>`;}).join('');}
 
+// ── SEMANA ────────────────────────────────────────────────
 function chkKey(di,ci){return weekKey()+'_d'+di+'_c'+ci;}
 function isChkDone(di,ci){return !!(ST.checklist&&ST.checklist[chkKey(di,ci)]);}
 function toggleChk(di,ci){const newVal=!isChkDone(di,ci);if(!ST.checklist)ST.checklist={};ST.checklist[chkKey(di,ci)]=newVal;saveChecklist();const item=document.getElementById('chk-'+di+'-'+ci);if(item){item.classList.toggle('done',newVal);const box=item.querySelector('.chk-box');if(box)box.innerHTML=newVal?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';}updateDayProg(di);}
@@ -862,236 +939,275 @@ let _edPaths=[];
 function handleEdClick(el){const idx=parseInt(el.dataset.edidx);const{di,path}=_edPaths[idx];startInlineEdit(el,di,path);}
 function buildSemana(){const tabsEl=document.getElementById('semana-day-tabs');tabsEl.innerHTML=SEMANA.map((d,i)=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${d.label}</button>`).join('');const screensEl=document.getElementById('semana-day-screens');screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');renderDayScreen(activeDayIdx);}
 function switchDay(i){activeDayIdx=i;document.querySelectorAll('.day-tab-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));document.querySelectorAll('.semana-day-screen').forEach((s,idx)=>s.classList.toggle('active',idx===i));const container=document.getElementById('day-screen-'+i);if(!container.dataset.built||semanaEditMode)renderDayScreen(i);}
-function renderDayScreen(di){const d=SEMANA[di];const container=document.getElementById('day-screen-'+di);if(!container)return;_edPaths=[];container.dataset.built='1';const tot=d.checklist.length;const done=d.checklist.filter((_,ci)=>isChkDone(di,ci)).length;const pct=Math.round(done/tot*100);const ed=semanaEditMode;let html='';
-html+=`<div class="intention-box"><div class="intention-accent"></div><div class="intention-txt"><div class="intention-theme">${d.theme}</div>${ed?edEl(di,['intention']):d.intention}</div></div>`;
-html+=`<div class="day-prog-bar-wrap"><div class="day-prog-row"><span class="day-prog-lbl">Checklist</span><span class="day-prog-pct" id="prog-lbl-${di}">${done}/${tot} concluídas</span></div><div class="day-prog-bar"><div class="day-prog-fill" id="prog-fill-${di}" style="width:${pct}%"></div></div></div>`;
-html+=`<div class="section-label">Rituais</div>`;
-d.rituais.forEach((r,ri)=>{html+=`<div class="rit-item"><div class="rit-n">${r.n}</div><div class="rit-body"><div class="rit-txt">${ed?edEl(di,['rituais',ri,'txt']):r.txt}</div>${(r.sub||ed)?`<div class="rit-sub">${ed?edEl(di,['rituais',ri,'sub'],'sub'):r.sub}</div>`:''}</div></div>`;});
-html+=`<div class="section-label">Checklist</div>`;
-d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const tag=item.startsWith('[VV]')?'<span class="chk-tag viavogue">VIA VOGUE</span>':'<span class="chk-tag heres">HERES</span>';const txt=item.replace(/^\[VV\]\s*/,'');html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick}><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):(tag+txt)}</div></div>`;});
-if(d.whatsapp&&d.whatsapp.length){html+=`<div class="section-label">WhatsApp</div>`;d.whatsapp.forEach((w,wi)=>{html+=`<div class="wa-box"><div class="wa-lbl">${ed?edEl(di,['whatsapp',wi,'label']):w.label}</div><div class="wa-txt">${ed?edEl(di,['whatsapp',wi,'msg']):w.msg}</div></div>`;});}
-html+=`<div class="section-label">Stories · Heres</div>`;
-d.stories.forEach((s,si)=>{html+=`<div class="story-item"><div class="story-hdr"><div class="story-tipo">${ed?edEl(di,['stories',si,'tipo']):s.tipo}</div><div class="story-hora">${ed?edEl(di,['stories',si,'hora']):('⏰ '+s.hora)}</div></div><div class="story-body"><div class="story-desc">${ed?edEl(di,['stories',si,'desc']):s.desc}</div>${(s.legenda||ed)?`<div class="story-legenda-wrap"><div class="story-legenda-lbl">Legenda</div><div class="story-legenda-txt">${ed?edEl(di,['stories',si,'legenda']):('"'+s.legenda+'"')}</div></div>`:''}</div></div>`;});
-if(d.storiesVV&&d.storiesVV.length){
-  html+=`<div class="section-label">Stories · Via Vogue</div>`;
-  d.storiesVV.forEach((s,si)=>{html+=`<div class="story-item" style="border-color:#c8d8e8;"><div class="story-hdr" style="background:#f0f5fa;border-color:#c8d8e8;"><div class="story-tipo" style="color:#3a5878;">${s.tipo}</div><div class="story-hora">⏰ ${s.hora}</div></div><div class="story-body"><div class="story-desc">${s.desc}</div>${s.legenda?`<div class="story-legenda-wrap"><div class="story-legenda-lbl">Legenda</div><div class="story-legenda-txt">"${s.legenda}"</div></div>`:''}</div></div>`;});
-}
-html+=`<div class="section-label">O que não fazer</div>`;
-d.naofazer.forEach((n,ni)=>{html+=`<div class="nao-item"><div class="nao-x">✕</div><div class="nao-body"><div class="nao-txt">${ed?edEl(di,['naofazer',ni,'txt']):n.txt}</div>${(n.sub||ed)?`<div class="nao-sub">${ed?edEl(di,['naofazer',ni,'sub'],'sub'):n.sub}</div>`:''}</div></div>`;});
-html+='<div style="height:16px;"></div>';
-container.innerHTML=html;updateDayProg(di);}
 
+function renderDayScreen(di){
+  const d=SEMANA[di];const container=document.getElementById('day-screen-'+di);if(!container)return;
+  _edPaths=[];container.dataset.built='1';
+  const tot=d.checklist.length;const done=d.checklist.filter((_,ci)=>isChkDone(di,ci)).length;const pct=Math.round(done/tot*100);
+  const ed=semanaEditMode;let html='';
+
+  // Intention box
+  html+=`<div class="intention-box"><div class="intention-accent"></div><div class="intention-txt"><div class="intention-theme">${d.theme}</div>${ed?edEl(di,['intention']):d.intention}</div></div>`;
+
+  // Provador badge se tiver
+  if(d.provador){html+=`<div class="provador-badge${d.provador==='VV'?' vv':''}">${d.provador==='VV'?'📹 Provador Via Vogue — Jamile':'📹 Provador Heres — Ana'}</div>`;}
+
+  // Progresso checklist
+  html+=`<div class="day-prog-bar-wrap"><div class="day-prog-row"><span class="day-prog-lbl">Checklist</span><span class="day-prog-pct" id="prog-lbl-${di}">${done}/${tot} concluídas</span></div><div class="day-prog-bar"><div class="day-prog-fill" id="prog-fill-${di}" style="width:${pct}%"></div></div></div>`;
+
+  // Rituais
+  html+=`<div class="section-label">Rituais</div>`;
+  d.rituais.forEach((r,ri)=>{html+=`<div class="rit-item"><div class="rit-n">${r.n}</div><div class="rit-body"><div class="rit-txt">${ed?edEl(di,['rituais',ri,'txt']):r.txt}</div>${(r.sub||ed)?`<div class="rit-sub">${ed?edEl(di,['rituais',ri,'sub'],'sub'):r.sub}</div>`:''}</div></div>`;});
+
+  // Checklist
+  html+=`<div class="section-label">Checklist</div>`;
+  d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const isVV=item.startsWith('[VV]');const tag=isVV?'<span class="chk-tag viavogue">VIA VOGUE</span>':'<span class="chk-tag heres">HERES</span>';const txt=item.replace(/^\[VV\]\s*/,'');html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick}><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):(tag+txt)}</div></div>`;});
+
+  // WhatsApp
+  if(d.whatsapp&&d.whatsapp.length){html+=`<div class="section-label">WhatsApp</div>`;d.whatsapp.forEach((w,wi)=>{html+=`<div class="wa-box"><div class="wa-lbl">${ed?edEl(di,['whatsapp',wi,'label']):w.label}</div><div class="wa-txt">${ed?edEl(di,['whatsapp',wi,'msg']):w.msg}</div></div>`;});}
+
+  // Stories Heres
+  html+=`<div class="section-label">Stories</div>`;
+  html+=`<div class="story-section-header"><span class="story-section-badge heres">Heres · @heresselect</span></div>`;
+  d.stories.forEach((s,si)=>{html+=`<div class="story-item"><div class="story-hdr"><div class="story-tipo">${ed?edEl(di,['stories',si,'tipo']):s.tipo}</div><div class="story-hora">${ed?edEl(di,['stories',si,'hora']):('⏰ '+s.hora)}</div></div><div class="story-body"><div class="story-desc">${ed?edEl(di,['stories',si,'desc']):s.desc}</div>${(s.legenda||ed)?`<div class="story-legenda-wrap"><div class="story-legenda-lbl">Legenda</div><div class="story-legenda-txt">${ed?edEl(di,['stories',si,'legenda']):('"'+s.legenda+'"')}</div></div>`:''}</div></div>`;});
+
+  // Stories Via Vogue
+  if(d.storiesVV&&d.storiesVV.length){
+    html+=`<div class="story-section-header"><span class="story-section-badge viavogue">Via Vogue</span></div>`;
+    d.storiesVV.forEach((s,si)=>{html+=`<div class="story-item vv"><div class="story-hdr"><div class="story-tipo">${ed?edEl(di,['storiesVV',si,'tipo']):s.tipo}</div><div class="story-hora">⏰ ${ed?edEl(di,['storiesVV',si,'hora']):s.hora}</div></div><div class="story-body"><div class="story-desc">${ed?edEl(di,['storiesVV',si,'desc']):s.desc}</div>${(s.legenda||ed)?`<div class="story-legenda-wrap"><div class="story-legenda-lbl">Legenda</div><div class="story-legenda-txt">${ed?edEl(di,['storiesVV',si,'legenda']):('"'+s.legenda+'"')}</div></div>`:''}</div></div>`;});
+  }
+
+  // Não fazer
+  html+=`<div class="section-label">O que não fazer</div>`;
+  d.naofazer.forEach((n,ni)=>{html+=`<div class="nao-item"><div class="nao-x">✕</div><div class="nao-body"><div class="nao-txt">${ed?edEl(di,['naofazer',ni,'txt']):n.txt}</div>${(n.sub||ed)?`<div class="nao-sub">${ed?edEl(di,['naofazer',ni,'sub'],'sub'):n.sub}</div>`:''}</div></div>`;});
+  html+='<div style="height:16px;"></div>';
+  container.innerHTML=html;updateDayProg(di);
+}
+
+// ── DADOS DA SEMANA — MAIO 2025 ──────────────────────────
+// Provador: TERÇA — Ana (Heres) + Jamile (Via Vogue)
+// Rituais = tarefas operacionais das vendedoras + caixa/financeiro
+// Checklist = só conteúdo (stories Heres e VV)
 const SEMANA=[
-{id:'seg',label:'SEG',full:'Segunda-feira',theme:'Presença + Ogochi',
-intention:'Semana de recuperação. Conteúdo que vende, não só que aparece.',
+{id:'seg',label:'SEG',full:'Segunda-feira',theme:'Estoque novo chegando · Criar expectativa',
+intention:'Semana nova com estoque novo. O conteúdo de hoje prepara o terreno para o que vai chegar — e já vende o que tem.',
+provador:null,
 rituais:[
   {n:'1',txt:'Arrumar araras por paleta: off-white → camel → preto',sub:'Sem peças misturadas, sem espaços vazios aparentes'},
-  {n:'2',txt:'Checar vitrine: só peças da nova fase Heres expostas',sub:'Paleta: off-white, preto, caramelo, camel, terracota'},
-  {n:'3',txt:'Ligar música ambiente antes de abrir',sub:'Calmo, com personalidade'},
-  {n:'4',txt:'Espelho limpo, iluminação ajustada',sub:''}
+  {n:'2',txt:'Checar vitrine — só peças da nova fase Heres expostas',sub:'Paleta: off-white, preto, camel, terracota'},
+  {n:'3',txt:'Ligar música ambiente e verificar iluminação antes de abrir',sub:''},
+  {n:'4',txt:'Checar boletos e vencimentos do dia no sistema',sub:'Qualquer boleto vencendo hoje ou amanhã — avisar antes de abrir'},
+  {n:'5',txt:'Registrar todas as vendas do dia no app antes de fechar',sub:'Nenhuma venda sem registro'}
 ],
 checklist:[
-  'Definir meta da semana em R$ e dividir por dia',
-  'Passar meta diária pra Ana e Jamile',
-  'Story 1 Heres — foto da peça mais forte com preço visível',
-  'Story 2 Heres — calça wide leg: vídeo do caimento com preço e tamanhos',
-  'Story 3 Heres — caixinha: qual peça você quer ver com mais detalhes?',
-  'Responder caixinha no DM com foto + preço na hora',
-  '[VV] Story 1 Via Vogue — foto oficial Ogochi com preço',
-  '[VV] Story 2 Via Vogue — detalhe da peça Ogochi',
-  '[VV] Story 3 Via Vogue — chamada: manda mensagem ou passa na loja'
+  'HERES: Story 1 — peça forte do acervo com preço visível',
+  'HERES: Story 2 — teaser do estoque novo chegando (não revelar tudo)',
+  'HERES: Story 3 — caixinha: qual estilo você mais usa no dia a dia?',
+  'HERES: Reels de produto — look completo com a peça mais forte, música em alta, preço na tela',
+  '[VV] Story 1 — Ogochi: foto oficial com preço',
+  '[VV] Story 2 — Ogochi: detalhe da peça',
+  '[VV] Story 3 — chamada direta pra compra',
+  '[VV] Reels de produto — look Via Vogue com peça da semana, música em alta, preço na tela'
 ],
 stories:[
-  {tipo:'Story 1 — Produto com preço',hora:'9h',desc:'Foto da peça mais forte do acervo. Texto direto em cima.',legenda:'[nome da peça] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Calça wide leg',hora:'10h',desc:'Vídeo segurando na cintura e deixando cair, mostrando barra e caimento.',legenda:'Calça wide leg — R$ [valor]. Tamanhos: [listar]. Manda mensagem.'},
-  {tipo:'Story 3 — Caixinha',hora:'14h',desc:'Fundo off-white, texto simples. Responder no DM com foto + preço pra quem interagir.',legenda:'Qual peça você quer ver com mais detalhes?'}
+  {tipo:'Story 1 — Peça forte com preço',hora:'9h',desc:'Foto da peça mais desejada do acervo. Fundo neutro, texto com preço.',legenda:'[nome da peça] — R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Teaser do estoque novo',hora:'10h30',desc:'Foto parcial, embalagem ou caixas chegando. Não revelar tudo — criar expectativa.',legenda:'Tem novidade chegando essa semana 🤍 Fica de olho.'},
+  {tipo:'Story 3 — Caixinha de conexão',hora:'14h',desc:'Fundo off-white, texto simples. Responder cada DM com foto + preço da peça.',legenda:'Qual estilo você mais usa no dia a dia?'},
+  {tipo:'Reels — Produto (Heres)',hora:'17h',desc:'Look completo com a peça mais forte. Girar 360°, mostrar caimento de frente e de costas. Música em alta no momento. Texto na tela: nome da peça + preço. Sem falar — só imagem e texto. Duração: 15–20s.',legenda:'[nome da peça] 🖤 R$ [valor] · manda mensagem'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Ogochi',hora:'9h30',desc:'Foto oficial da marca. Texto direto.',legenda:'Ogochi chegou. Camisas a partir de R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Detalhe Ogochi',hora:'10h30',desc:'Closeup da estampa ou tecido da camisa.',legenda:'Qualidade Ogochi. R$ [valor]. Tamanhos: [listar].'},
-  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples com endereço ou link.',legenda:'Passa na loja ou manda mensagem.'}
+  {tipo:'Story 1 — Ogochi com preço',hora:'9h30',desc:'Foto oficial da marca. Texto direto com preço.',legenda:'Ogochi chegou. Camisas a partir de R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Detalhe Ogochi',hora:'10h30',desc:'Closeup da estampa ou tecido.',legenda:'Qualidade que você vê de perto. R$ [valor].'},
+  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'},
+  {tipo:'Reels — Produto (Via Vogue)',hora:'17h30',desc:'Look com peça Ogochi ou Patoge. Mesma lógica: 360°, caimento, música em alta, texto com nome e preço na tela. Sem falar — só imagem e texto. Duração: 15–20s.',legenda:'[nome da peça] · R$ [valor] · manda mensagem'}
 ],
 whatsapp:[],
 naofazer:[
-  {txt:'Não postar sem preço',sub:'Preço no story é o que transforma visualização em mensagem.'},
-  {txt:'Não usar stickers coloridos ou emojis excessivos',sub:'Máximo 1 emoji. Prefira 🤍 ou 🖤'},
-  {txt:'Não postar fundo colorido ou estampado',sub:'Sempre fundo neutro: parede branca, off-white ou bege.'}
+  {txt:'Não postar sem preço',sub:'Preço visível transforma visualização em mensagem.'},
+  {txt:'Não revelar tudo do estoque novo hoje',sub:'O teaser gera expectativa e tráfego ao longo da semana.'},
+  {txt:'Não usar fundo colorido ou estampado',sub:'Sempre fundo neutro: branco, off-white ou bege.'}
 ]},
 
-{id:'ter',label:'TER',full:'Terça-feira',theme:'Reconexão + Patoge',
-intention:'Terça ativa quem já conhece a loja. Reconexão converte — especialmente em semana de recuperação.',
+{id:'ter',label:'TER',full:'Terça-feira',theme:'Provador · Ana (Heres) + Jamile (Via Vogue)',
+intention:'Terça é o dia do provador — o conteúdo mais verdadeiro e que mais gera venda. Ana mostra as peças Heres, Jamile mostra as peças Via Vogue. Cada uma com a sua loja.',
+provador:'AMBAS',
 rituais:[
-  {n:'1',txt:'Selecionar clientes que compraram nos últimos 60 dias',sub:'Priorizar quem comprou mais de uma vez'},
-  {n:'2',txt:'Escolher 1 peça que combine com o estilo de cada uma',sub:'Personalizar a mensagem'},
-  {n:'3',txt:'Rascunhar a mensagem antes de enviar — ler em voz alta',sub:'Tem que soar natural, não de loja'}
+  {n:'1',txt:'Ana: arrumar o provador Heres antes de gravar',sub:'Fundo limpo, espelho visível, luz natural ou acesa'},
+  {n:'2',txt:'Jamile: separar 3 peças Via Vogue para o provador',sub:'Preferencialmente uma de cada marca: Patoge, Pury, Ogochi'},
+  {n:'3',txt:'Testar câmera antes — corpo inteiro visível no quadro',sub:''},
+  {n:'4',txt:'Checar boletos e vencimentos do dia',sub:'Qualquer vencimento hoje ou amanhã — registrar e avisar'},
+  {n:'5',txt:'Fazer acerto do caixa Bradesco ao fechar',sub:'Conferir entradas do dia e lançar no sistema'}
 ],
 checklist:[
-  'WhatsApp enviado entre 10h e 12h para clientes selecionadas',
-  'Story 1 Heres — dois looks com a calça wide leg',
-  'Story 2 Heres — detalhe de tecido de peça nova com preço',
-  'Story 3 Heres — chamada direta pra calça wide leg',
-  'Anotar quem respondeu o WhatsApp',
-  'Conferir caixa ao fechar',
-  '[VV] Story 1 Via Vogue — novidades Patoge com foto oficial',
-  '[VV] Story 2 Via Vogue — look Patoge no Photoroom (se não tiver foto da marca)',
-  '[VV] Story 3 Via Vogue — chamada: essas peças acabam rápido, manda mensagem'
+  'HERES: Story provador — Ana experimenta 2–3 peças Heres com preço na tela',
+  'HERES: Story — detalhe de tecido/acabamento com preço',
+  'HERES: Story — look completo Heres com valor total',
+  'HERES: Reels do provador editado e postado',
+  '[VV] Story provador — Jamile experimenta peças Via Vogue com preço',
+  '[VV] Story — detalhe da peça Via Vogue',
+  '[VV] Story — chamada: manda mensagem pra reservar'
 ],
 stories:[
-  {tipo:'Story 1 — Dois looks com a calça',hora:'9h30',desc:'Foto ou sequência: look 1 com cropped branco, look 2 com blazer.',legenda:'Duas formas de usar. Uma peça. R$ [valor].'},
-  {tipo:'Story 2 — Detalhe de tecido',hora:'11h',desc:'Closeup da textura e acabamento de peça nova.',legenda:'Detalhe que você vê de perto. R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 3 — Chamada direta calça',hora:'14h',desc:'Fundo escuro, texto limpo.',legenda:'Essa calça não saiu ainda. Vem experimentar — se não gostar, não leva.'}
+  {tipo:'Provador — Ana (Heres)',hora:'10h',desc:'Ana experimenta 2–3 peças Heres. Fala natural, mostra de frente e de lado. Preço em texto na tela.',legenda:null},
+  {tipo:'Story — Detalhe + preço',hora:'11h30',desc:'Closeup do acabamento, textura ou botão da peça Heres mais pedida.',legenda:'É assim de perto 🤍 R$ [valor]. Manda mensagem.'},
+  {tipo:'Story — Look completo Heres',hora:'14h',desc:'Look montado com 3 peças Heres. Mostrar cada peça com preço.',legenda:'Look completo — R$ [valor total]. Manda mensagem.'},
+  {tipo:'Reels — Provador Heres',hora:'15h',desc:'Clipes do provador editados. Cada peça 5–8s, corte seco, música calma. Preço aparece na tela.',legenda:'Provador de terça 🖤'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Patoge novidades',hora:'9h',desc:'Foto oficial da marca com destaque para as peças novas.',legenda:'Chegou Patoge. Novidades dessa semana. R$ [valor] a partir de.'},
-  {tipo:'Story 2 — Look Patoge',hora:'10h30',desc:'Look montado no Photoroom se não tiver foto da marca.',legenda:'Look Patoge — R$ [valor total]. Manda mensagem.'},
-  {tipo:'Story 3 — Urgência suave',hora:'14h',desc:'Fundo simples.',legenda:'Essas peças acabam rápido. Manda mensagem pra reservar.'}
+  {tipo:'Provador — Jamile (Via Vogue)',hora:'10h30',desc:'Jamile experimenta peças Via Vogue. Fala natural, mostra caimento. Preço visível.',legenda:null},
+  {tipo:'Story — Detalhe Via Vogue',hora:'12h',desc:'Closeup do acabamento da peça Patoge ou Pury.',legenda:'Esse detalhe faz diferença. R$ [valor].'},
+  {tipo:'Story — Chamada',hora:'14h',desc:'Fundo simples, texto direto.',legenda:'Essas peças acabam rápido. Manda mensagem pra reservar.'}
 ],
-whatsapp:[{label:'Reconexão — clientes dos últimos 60 dias',msg:'Oi [nome] 🤍 Ainda tem disponível, R$ [valor]. Quer ver mais detalhes?'}],
+whatsapp:[{label:'Reconexão — clientes dos últimos 60 dias',msg:'Oi [nome] 🤍 Tem peças novas chegando essa semana na Heres. Você foi uma das primeiras que pensei em avisar. Quer que eu te mande uma foto quando chegar?'}],
 naofazer:[
-  {txt:'Não mandar mensagem em massa igual pra todo mundo',sub:'A cliente percebe. Personalização é o que faz ela responder.'},
-  {txt:'Não mandar follow-up no mesmo dia',sub:'Se não respondeu, esperar até quinta.'}
+  {txt:'Não gravar com fundo bagunçado ou mal iluminado',sub:'O ambiente faz parte da marca. Preparar o espaço antes de gravar.'},
+  {txt:'Não postar sem preço na tela',sub:'Quem quer saber o preço mas não vê não pergunta — vai embora.'},
+  {txt:'Não mandar o mesmo WhatsApp pra todo mundo igual',sub:'Personalizar pelo menos o nome e a peça.'}
 ]},
 
-{id:'qua',label:'QUA',full:'Quarta-feira',theme:'Checkpoint + Pury',
-intention:'Metade da semana. Checar se a meta diária está sendo batida — ajustar o ritmo agora, não sexta.',
+{id:'qua',label:'QUA',full:'Quarta-feira',theme:'Lançamento do estoque novo',
+intention:'O momento que a semana estava esperando. Mostrar o estoque novo com energia — mas sem jogar tudo de uma vez.',
+provador:null,
 rituais:[
-  {n:'1',txt:'Montar 1 look completo com peças atuais da loja',sub:'Coerência de paleta: off-white, preto, camel, terracota'},
-  {n:'2',txt:'Fotografar com luz natural — perto da janela ou vitrine',sub:'Câmera no nível dos olhos'},
-  {n:'3',txt:'Escrever a legenda antes de postar',sub:'Máximo 2 frases. Preço visível.'}
+  {n:'1',txt:'Receber e checar o estoque novo antes de mostrar',sub:'Testar caimento de cada peça, verificar acabamento'},
+  {n:'2',txt:'Separar as 3 peças mais fortes para mostrar hoje',sub:'As de maior apelo visual e de venda'},
+  {n:'3',txt:'Fotografar com luz natural — perto da janela ou vitrine',sub:''},
+  {n:'4',txt:'Checar boletos e vencimentos do dia',sub:''},
+  {n:'5',txt:'Registrar todas as vendas no app antes de fechar',sub:''}
 ],
 checklist:[
-  'Checar resultado de seg/ter — estamos no ritmo da meta?',
-  'Story 1 Heres — peça do dia com preço visível',
-  'Story 2 Heres — look completo com valor total',
-  'Story 3 Heres — enquete: qual você escolheria? Responder no DM com preço',
-  'Mandar DM pra quem curtiu post ou respondeu story essa semana',
-  'Conferir caixa ao fechar',
-  '[VV] Story 1 Via Vogue — foto oficial Pury com preço',
-  '[VV] Story 2 Via Vogue — look Pury no Photoroom',
-  '[VV] Story 3 Via Vogue — chamada: passa na loja ou manda mensagem'
+  'HERES: Story 1 — primeira peça do estoque novo com preço',
+  'HERES: Story 2 — segunda peça nova em look montado',
+  'HERES: Story 3 — enquete: qual você prefere? Responder no DM com foto',
+  'HERES: Story 4 — como pedir: DM, formas de pagamento e entrega',
+  'HERES: Reels de conexão — bastidor do estoque chegando, clima da loja, sem falar de preço',
+  '[VV] Story 1 — novidades Patoge com foto e preço',
+  '[VV] Story 2 — look Patoge montado',
+  '[VV] Story 3 — chamada: passa na loja ou manda mensagem',
+  '[VV] Reels de conexão — bastidor Via Vogue, peças sendo organizadas, clima humano da loja'
 ],
 stories:[
-  {tipo:'Story 1 — Peça do dia com preço',hora:'9h',desc:'Toda quarta uma peça diferente com preço visível.',legenda:'[nome] — R$ [valor].'},
-  {tipo:'Story 2 — Look completo',hora:'10h30',desc:'Look montado com 3 peças, mostrar o preço de cada e o total.',legenda:'Look completo: [peça 1] + [peça 2] + [peça 3] = R$ [valor].'},
-  {tipo:'Story 3 — Enquete',hora:'14h',desc:'Foto de duas peças diferentes. Quem votar recebe foto com preço no DM.',legenda:'Qual você escolheria? A ou B?'}
+  {tipo:'Story 1 — Lançamento (peça 1)',hora:'9h',desc:'Primeira peça nova. Fundo branco, luz boa. Nome e preço em texto.',legenda:'Chegou 🤍 [nome da peça] — R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Look com peça nova',hora:'10h30',desc:'A peça nova num look completo, mostrando como usar.',legenda:'Assim fica 🤍 R$ [valor]. Tamanhos: [listar].'},
+  {tipo:'Story 3 — Enquete das novas',hora:'12h',desc:'Foto de duas peças novas. Quem votar recebe foto + preço no DM.',legenda:'Qual você mais amou? A ou B?'},
+  {tipo:'Story 4 — Como pedir',hora:'15h',desc:'Fundo escuro, texto simples explicando como comprar.',legenda:'Manda mensagem. Entregamos em todo o Brasil 📦'},
+  {tipo:'Reels — Conexão (Heres)',hora:'18h',desc:'Bastidor da loja: caixas chegando, peças sendo destrinchadas, araras sendo montadas. Câmera na mão, ritmo leve. Música calma. Sem falar de preço — mostrar o lado humano e cuidadoso da loja. Duração: 20–30s.',legenda:'Cada peça que chega aqui passa pelo nosso olhar primeiro 🤍'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Pury',hora:'9h30',desc:'Foto oficial Pury.',legenda:'Pury na Via Vogue. R$ [valor] a partir de. Manda mensagem.'},
-  {tipo:'Story 2 — Look Pury',hora:'11h',desc:'Look completo com peças Pury no Photoroom.',legenda:'Look completo — R$ [valor]. Disponível agora.'},
-  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem.'}
+  {tipo:'Story 1 — Patoge novidades',hora:'9h30',desc:'Foto oficial Patoge com destaque para peças novas.',legenda:'Chegou Patoge 🤍 A partir de R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Look Patoge',hora:'11h',desc:'Look montado com peças Patoge.',legenda:'Look Patoge — R$ [valor total]. Disponível agora.'},
+  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'},
+  {tipo:'Reels — Conexão (Via Vogue)',hora:'18h30',desc:'Bastidor Via Vogue: peças sendo organizadas, araras arrumadas, clima da loja. Câmera na mão, ritmo leve. Sem preço — só humanização. Duração: 20–30s.',legenda:'Por trás de cada peça tem muito cuidado 🤍'}
 ],
-whatsapp:[{label:'DM — quem curtiu post ou respondeu story',msg:'Oi [nome]! Ainda temos disponível, R$ [valor]. Quer ver mais detalhes?'}],
+whatsapp:[{label:'DM — quem curtiu ou respondeu story',msg:'Oi [nome]! O estoque novo chegou 🤍 Separei uma peça que achei que você ia amar — quer que eu te mande a foto?'}],
 naofazer:[
-  {txt:'Não postar sem preço',sub:'Preço no story é o que transforma visualização em mensagem.'},
-  {txt:'Não escrever legenda longa',sub:'Máximo 2 frases. A foto precisa falar por si.'}
+  {txt:'Não lançar tudo hoje',sub:'Reserve peças para quinta e sexta — sustenta o tráfego ao longo da semana.'},
+  {txt:'Não escrever legenda longa',sub:'A foto vende. A legenda só confirma com preço e CTA.'}
 ]},
 
-{id:'qui',label:'QUI',full:'Quinta-feira',theme:'Provador + Consciência Jeans',
-intention:'Quinta decide o fim de semana. Provador gera desejo — desejo gera venda no sábado.',
+{id:'qui',label:'QUI',full:'Quinta-feira',theme:'Continuação do lançamento · Urgência real',
+intention:'Quem viu ontem e não comprou está considerando. Quinta é o empurrão — mais peças novas e urgência sem exagero.',
+provador:null,
 rituais:[
-  {n:'1',txt:'Arrumar o provador: fundo limpo, espelho visível, luz acesa',sub:'Retirar tudo que não deve aparecer no fundo'},
-  {n:'2',txt:'Testar câmera antes de gravar — corpo inteiro visível',sub:''},
-  {n:'3',txt:'Gravar cada peça: 15–20 seg, fala natural',sub:'"Essa peça chegou essa semana e eu fiquei apaixonada porque..."'}
+  {n:'1',txt:'Confirmar reservas feitas por DM',sub:'Não deixar cliente esperando mais de 2h'},
+  {n:'2',txt:'Separar peças novas ainda não mostradas',sub:''},
+  {n:'3',txt:'Checar boletos e vencimentos do dia',sub:''},
+  {n:'4',txt:'Fazer acerto do caixa Bradesco ao fechar',sub:'Conferir entradas e lançar no sistema'},
+  {n:'5',txt:'Registrar todas as vendas no app antes de fechar',sub:''}
 ],
 checklist:[
-  'Story 1 Heres — provador: experimentar peças, fala natural com preço',
-  'Story 2 Heres — detalhe de tecido + preço',
-  'Story 3 Heres — look completo com valor total',
-  'Reels do provador gravado e editado',
-  'WhatsApp de cashback enviado pra clientes elegíveis',
-  'Conferir caixa ao fechar',
-  '[VV] Story 1 Via Vogue — foto oficial Consciência Jeans',
-  '[VV] Story 2 Via Vogue — detalhe do jeans: tecido, acabamento',
-  '[VV] Story 3 Via Vogue — look Consciência no Photoroom com preço'
+  'HERES: Story 1 — peças novas ainda não mostradas, com preço',
+  'HERES: Story 2 — detalhe de tecido/acabamento de peça nova',
+  'HERES: Story 3 — urgência real: algumas peças têm só 1 por tamanho',
+  '[VV] Story 1 — Pury: foto oficial com preço',
+  '[VV] Story 2 — look ou detalhe Pury',
+  '[VV] Story 3 — urgência suave: essas peças somem rápido'
 ],
 stories:[
-  {tipo:'Story 1 — Provador',hora:'10h',desc:'Experimentar as peças. Fala natural, sem roteiro. Mostrar de frente e de lado com preço.',legenda:null},
-  {tipo:'Story 2 — Detalhe + preço',hora:'11h30',desc:'Closeup de acabamento de peça nova.',legenda:'R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 3 — Look completo',hora:'14h',desc:'Look montado com 3 peças e valor total.',legenda:'Look completo — R$ [valor]. Manda mensagem.'},
-  {tipo:'Reels — Provador editado',hora:'15h',desc:'Sequência dos clipes. Cada peça 5–8 seg, corte seco, música calma. Preço aparece na tela.',legenda:'Provador da semana 🖤'}
+  {tipo:'Story 1 — Mais peças novas',hora:'9h30',desc:'Peças novas ainda não mostradas. Uma por story com preço.',legenda:'Tem mais 🤍 [nome] — R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Detalhe de tecido',hora:'11h',desc:'Closeup da textura, acabamento e qualidade de uma das novas peças.',legenda:'É assim de perto. R$ [valor].'},
+  {tipo:'Story 3 — Urgência real',hora:'14h',desc:'Fundo escuro, texto direto. Só informar a realidade do estoque — não inventar.',legenda:'Algumas peças têm só 1 por tamanho. Se você está pensando, é hora de confirmar.'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Consciência Jeans',hora:'9h30',desc:'Foto oficial da marca.',legenda:'Consciência Jeans. Jeans de qualidade a partir de R$ [valor].'},
-  {tipo:'Story 2 — Detalhe',hora:'11h',desc:'Closeup do tecido, acabamento, botão.',legenda:'Detalhe que faz diferença. R$ [valor]. Tamanhos: [listar].'},
-  {tipo:'Story 3 — Look no Photoroom',hora:'14h',desc:'Look completo com a peça no Photoroom.',legenda:'Como usar. R$ [valor]. Manda mensagem.'}
+  {tipo:'Story 1 — Pury',hora:'9h30',desc:'Foto oficial Pury com preço.',legenda:'Pury na Via Vogue — R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Look ou detalhe Pury',hora:'11h',desc:'Look montado ou closeup de detalhe.',legenda:'Qualidade que você vê. R$ [valor]. Tamanhos: [listar].'},
+  {tipo:'Story 3 — Urgência suave',hora:'14h',desc:'Fundo simples.',legenda:'Essas peças somem rápido. Manda mensagem pra reservar o seu.'}
 ],
-whatsapp:[{label:'Cashback — clientes elegíveis',msg:'Oi [nome]! 🤍 Você tem cashback disponível na Heres — R$ [valor]. Válido essa semana. Quer ver as novidades antes de vir?'}],
+whatsapp:[{label:'Cashback — clientes elegíveis',msg:'Oi [nome]! 🤍 Você tem cashback disponível na Heres — R$ [valor]. Chegaram peças novas essa semana. Quer que eu te mande uma foto?'}],
 naofazer:[
-  {txt:'Não gravar com fundo bagunçado ou mal iluminado',sub:'Preparar o provador antes. A qualidade do vídeo é parte da marca.'},
-  {txt:'Não postar sem preço',sub:'Quem hesita em peça de jeans hesita por não saber o preço e se vai servir.'}
+  {txt:'Não inventar urgência falsa',sub:'Dizer que tem só 1 quando tem 5 — a cliente percebe e perde confiança.'},
+  {txt:'Não deixar DM sem resposta no mesmo dia',sub:'Quem perguntou hoje e não recebeu resposta compra de outra loja amanhã.'}
 ]},
 
-{id:'sex',label:'SEX',full:'Sexta-feira',theme:'Urgência + Gatabakana',
-intention:'Sexta é o trampolim pro sábado. O conteúdo de hoje define o movimento de amanhã.',
+{id:'sex',label:'SEX',full:'Sexta-feira',theme:'Conexão · Preparar o sábado',
+intention:'Sexta gera movimento pro sábado. Conteúdo mais leve e pessoal — mostrar quem é a Heres além do produto.',
+provador:null,
 rituais:[
-  {n:'1',txt:'Reorganizar vitrine para o fim de semana',sub:''},
-  {n:'2',txt:'Definir a peça destaque do sábado',sub:'A que mais representa a marca nessa semana'},
-  {n:'3',txt:'Loja perfumada e com música antes das 10h',sub:''}
+  {n:'1',txt:'Reorganizar vitrine com as peças novas em destaque',sub:''},
+  {n:'2',txt:'Deixar a loja perfumada e com música antes das 10h',sub:''},
+  {n:'3',txt:'Checar boletos e vencimentos do dia',sub:'Sexta é o último dia útil — resolver pendências antes do fim de semana'},
+  {n:'4',txt:'Registrar todas as vendas no app antes de fechar',sub:''}
 ],
 checklist:[
-  'Story 1 Heres — lista de peças disponíveis com preço',
-  'Story 2 Heres — urgência: sábado é o último dia tranquilo',
-  'Story 3 Heres — convite: foto da loja arrumada',
-  'Registrar objeções mais comuns da semana para ajustar abordagem',
-  'Conferir caixa ao fechar',
-  '[VV] Story 1 Via Vogue — abertura liquidação Gatabakana',
-  '[VV] Story 2 Via Vogue — lista de peças Gatabakana com preço de e por',
-  '[VV] Story 3 Via Vogue — urgência: últimas peças, não vai repor',
-  '[VV] Story 4 Via Vogue — chamada: sábado é o último dia'
+  'HERES: Story 1 — bastidor: câmera percorrendo araras com peças novas',
+  'HERES: Story 2 — look do dia com peça nova e preço',
+  'HERES: Story 3 — pergunta de conexão (sem venda direta)',
+  'HERES: Story 4 — convite pra visitar no sábado',
+  '[VV] Story 1 — Consciência Jeans: foto com preço',
+  '[VV] Story 2 — detalhe do jeans: tecido, acabamento, botão',
+  '[VV] Story 3 — chamada: sábado na loja ou manda mensagem'
 ],
 stories:[
-  {tipo:'Story 1 — Lista de peças com preço',hora:'9h30',desc:'Fundo off-white, texto simples listando peças disponíveis.',legenda:'✦ Calça wide leg — R$ X\n✦ [peça 2] — R$ X\n✦ [peça 3] — R$ X\nManda mensagem ou passa aqui.'},
-  {tipo:'Story 2 — Urgência real',hora:'12h',desc:'Fundo escuro, texto direto.',legenda:'Sábado é o último dia tranquilo da semana. Passa na loja.'},
-  {tipo:'Story 3 — Convite',hora:'15h',desc:'Foto da loja arrumada.',legenda:'Amanhã a gente abre. Vem. 🤍'}
+  {tipo:'Story 1 — Bastidor da loja',hora:'9h30',desc:'Vídeo suave percorrendo as araras com peças novas. Sem texto — só a loja bonita e organizada.',legenda:null},
+  {tipo:'Story 2 — Look do dia com nova peça',hora:'11h',desc:'Look completo com uma das peças novas. Preço visível.',legenda:'Look de sexta 🤍 [nome da peça] — R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 3 — Conexão (sem venda)',hora:'13h',desc:'Pergunta leve sobre estilo ou rotina. Sem produto. Gera resposta e humaniza a marca.',legenda:'Me conta: você prefere look mais estruturado ou mais relaxado no dia a dia?'},
+  {tipo:'Story 4 — Convite pro sábado',hora:'16h',desc:'Foto da loja arrumada com boa luz.',legenda:'Amanhã abrimos com as novidades 🤍 Vem nos visitar.'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Abertura liquidação Gatabakana',hora:'9h',desc:'Fundo chamativo, texto direto e urgente.',legenda:'LIQUIDAÇÃO GATABAKANA 🔥 Peças com até [X]% de desconto. Só essa semana.'},
-  {tipo:'Story 2 — Lista com preço de e por',hora:'10h',desc:'Listar peças com preço original e preço de liquidação.',legenda:'[peça] — de R$ X por R$ X\n[peça] — de R$ X por R$ X\nEnquanto durar o estoque.'},
-  {tipo:'Story 3 — Urgência',hora:'13h',desc:'Fundo simples.',legenda:'Últimas peças. Não vai repor. Manda mensagem agora.'},
-  {tipo:'Story 4 — Chamada final',hora:'16h',desc:'',legenda:'Sábado é o último dia. Passa na loja ou manda mensagem.'}
+  {tipo:'Story 1 — Consciência Jeans',hora:'9h',desc:'Foto oficial com preço.',legenda:'Consciência Jeans na Via Vogue. A partir de R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 2 — Detalhe do jeans',hora:'10h30',desc:'Closeup do tecido, acabamento, botão — mostrar qualidade.',legenda:'Qualidade que você sente na mão. R$ [valor].'},
+  {tipo:'Story 3 — Chamada sábado',hora:'15h',desc:'Fundo simples.',legenda:'Sábado na loja ou manda mensagem. Entregamos em todo o Brasil.'}
 ],
 whatsapp:[],
 naofazer:[
-  {txt:'Heres — não postar "Última peça!" ou urgência artificial',sub:'A Heres não pressiona. Convida. Urgência real é diferente de urgência forçada.'},
-  {txt:'Via Vogue Gatabakana — não esquecer de colocar o preço de e por',sub:'A liquidação só converte se o desconto for visível.'}
+  {txt:'Não forçar venda direta no Story 3',sub:'A pergunta de conexão aproxima o público e prepara a venda do sábado — não transformar em produto.'},
+  {txt:'Não postar com luz ruim',sub:'Sexta tem energia — o conteúdo precisa refletir isso.'}
 ]},
 
-{id:'sab',label:'SÁB',full:'Sábado',theme:'Conexão + Mix',
-intention:'Sábado é o dia que mais pesa na meta. Energia total — cada atendimento pode virar a semana.',
+{id:'sab',label:'SÁB',full:'Sábado',theme:'Conversão máxima · Cada atendimento conta',
+intention:'Sábado decide a semana. Energia total — registrar cada cliente nova, oferecer look completo, não peça isolada.',
+provador:null,
 rituais:[
   {n:'1',txt:'Receber cada cliente como se fosse a primeira vez',sub:''},
-  {n:'2',txt:'Anotar nome e contato de toda cliente nova',sub:'Ela vira candidata para reconexão na próxima semana'},
-  {n:'3',txt:'Manter a loja organizada o dia todo',sub:'Repor peças experimentadas a cada hora'},
-  {n:'4',txt:'Oferecer look completo pra cada cliente, não peça isolada',sub:''}
+  {n:'2',txt:'Anotar nome e contato de toda cliente nova',sub:'Ela vira candidata pra reconexão na próxima semana'},
+  {n:'3',txt:'Manter a loja organizada — repor peças experimentadas a cada hora',sub:''},
+  {n:'4',txt:'Oferecer look completo — nunca peça isolada',sub:'Ticket médio mais alto e experiência melhor'},
+  {n:'5',txt:'Registrar todas as vendas no app antes de fechar',sub:'Nenhuma venda sem registro'}
 ],
 checklist:[
-  'Abertura pontual com loja 100% pronta',
-  'Story 1 Heres — araras em movimento: câmera passando devagar',
-  'Story 2 Heres — peça que mais chamou atenção na semana com preço',
-  'Story 3 Heres — registro de movimento (cliente de costas ou só a roupa)',
-  'Story 4 Heres — encerramento',
-  'Registrar clientes novas (nome + contato)',
-  'Checar se a meta da semana foi batida',
-  'Relatório: vendas, o que funcionou, ajuste pra próxima semana',
-  '[VV] Story 1 Via Vogue — melhor peça da semana com preço',
-  '[VV] Story 2 Via Vogue — último dia liquidação Gatabakana',
-  '[VV] Story 3 Via Vogue — encerramento'
+  'HERES: Story 1 — câmera suave percorrendo araras (loja pronta)',
+  'HERES: Story 2 — peça destaque da semana com preço',
+  'HERES: Story 3 — registro de movimento (cliente de costas ou só a roupa, com permissão)',
+  'HERES: Story 4 — encerramento',
+  '[VV] Story 1 — melhor peça da semana Via Vogue com preço',
+  '[VV] Story 2 — urgência: últimas peças dessa seleção',
+  '[VV] Story 3 — encerramento'
 ],
 stories:[
-  {tipo:'Story 1 — Araras em movimento',hora:'9h30',desc:'Câmera passando devagar pelas araras, sem texto. Só a loja pronta.',legenda:null},
-  {tipo:'Story 2 — Peça destaque com preço',hora:'10h30',desc:'A peça que mais chamou atenção essa semana.',legenda:'Ainda tem. R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 3 — Registro de movimento',hora:'13h',desc:'Cliente de costas ou só a roupa (com permissão).',legenda:'Ela levou. Ainda tem.'},
-  {tipo:'Story 4 — Encerramento',hora:'18h',desc:'Vídeo curto arrumando a loja no final da tarde.',legenda:'Obrigada pelo sábado. 🤍'}
+  {tipo:'Story 1 — Araras em movimento',hora:'9h30',desc:'Câmera passando devagar pelas araras. Sem texto — só a loja pronta e bonita.',legenda:null},
+  {tipo:'Story 2 — Peça destaque com preço',hora:'10h30',desc:'A peça mais forte da semana. Foto limpa com preço.',legenda:'Ainda tem 🤍 R$ [valor]. Manda mensagem.'},
+  {tipo:'Story 3 — Registro de movimento',hora:'13h',desc:'Cliente de costas ou só a roupa (sempre com permissão).',legenda:'Ela levou. Ainda tem o seu.'},
+  {tipo:'Story 4 — Encerramento',hora:'18h',desc:'Vídeo curto arrumando a loja no final do dia.',legenda:'Obrigada pelo sábado 🤍 Até segunda.'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Melhor peça da semana',hora:'10h',desc:'A que mais engajou. Foto com preço.',legenda:'Ainda tem. Último dia.'},
-  {tipo:'Story 2 — Gatabakana último aviso',hora:'13h',desc:'',legenda:'Últimas peças da liquidação. Hoje é o último dia.'},
-  {tipo:'Story 3 — Encerramento',hora:'18h',desc:'',legenda:'Obrigada pelo sábado. Até segunda com novidades. 🤍'}
+  {tipo:'Story 1 — Melhor peça da semana',hora:'10h',desc:'A peça Via Vogue que mais engajou. Foto com preço.',legenda:'Ainda tem. Último dia tranquilo.'},
+  {tipo:'Story 2 — Urgência',hora:'13h',desc:'Fundo simples, texto direto.',legenda:'Últimas peças dessa seleção. Manda mensagem agora.'},
+  {tipo:'Story 3 — Encerramento',hora:'18h',desc:'',legenda:'Obrigada pelo sábado 🤍 Até segunda com novidades.'}
 ],
 whatsapp:[],
 naofazer:[
   {txt:'Não filmar clientes sem permissão',sub:''},
-  {txt:'Não esquecer de registrar as clientes novas',sub:'Essa lista alimenta a reconexão da próxima semana.'}
+  {txt:'Não esquecer de registrar clientes novas',sub:'Nome e contato — essa lista alimenta a reconexão da próxima semana.'}
 ]}
 ];
 
