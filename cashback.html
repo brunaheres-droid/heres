@@ -52,7 +52,7 @@ function renderEmpty(msg){
     </div>`;
 }
 
-function renderCashback(v, wpp){
+function renderCashback(v){
   const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
   const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;
   const msg=encodeURIComponent(`Oi! 🤍 Quero usar meu cashback de ${fmt(v.cashbackVal)} na Heres (válido até ${fmtDate(fim)}).`);
@@ -84,9 +84,23 @@ function getCashbacksDisponiveis(vendas, wpp){
   }).sort((a,b)=>b.cashbackVal-a.cashbackVal);
 }
 
+function checarVendaPorId(vendas, id){
+  const v=vendas.find(x=>String(x.id)===String(id));
+  if(!v) return {status:'nao_encontrado'};
+  if(!v.cashbackVal||v.cashbackVal<=0) return {status:'sem_cashback'};
+  if(v.cashbackUsado) return {status:'usado'};
+  const hoje=today();
+  const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);
+  const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
+  if(hoje<inicio) return {status:'pendente',venda:v,inicio};
+  if(hoje>fim) return {status:'expirado',venda:v,fim};
+  return {status:'disponivel',venda:v,fim};
+}
+
 function init(){
   const wpp=getParam('wpp');
-  if(!wpp){
+  const id=getParam('id');
+  if(!wpp && !id){
     renderEmpty('Link inválido. Peça pra loja te enviar o link correto.');
     return;
   }
@@ -95,12 +109,21 @@ function init(){
     const db=firebase.firestore();
     db.collection('heres').doc('vendas').get().then(snap=>{
       const vendas=snap.exists?(snap.data().list||[]):[];
+      if(id){
+        const r=checarVendaPorId(vendas, id);
+        if(r.status==='nao_encontrado'||r.status==='sem_cashback'){renderEmpty('Não encontramos cashback pra esse link.');return;}
+        if(r.status==='usado'){renderEmpty('Esse cashback já foi utilizado.');return;}
+        if(r.status==='expirado'){renderEmpty('Esse cashback já expirou (era válido até '+fmtDate(r.fim)+').');return;}
+        if(r.status==='pendente'){renderEmpty('Esse cashback ainda não liberou — disponível a partir de '+fmtDate(r.inicio)+'.');return;}
+        renderCashback(r.venda);
+        return;
+      }
       const disponiveis=getCashbacksDisponiveis(vendas, wpp);
       if(!disponiveis.length){
         renderEmpty('Você não tem cashback disponível no momento.');
         return;
       }
-      renderCashback(disponiveis[0], wpp);
+      renderCashback(disponiveis[0]);
     }).catch(()=>{
       renderEmpty('Não consegui carregar seu cashback agora. Tente de novo em instantes.');
     });

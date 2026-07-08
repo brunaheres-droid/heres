@@ -674,6 +674,15 @@ function registrar(){
   const t=document.getElementById('toast-venda');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
 }
 function deletar(id){ST.vendas=ST.vendas.filter(v=>v.id!==id);save();}
+function editarWpp(id){
+  const venda=ST.vendas.find(v=>v.id===id);if(!venda)return;
+  const atual=venda.cliWpp||'';
+  const novo=prompt('WhatsApp da cliente (só números, com DDD):', atual);
+  if(novo===null)return;
+  venda.cliWpp=novo.trim().replace(/\D/g,'');
+  save();
+  renderHoje();renderRelLista();renderPainel();renderClientes();
+}
 
 function renderPainel(){
   const td=today();const vH=ST.vendas.filter(v=>v.data===td);const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
@@ -743,7 +752,9 @@ function renderHoje(){
   el.innerHTML=v.map(x=>{
     const cbBadge=x.cashbackVal>0?`<span style="font-size:9px;font-weight:700;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:1px 6px;margin-left:4px;">💰 ${fmt(x.cashbackVal)}</span>`:'';
     const cliInfo=x.cliNome||x.cliWpp?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">${[x.cliNome,x.cliWpp?'📱 '+x.cliWpp:''].filter(Boolean).join(' · ')}</div>`:'';
-    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
+    const wppBtn=x.cliWpp?`<span style="font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">editar WhatsApp</span>`:(x.cashbackVal>0?`<span style="font-size:10px;color:var(--gold-txt);font-weight:700;cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">+ Adicionar WhatsApp (opcional)</span>`:`<span style="font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">+ Adicionar WhatsApp</span>`);
+    const copyBtn=x.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:5px;padding:6px 10px;font-size:10px;" onclick="copiarLinkCashback(${x.id}, this)">📋 Copiar link do cashback</button>`:'';
+    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}<div style="margin-top:3px;">${wppBtn}</div>${copyBtn}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
   }).join('');
 }
 
@@ -789,16 +800,26 @@ function renderCliDetalheContent(c){
   return html;
 }
 function linkCashback(wpp){return window.location.origin+'/cashback.html?wpp='+encodeURIComponent(wpp);}
+function linkCashbackId(id){return window.location.origin+'/cashback.html?id='+encodeURIComponent(id);}
+function copiarLinkCashback(id, btnEl){
+  const link=linkCashbackId(id);
+  const done=()=>{if(btnEl){const orig=btnEl.textContent;btnEl.textContent='✅ Copiado!';setTimeout(()=>{btnEl.textContent=orig;},1800);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(done).catch(()=>{prompt('Copie o link abaixo:',link);});
+  }else{
+    prompt('Copie o link abaixo:',link);
+  }
+}
 function renderCliCashback(){
   const el=document.getElementById('cli-cashback-list');
-  const disponiveis=ST.vendas.filter(v=>getCashbackStatus(v)==='disponivel'&&v.cliWpp)
+  const disponiveis=ST.vendas.filter(v=>getCashbackStatus(v)==='disponivel')
     .sort((a,b)=>addDias(a.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE).localeCompare(addDias(b.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE)));
-  const pendentes=ST.vendas.filter(v=>getCashbackStatus(v)==='pendente'&&v.cliWpp)
+  const pendentes=ST.vendas.filter(v=>getCashbackStatus(v)==='pendente')
     .sort((a,b)=>addDias(a.data,CASHBACK_DIAS_INICIO).localeCompare(addDias(b.data,CASHBACK_DIAS_INICIO)));
   if(!disponiveis.length&&!pendentes.length){el.innerHTML='<div class="empty">Nenhum cashback disponível.</div>';return;}
   let html='';
-  if(disponiveis.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--gold-txt);margin-bottom:8px;padding:7px 12px;background:var(--gold-bg);border-radius:8px;border:1px solid var(--gold);">💰 ${disponiveis.length} cashback${disponiveis.length!==1?'s':''} prontos — ordenados por urgência</div>`;disponiveis.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const hoje=today();const amanha=addDias(hoje,1);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;let urgTag='';if(fim===hoje)urgTag='<span style="font-size:9px;font-weight:700;background:var(--red);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE HOJE</span>';else if(fim===amanha)urgTag='<span style="font-size:9px;font-weight:700;background:var(--terra);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE AMANHÃ</span>';const link=linkCashback(v.cliWpp);const msg=encodeURIComponent(`Oi ${v.cliNome||''}! 🤍 Você tem R$ ${v.cashbackVal.toFixed(2).replace('.',',')} de cashback na Heres — válido até ${fmtDate(fim)}, em compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}. Passe na loja ou me fala se quiser ver novidades 🤍\n\n${link}`);html+=`<div class="cli-cashback-row" style="margin-bottom:8px;"><div class="cli-cashback-status"><div><div class="cli-cashback-lbl">${v.cliNome||v.cliWpp}${urgTag}</div><div style="font-size:10px;color:var(--gold-txt);opacity:.7;">📱 ${v.cliWpp} · ${fmtDate(v.data)}</div></div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div><button class="btn-wa" onclick="window.open('https://wa.me/55${v.cliWpp}?text=${msg}','_blank')">📲 Enviar no WhatsApp</button></div>`;});}
-  if(pendentes.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--muted);margin:12px 0 8px;padding:6px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">⏳ ${pendentes.length} a liberar</div>`;pendentes.forEach(v=>{const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);html+=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12px;font-weight:700;">${v.cliNome||v.cliWpp}</div><div style="font-size:10px;color:var(--muted);">libera em ${fmtDate(inicio)}</div></div><div style="font-size:16px;color:var(--muted);">${fmt(v.cashbackVal)}</div></div>`;});}
+  if(disponiveis.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--gold-txt);margin-bottom:8px;padding:7px 12px;background:var(--gold-bg);border-radius:8px;border:1px solid var(--gold);">💰 ${disponiveis.length} cashback${disponiveis.length!==1?'s':''} prontos — ordenados por urgência</div>`;disponiveis.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const hoje=today();const amanha=addDias(hoje,1);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;let urgTag='';if(fim===hoje)urgTag='<span style="font-size:9px;font-weight:700;background:var(--red);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE HOJE</span>';else if(fim===amanha)urgTag='<span style="font-size:9px;font-weight:700;background:var(--terra);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE AMANHÃ</span>';const contatoInfo=v.cliWpp?`📱 ${v.cliWpp} · ${fmtDate(v.data)}`:`${fmtDate(v.data)} · sem WhatsApp salvo`;let acaoBtn='';if(v.cliWpp){const link=linkCashback(v.cliWpp);const msg=encodeURIComponent(`Oi ${v.cliNome||''}! 🤍 Você tem R$ ${v.cashbackVal.toFixed(2).replace('.',',')} de cashback na Heres — válido até ${fmtDate(fim)}, em compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}. Passe na loja ou me fala se quiser ver novidades 🤍\n\n${link}`);acaoBtn=`<button class="btn-wa" onclick="window.open('https://wa.me/55${v.cliWpp}?text=${msg}','_blank')">📲 Enviar no WhatsApp</button>`;}else{acaoBtn=`<button class="btn-wa" style="background:var(--gold);" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`;}html+=`<div class="cli-cashback-row" style="margin-bottom:8px;"><div class="cli-cashback-status"><div><div class="cli-cashback-lbl">${v.cliNome||'Cliente sem nome'}${urgTag}</div><div style="font-size:10px;color:var(--gold-txt);opacity:.7;">${contatoInfo}</div></div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div>${acaoBtn}</div>`;});}
+  if(pendentes.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--muted);margin:12px 0 8px;padding:6px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">⏳ ${pendentes.length} a liberar</div>`;pendentes.forEach(v=>{const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);html+=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12px;font-weight:700;">${v.cliNome||(v.cliWpp||'Cliente sem nome')}</div><div style="font-size:10px;color:var(--muted);">libera em ${fmtDate(inicio)}</div></div><div style="font-size:16px;color:var(--muted);">${fmt(v.cashbackVal)}</div></div>`;});}
   el.innerHTML=html;
 }
 
@@ -871,7 +892,7 @@ function renderRelLista(){
   <div id="lista-vendas-items"></div>`;
   const cont=document.getElementById('lista-vendas-items');
   if(!vM.length){cont.innerHTML='<div class="empty">Nenhuma venda neste mês.</div>';return;}
-  cont.innerHTML=vM.map(v=>{const[ano,mes,dia]=v.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});return`<div class="venda-ind-item"><div class="venda-ind-top"><div class="venda-ind-nome">${v.cliNome||'Cliente não identificado'}</div><div class="venda-ind-val">${fmt(v.valor)}</div></div><div class="venda-ind-sub"><span class="venda-ind-chip">${dataFmt} · ${v.hora}</span><span class="venda-ind-chip">${v.vendedora}</span><span class="venda-ind-chip">${v.pagamento}</span>${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}${v.cliWpp?`<span class="venda-ind-chip">📱 ${v.cliWpp}</span>`:''}<span class="venda-ind-chip" style="color:var(--terra);">comissão: ${fmt(v.commVal)}</span></div></div>`;}).join('');
+  cont.innerHTML=vM.map(v=>{const[ano,mes,dia]=v.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});const wppChip=v.cliWpp?`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">📱 ${v.cliWpp}</span>`:(v.cashbackVal>0?`<span class="venda-ind-chip" style="color:var(--gold-txt);font-weight:700;cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp (opcional)</span>`:`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp</span>`);const copyBtn=v.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:6px;padding:6px 10px;font-size:10px;width:auto;display:inline-flex;" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`:'';return`<div class="venda-ind-item"><div class="venda-ind-top"><div class="venda-ind-nome">${v.cliNome||'Cliente não identificado'}</div><div class="venda-ind-val">${fmt(v.valor)}</div></div><div class="venda-ind-sub"><span class="venda-ind-chip">${dataFmt} · ${v.hora}</span><span class="venda-ind-chip">${v.vendedora}</span><span class="venda-ind-chip">${v.pagamento}</span>${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}${wppChip}<span class="venda-ind-chip" style="color:var(--terra);">comissão: ${fmt(v.commVal)}</span></div>${copyBtn}</div>`;}).join('');
 }
 
 let relMesSaidas=new Date().getMonth(),relAnoSaidas=new Date().getFullYear();
