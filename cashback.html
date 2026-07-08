@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Heres — Seu Cashback</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f0e8;--card2:#fff;--dark:#1e1c18;--mid:#6a5a4a;--muted:#8a7a6a;--muted2:#b0a090;
+  --border:#ddd5c8;--gold:#b89a58;--gold-bg:#fdf6e8;--gold-txt:#7a5a18;--green:#3a6040;
+  --sans:Arial,'Helvetica Neue',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--dark);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:400px;width:100%;}
+.brand{text-align:center;font-size:15px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--dark);margin-bottom:28px;}
+.card{background:var(--card2);border-radius:16px;border:1px solid var(--border);padding:28px 24px;text-align:center;}
+.icon{font-size:40px;margin-bottom:12px;}
+.title{font-size:14px;color:var(--muted);margin-bottom:6px;}
+.val{font-size:36px;font-weight:700;color:var(--gold-txt);margin-bottom:14px;}
+.info{font-size:13px;color:var(--mid);line-height:1.7;background:var(--gold-bg);border:1px solid var(--gold);border-radius:10px;padding:12px 14px;margin-bottom:20px;text-align:left;}
+.info b{color:var(--gold-txt);}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:10px;background:#25d366;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);text-decoration:none;}
+.empty{padding:20px 0;}
+.empty .icon{opacity:.4;}
+.loading{text-align:center;padding:40px 0;color:var(--muted2);font-size:13px;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Heres</div>
+  <div class="card" id="content"><div class="loading">Carregando seu cashback...</div></div>
+</div>
+<script>
+const CASHBACK_DIAS_INICIO=1,CASHBACK_VALIDADE=10,CASHBACK_MULTIPLO=3;
+const WHATSAPP_LOJA="5533999463635";
+
+function fmt(v){return'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(str){if(!str)return'';const[y,m,d]=str.split('-');return d+'/'+m+'/'+y;}
+function today(){return new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}).split('/').reverse().join('-');}
+function addDias(dateStr,n){const d=new Date(dateStr+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+
+function getParam(name){const params=new URLSearchParams(window.location.search);return params.get(name);}
+
+function renderEmpty(msg){
+  document.getElementById('content').innerHTML=`
+    <div class="empty">
+      <div class="icon">🤍</div>
+      <div class="title">${msg}</div>
+    </div>`;
+}
+
+function renderCashback(v, wpp){
+  const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
+  const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;
+  const msg=encodeURIComponent(`Oi! 🤍 Quero usar meu cashback de ${fmt(v.cashbackVal)} na Heres (válido até ${fmtDate(fim)}).`);
+  const wppUrl=`https://wa.me/${WHATSAPP_LOJA}?text=${msg}`;
+  document.getElementById('content').innerHTML=`
+    <div class="icon">💰</div>
+    <div class="title">Você tem cashback disponível</div>
+    <div class="val">${fmt(v.cashbackVal)}</div>
+    <div class="info">
+      <div>Válido até <b>${fmtDate(fim)}</b></div>
+      <div style="margin-top:4px;">Compra mínima para usar: <b>${fmt(minCompra)}</b></div>
+    </div>
+    <a class="btn" href="${wppUrl}" target="_blank">📲 Chamar a loja no WhatsApp</a>`;
+}
+
+function getCashbacksDisponiveis(vendas, wpp){
+  const wppClean=wpp.replace(/\D/g,'');
+  const hoje=today();
+  return vendas.filter(v=>{
+    if(!v.cliWpp) return false;
+    if(v.cliWpp.replace(/\D/g,'')!==wppClean) return false;
+    if(!v.cashbackVal||v.cashbackVal<=0) return false;
+    if(v.cashbackUsado) return false;
+    const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);
+    const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
+    if(hoje<inicio) return false;
+    if(hoje>fim) return false;
+    return true;
+  }).sort((a,b)=>b.cashbackVal-a.cashbackVal);
+}
+
+function init(){
+  const wpp=getParam('wpp');
+  if(!wpp){
+    renderEmpty('Link inválido. Peça pra loja te enviar o link correto.');
+    return;
+  }
+  try{
+    firebase.initializeApp({apiKey:"AIzaSyC6dOhUnAmn3YuCN74jHWz5EsfoaI9yYLc",authDomain:"heres-app-3e71f.firebaseapp.com",projectId:"heres-app-3e71f",storageBucket:"heres-app-3e71f.firebasestorage.app",messagingSenderId:"155615760966",appId:"1:155615760966:web:9a642d8b3205104f1cf047"});
+    const db=firebase.firestore();
+    db.collection('heres').doc('vendas').get().then(snap=>{
+      const vendas=snap.exists?(snap.data().list||[]):[];
+      const disponiveis=getCashbacksDisponiveis(vendas, wpp);
+      if(!disponiveis.length){
+        renderEmpty('Você não tem cashback disponível no momento.');
+        return;
+      }
+      renderCashback(disponiveis[0], wpp);
+    }).catch(()=>{
+      renderEmpty('Não consegui carregar seu cashback agora. Tente de novo em instantes.');
+    });
+  }catch(e){
+    renderEmpty('Não consegui carregar seu cashback agora. Tente de novo em instantes.');
+  }
+}
+init();
+</script>
+</body>
+</html>
