@@ -1035,13 +1035,8 @@ function renderDayScreen(di){
 
   if(d.provador){html+=`<div class="provador-badge">📹 Dia de provador</div>`;}
 
-  html+=`<div class="day-prog-bar-wrap"><div class="day-prog-row"><span class="day-prog-lbl">Checklist</span><span class="day-prog-pct" id="prog-lbl-${di}">${done}/${tot} concluídas</span></div><div class="day-prog-bar"><div class="day-prog-fill" id="prog-fill-${di}" style="width:${pct}%"></div></div></div>`;
-
   html+=`<div class="section-label">Rituais</div>`;
   d.rituais.forEach((r,ri)=>{html+=`<div class="rit-item"><div class="rit-n">${r.n}</div><div class="rit-body"><div class="rit-txt">${ed?edEl(di,['rituais',ri,'txt']):r.txt}</div>${(r.sub||ed)?`<div class="rit-sub">${ed?edEl(di,['rituais',ri,'sub'],'sub'):r.sub}</div>`:''}</div></div>`;});
-
-  html+=`<div class="section-label">Checklist</div>`;
-  d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const isVV=item.startsWith('[VV]');const tag=isVV?'<span class="chk-tag viavogue">VIA VOGUE</span>':'<span class="chk-tag heres">HERES</span>';const txt=item.replace(/^\[VV\]\s*/,'');html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick}><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):(tag+txt)}</div></div>`;});
 
   if(d.whatsapp&&d.whatsapp.length){html+=`<div class="section-label">WhatsApp</div>`;d.whatsapp.forEach((w,wi)=>{html+=`<div class="wa-box"><div class="wa-lbl">${ed?edEl(di,['whatsapp',wi,'label']):w.label}</div><div class="wa-txt">${ed?edEl(di,['whatsapp',wi,'msg']):w.msg}</div></div>`;});}
 
@@ -1056,16 +1051,21 @@ function renderDayScreen(di){
 
   html+=`<div class="section-label">O que não fazer</div>`;
   d.naofazer.forEach((n,ni)=>{html+=`<div class="nao-item"><div class="nao-x">✕</div><div class="nao-body"><div class="nao-txt">${ed?edEl(di,['naofazer',ni,'txt']):n.txt}</div>${(n.sub||ed)?`<div class="nao-sub">${ed?edEl(di,['naofazer',ni,'sub'],'sub'):n.sub}</div>`:''}</div></div>`;});
+
+  html+=`<div class="section-label">Checklist</div>`;
+  html+=`<div class="day-prog-bar-wrap"><div class="day-prog-row"><span class="day-prog-lbl">Progresso</span><span class="day-prog-pct" id="prog-lbl-${di}">${done}/${tot} concluídas</span></div><div class="day-prog-bar"><div class="day-prog-fill" id="prog-fill-${di}" style="width:${pct}%"></div></div></div>`;
+  d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const isVV=item.startsWith('[VV]');const tag=isVV?'<span class="chk-tag viavogue">VIA VOGUE</span>':'<span class="chk-tag heres">HERES</span>';const txt=item.replace(/^\[VV\]\s*/,'');html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick}><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):(tag+txt)}</div></div>`;});
+
   html+='<div style="height:16px;"></div>';
   container.innerHTML=html;updateDayProg(di);
 }
 
 const SEMANA=[
-{id:'seg',label:'SEG',full:'Segunda-feira',theme:'Destaque da semana · Criar expectativa',
-intention:'Semana nova. O conteúdo de hoje escolhe o destaque da semana — pode ser uma novidade que chegou, uma peça parada que precisa girar, ou a campeã de vendas do momento.',
+{id:'seg',label:'SEG',full:'Segunda-feira',theme:'Conteúdo de marca · Construir desejo',
+intention:'Segunda é dia de marca, não de venda. O objetivo é gerar desejo e identidade — não clique imediato. Peça atemporal, sem preço, sem urgência. Preço e cupom nunca aparecem aqui — só existem no grupo do WhatsApp ou quando alguém chama no direct.',
 provador:null,
 rituais:[
-  {n:'1',txt:'Escolher o destaque da semana antes de abrir',sub:'Se tiver estoque novo, priorize; se não, use uma peça parada ou uma campeã de vendas'},
+  {n:'1',txt:'Escolher 1 peça atemporal pra ser o foco de marca da semana',sub:'Ex: vestido tricô, colete blazer, calça pantalona, básico canelado — nunca peça de saldo ou promoção'},
   {n:'2',txt:'Arrumar araras por paleta: off-white → camel → preto',sub:'Sem peças misturadas, sem espaços vazios aparentes'},
   {n:'3',txt:'Checar vitrine — só peças da nova fase Heres expostas',sub:'Paleta: off-white, preto, camel, terracota'},
   {n:'4',txt:'Ligar música ambiente e verificar iluminação antes de abrir',sub:''},
@@ -1074,36 +1074,34 @@ rituais:[
   {n:'7',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story 1 — peça em destaque da semana com preço visível',
-  'HERES: Story 2 — se tiver novidade, teaser (não revelar tudo); se não tiver, bastidor da loja',
-  'HERES: Story 3 — caixinha: qual estilo você mais usa no dia a dia?',
-  'HERES: Reels de produto — look completo com a peça em destaque, música em alta, preço na tela',
-  '[VV] Story 1 — peça em destaque da semana com preço',
-  '[VV] Story 2 — detalhe da peça em destaque',
-  '[VV] Story 3 — chamada direta pra compra',
-  '[VV] Reels de produto — look Via Vogue com peça da semana, música em alta, preço na tela'
+  'HERES: Story 1 — bastidor de decisão (equipe, padrão): por que essa peça representa a marca',
+  'HERES: Story 2 — peça com pessoa: vestir a peça atemporal, sem preço',
+  'HERES: Story 3 — pergunta de conexão, sem venda',
+  'HERES: Reels de marca — peça atemporal, still ou vestida, sem preço, sem CTA de venda',
+  '[VV] Story 1 — peça com pessoa: uma peça Via Vogue vestida, sem preço',
+  '[VV] Story 2 — detalhe/estilo da peça',
+  '[VV] Story 3 — Convite pra chamar no direct: manda mensagem pra saber mais'
 ],
 stories:[
-  {tipo:'Story 1 — Peça em destaque com preço',hora:'9h',desc:'Foto da peça escolhida como destaque da semana (novidade, parada ou campeã). Fundo neutro, texto com preço.',legenda:'[nome da peça] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Teaser ou bastidor',hora:'10h30',desc:'Se tiver estoque novo chegando: foto parcial, sem revelar tudo. Se não tiver: bastidor da loja arrumada, sem foco em novidade.',legenda:'Tem coisa boa nessa semana 🤍 Fica de olho.'},
-  {tipo:'Story 3 — Caixinha de conexão',hora:'14h',desc:'Fundo off-white, texto simples. Responder cada DM com foto + preço da peça.',legenda:'Qual estilo você mais usa no dia a dia?'},
-  {tipo:'Reels — Produto (Heres)',hora:'17h',desc:'Look completo com a peça em destaque. Girar 360°, mostrar caimento de frente e de costas. Música em alta no momento. Texto na tela: nome da peça + preço. Sem falar — só imagem e texto. Duração: 15–20s.',legenda:'[nome da peça] 🖤 R$ [valor] · manda mensagem'}
+  {tipo:'Story 1 — Contando o motivo da peça (equipe)',hora:'9h',desc:'Quem estiver mais perto da peça conta por que ela representa a Heres. Reforço opcional da Bruna quando quiser, sem frequência fixa. Sem preço na tela.',legenda:'Essa é uma das peças que mais representa a gente 🤍'},
+  {tipo:'Story 2 — Vestindo a peça',hora:'10h30',desc:'Equipe veste a peça escolhida, mostra caimento e movimento. Sem preço.',legenda:'Olha como ela cai 🤍'},
+  {tipo:'Story 3 — Pergunta pra interagir',hora:'14h',desc:'Pergunta leve sobre estilo ou rotina. Sem produto, sem venda — gera resposta e humaniza a marca.',legenda:'Me conta: você prefere peça mais estruturada ou mais solta no dia a dia?'},
+  {tipo:'Reels — Conteúdo de marca',hora:'17h',desc:'Peça atemporal em still ou vestida, foco em textura, movimento e identidade. Sem preço, sem CTA de venda. Duração: 15–20s.',legenda:'Menos roupas no cabide, mais sabedoria ao vestir 🤍'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Peça em destaque com preço',hora:'9h30',desc:'Foto oficial da peça escolhida como destaque (novidade, parada ou campeã). Texto direto com preço.',legenda:'[nome da peça] — a partir de R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Detalhe',hora:'10h30',desc:'Closeup da estampa ou tecido da peça em destaque.',legenda:'Qualidade que você vê de perto. R$ [valor].'},
-  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'},
-  {tipo:'Reels — Produto (Via Vogue)',hora:'17h30',desc:'Look com a peça em destaque da semana. Mesma lógica: 360°, caimento, música em alta, texto com nome e preço na tela. Sem falar — só imagem e texto. Duração: 15–20s.',legenda:'[nome da peça] · R$ [valor] · manda mensagem'}
+  {tipo:'Story 1 — Vestindo a peça',hora:'9h30',desc:'Equipe veste uma peça Via Vogue (Patoge, Pury ou outra), mostra caimento. Sem preço.',legenda:'Essa peça merece ser vista de perto 🤍'},
+  {tipo:'Story 2 — Detalhe da peça',hora:'11h',desc:'Closeup ou sugestão de combinação da peça.',legenda:'Combina bem com o que você já tem no guarda-roupa.'},
+  {tipo:'Story 3 — Convite pra chamar no direct',hora:'14h',desc:'Sem preço — só direciona.',legenda:'Manda mensagem pra saber mais ou passa na loja.'}
 ],
 whatsapp:[],
 naofazer:[
-  {txt:'Não postar sem preço',sub:'Preço visível transforma visualização em mensagem.'},
-  {txt:'Não forçar "novidade" quando não tem',sub:'Se o destaque for uma peça parada ou campeã, trate com a mesma energia — não minta sobre ser lançamento.'},
+  {txt:'Não colocar preço no feed ou no story',sub:'Segunda é conteúdo de marca. Preço só existe no grupo do WhatsApp ou quando alguém chama no direct.'},
+  {txt:'Não usar peça de saldo, promoção ou giro rápido',sub:'Segunda é sobre identidade — reserve peças de saldo pros dias de CTA de conversão.'},
   {txt:'Não usar fundo colorido ou estampado',sub:'Sempre fundo neutro: branco, off-white ou bege.'}
 ]},
 
-{id:'ter',label:'TER',full:'Terça-feira',theme:'Provador',
-intention:'Terça é o dia do provador — o conteúdo mais verdadeiro e que mais gera venda. Cada loja mostra suas peças no provador.',
+{id:'ter',label:'TER',full:'Terça-feira',theme:'Provador · Conexão e caimento real',
+intention:'Terça segue sendo dia de provador — mas o foco é a conexão e o caimento real, não o preço na tela. Preço nunca aparece no story; quem quiser saber, chama no direct ou no grupo. Isso protege a exclusividade e gera a mensagem que a gente quer receber.',
 provador:'AMBAS',
 rituais:[
   {n:'1',txt:'Arrumar o provador Heres antes de gravar',sub:'Fundo limpo, espelho visível, luz natural ou acesa'},
@@ -1114,146 +1112,137 @@ rituais:[
   {n:'6',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story provador — experimentar 2–3 peças Heres com preço na tela',
-  'HERES: Story — detalhe de tecido/acabamento com preço',
-  'HERES: Story — look completo Heres com valor total',
-  'HERES: Reels do provador editado e postado',
-  '[VV] Story provador — experimentar peças Via Vogue com preço',
+  'HERES: Story provador — experimentar 2–3 peças Heres, sem preço na tela',
+  'HERES: Story — detalhe de tecido/acabamento, sem preço',
+  'HERES: Story — Convite pra chamar no direct: chama no direct pra saber valores',
+  'HERES: Reels do provador editado e postado, sem preço',
+  '[VV] Story provador — experimentar peças Via Vogue, sem preço',
   '[VV] Story — detalhe da peça Via Vogue',
-  '[VV] Story — chamada: manda mensagem pra reservar'
+  '[VV] Story — Convite pra chamar no direct: manda mensagem pra reservar'
 ],
 stories:[
-  {tipo:'Provador — Heres',hora:'10h',desc:'Experimentar 2–3 peças Heres. Fala natural, mostra de frente e de lado. Preço em texto na tela.',legenda:null},
-  {tipo:'Story — Detalhe + preço',hora:'11h30',desc:'Closeup do acabamento, textura ou botão da peça Heres mais pedida.',legenda:'É assim de perto 🤍 R$ [valor]. Manda mensagem.'},
-  {tipo:'Story — Look completo Heres',hora:'14h',desc:'Look montado com 3 peças Heres. Mostrar cada peça com preço.',legenda:'Look completo — R$ [valor total]. Manda mensagem.'},
-  {tipo:'Reels — Provador Heres',hora:'15h',desc:'Clipes do provador editados. Cada peça 5–8s, corte seco, música calma. Preço aparece na tela.',legenda:'Provador de terça 🖤'}
+  {tipo:'Provador — Heres',hora:'10h',desc:'Experimentar 2–3 peças Heres. Fala natural, mostra de frente e de lado. Sem preço na tela — se alguém perguntar no direct, aí sim informa.',legenda:null},
+  {tipo:'Story — Detalhe',hora:'11h30',desc:'Closeup do acabamento, textura ou botão da peça Heres mais pedida. Sem preço.',legenda:'É assim de perto 🤍'},
+  {tipo:'Story — Convite pra chamar no direct',hora:'14h',desc:'Sem preço — direciona pro direct.',legenda:'Quer saber os valores? Chama a gente no direct.'},
+  {tipo:'Reels — Provador Heres',hora:'15h',desc:'Clipes do provador editados. Cada peça 5–8s, corte seco, música calma. Sem preço na tela.',legenda:'Provador de terça 🖤'}
 ],
 storiesVV:[
-  {tipo:'Provador — Via Vogue',hora:'10h30',desc:'Experimentar peças Via Vogue. Fala natural, mostra caimento. Preço visível.',legenda:null},
-  {tipo:'Story — Detalhe Via Vogue',hora:'12h',desc:'Closeup do acabamento da peça Patoge ou Pury.',legenda:'Esse detalhe faz diferença. R$ [valor].'},
-  {tipo:'Story — Chamada',hora:'14h',desc:'Fundo simples, texto direto.',legenda:'Essas peças acabam rápido. Manda mensagem pra reservar.'}
+  {tipo:'Provador — Via Vogue',hora:'10h30',desc:'Experimentar peças Via Vogue. Fala natural, mostra caimento. Sem preço na tela.',legenda:null},
+  {tipo:'Story — Detalhe Via Vogue',hora:'12h',desc:'Closeup do acabamento da peça Patoge ou Pury.',legenda:'Esse detalhe faz diferença.'},
+  {tipo:'Story — Convite pra chamar no direct',hora:'14h',desc:'Fundo simples, sem preço.',legenda:'Manda mensagem pra reservar a sua.'}
 ],
 whatsapp:[{label:'Reconexão — clientes dos últimos 60 dias',msg:'Oi [nome] 🤍 Separei uma peça que combina com o seu estilo. Você foi uma das primeiras que pensei em avisar. Quer que eu te mande a foto?'}],
 naofazer:[
   {txt:'Não gravar com fundo bagunçado ou mal iluminado',sub:'O ambiente faz parte da marca. Preparar o espaço antes de gravar.'},
-  {txt:'Não postar sem preço na tela',sub:'Quem quer saber o preço mas não vê não pergunta — vai embora.'},
+  {txt:'Não colocar preço na tela do story',sub:'Preço só no grupo do WhatsApp ou quando a cliente perguntar no direct — isso é o que gera a mensagem.'},
   {txt:'Não mandar o mesmo WhatsApp pra todo mundo igual',sub:'Personalizar pelo menos o nome e a peça.'}
 ]},
 
-{id:'qua',label:'QUA',full:'Quarta-feira',theme:'Aprofundar o destaque da semana',
-intention:'Meio de semana pra aprofundar o destaque escolhido na segunda — mais ângulos, mais contexto, mais motivo pra comprar. Se tiver estoque novo, esse é o dia de mostrar com energia; se não tiver, aprofunda na peça parada ou campeã.',
+{id:'qua',label:'QUA',full:'Quarta-feira',theme:'Abrindo a Seleção de Inverno · Consciência Jeans',
+intention:'Início da Seleção de Inverno (Heres) e foco em Consciência Jeans + Ogochi masculino (Via Vogue). Regra fixa da semana: preço, cupom e prazo aparecem só no grupo do WhatsApp — nunca no story ou feed do Instagram.',
 provador:null,
 rituais:[
-  {n:'1',txt:'Revisar o destaque da semana e testar caimento de novo antes de mostrar',sub:''},
-  {n:'2',txt:'Separar as 2-3 peças mais fortes pra reforçar hoje',sub:'Podem ser do mesmo destaque de segunda ou complementares'},
+  {n:'1',txt:'Separar as peças de inverno: 3 jaquetas (camel, off-white, preta), 2 blazers (off-white e preto), conjunto tricô verde',sub:''},
+  {n:'2',txt:'Separar 2 peças de Consciência Jeans (calça + short) e 1 peça Ogochi masculino pra still',sub:'Ogochi ainda sem modelo — só still bem produzido por enquanto'},
   {n:'3',txt:'Fotografar com luz natural — perto da janela ou vitrine',sub:''},
   {n:'4',txt:'Checar boletos e vencimentos do dia',sub:''},
   {n:'5',txt:'Registrar todas as vendas no app antes de fechar',sub:''},
   {n:'6',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story 1 — destaque da semana, novo ângulo ou contexto, com preço',
-  'HERES: Story 2 — peça em look montado',
-  'HERES: Story 3 — enquete: qual você prefere? Responder no DM com foto',
-  'HERES: Story 4 — como pedir: DM, formas de pagamento e entrega',
-  'HERES: Reels de conexão — bastidor da loja, clima do dia, sem falar de preço',
-  '[VV] Story 1 — destaque da semana com foto e preço',
-  '[VV] Story 2 — look montado com a peça em destaque',
-  '[VV] Story 3 — chamada: passa na loja ou manda mensagem',
-  '[VV] Reels de conexão — bastidor Via Vogue, peças sendo organizadas, clima humano da loja'
+  'HERES: Story 1 — bastidor de decisão (equipe): por que separou a jaqueta em destaque',
+  'HERES: Story 2 — peça com pessoa: vestir a jaqueta, mostrar caimento',
+  'HERES: Story 3 — Convite pra chamar no direct: quem quiser ver de perto, chama no direct ou no grupo',
+  '[VV] Story 1 — still de 2 peças jeans diferentes (calça + short), ângulos novos',
+  '[VV] Story 2 — Ogochi masculino: still da peça, bem produzido',
+  '[VV] Story 3 — chamada: manda mensagem pra reservar'
 ],
 stories:[
-  {tipo:'Story 1 — Destaque (novo ângulo)',hora:'9h',desc:'A peça em destaque da semana, de um jeito diferente do que já foi mostrado. Fundo branco, luz boa. Nome e preço em texto.',legenda:'[nome da peça] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Look com a peça em destaque',hora:'10h30',desc:'A peça num look completo, mostrando como usar.',legenda:'Assim fica 🤍 R$ [valor]. Tamanhos: [listar].'},
-  {tipo:'Story 3 — Enquete',hora:'12h',desc:'Foto de duas opções. Quem votar recebe foto + preço no DM.',legenda:'Qual você mais amou? A ou B?'},
-  {tipo:'Story 4 — Como pedir',hora:'15h',desc:'Fundo escuro, texto simples explicando como comprar.',legenda:'Manda mensagem. Entregamos em todo o Brasil 📦'},
-  {tipo:'Reels — Conexão (Heres)',hora:'18h',desc:'Bastidor da loja: peças sendo arrumadas, araras, clima do dia. Câmera na mão, ritmo leve. Música calma. Sem falar de preço — mostrar o lado humano e cuidadoso da loja. Duração: 20–30s.',legenda:'Cada peça daqui passa pelo nosso olhar primeiro 🤍'}
+  {tipo:'Story 1 — Contando o motivo da peça (equipe)',hora:'9h',desc:'Equipe conta por que separou a jaqueta como destaque da seleção de inverno. Sem preço na tela.',legenda:'Gente, começamos a separar as peças de inverno aqui da Heres e eu já vou contando pra vocês 🤍'},
+  {tipo:'Story 2 — Vestindo a peça (jaqueta)',hora:'10h30',desc:'Equipe veste a jaqueta, mostra caimento e o colarinho de pelinho. Sem preço.',legenda:'Vou vestir pra vocês verem o caimento... olha só como fica 🤍'},
+  {tipo:'Story 3 — Convite pra chamar no direct',hora:'14h',desc:'Sem preço, sem cupom — só direciona pro direct ou grupo.',legenda:'Quem quiser ver essa e as outras de perto, chama a gente no direct ou no grupo'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Destaque (novo ângulo)',hora:'9h30',desc:'A peça em destaque da semana, foto oficial com novo ângulo ou contexto.',legenda:'[nome da peça] — a partir de R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Look com a peça em destaque',hora:'11h',desc:'Look montado com a peça em destaque.',legenda:'Look — R$ [valor total]. Disponível agora.'},
-  {tipo:'Story 3 — Chamada',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'},
-  {tipo:'Reels — Conexão (Via Vogue)',hora:'18h30',desc:'Bastidor Via Vogue: peças sendo organizadas, araras arrumadas, clima da loja. Câmera na mão, ritmo leve. Sem preço — só humanização. Duração: 20–30s.',legenda:'Por trás de cada peça tem muito cuidado 🤍'}
+  {tipo:'Story 1 — Consciência Jeans (calça + short)',hora:'9h30',desc:'Still de 2 peças jeans diferentes, ângulos que ainda não foram usados. Nada de repetir foto de polo.',legenda:'Consciência Jeans na Via Vogue 🤍 Manda mensagem pra saber mais.'},
+  {tipo:'Story 2 — Ogochi masculino (still)',hora:'11h',desc:'Peça masculina só still — manequim ou cabide, boa luz, close no tecido. Sem modelo disponível por enquanto.',legenda:'Chegou linha masculina Ogochi. Manda mensagem.'},
+  {tipo:'Story 3 — Convite pra chamar',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'}
 ],
-whatsapp:[{label:'DM — quem curtiu ou respondeu story',msg:'Oi [nome]! Separei uma peça que achei que você ia amar — quer que eu te mande a foto?'}],
+whatsapp:[{label:'Grupo do WhatsApp — Cupom INVERNO',msg:'🤍 Chegou a hora de renovar o guarda-roupa de inverno\nSeparamos jaquetas, blazers e tricô com condição especial só essa semana\nUse o cupom INVERNO e garanta 40% OFF\nVálido até [data — 7 dias a partir de hoje]\nChama a gente no direct ou aqui mesmo pra garantir o seu tamanho 💛'}],
 naofazer:[
-  {txt:'Não repetir a mesma foto de segunda',sub:'Mude o ângulo, o contexto ou o look — reforçar não é repetir.'},
-  {txt:'Não escrever legenda longa',sub:'A foto vende. A legenda só confirma com preço e CTA.'}
+  {txt:'Não colocar valor de desconto no Instagram',sub:'Cupom e % aparecem só no grupo do WhatsApp — nunca em story ou feed.'},
+  {txt:'Não repetir foto de polo Ogochi',sub:'Se for postar Ogochi de novo, precisa ser peça, ângulo ou contexto diferente do que já foi usado.'}
 ]},
 
-{id:'qui',label:'QUI',full:'Quinta-feira',theme:'Reforço final · Urgência real',
-intention:'Quem viu na segunda e na quarta e não comprou está considerando. Quinta é o empurrão final no destaque da semana — urgência real, sem exagero.',
+{id:'qui',label:'QUI',full:'Quinta-feira',theme:'Mais peças de inverno · Consciência Jeans (vestido)',
+intention:'Reforçar a seleção de inverno com o blazer e mostrar Consciência Jeans vestido pela equipe, mostrando caimento real.',
 provador:null,
 rituais:[
-  {n:'1',txt:'Confirmar reservas feitas por DM',sub:'Não deixar cliente esperando mais de 2h'},
-  {n:'2',txt:'Checar quantas peças do destaque da semana ainda restam',sub:'Isso vira a urgência real do dia — sem inventar'},
+  {n:'1',txt:'Revisar o blazer da seleção de inverno e testar caimento antes de gravar',sub:''},
+  {n:'2',txt:'Separar 1 peça jeans pra vestir (equipe) e mostrar caimento',sub:''},
   {n:'3',txt:'Checar boletos e vencimentos do dia',sub:''},
-  {n:'4',txt:'Fazer acerto do caixa Bradesco ao fechar',sub:'Conferir entradas e lançar no sistema'},
-  {n:'5',txt:'Registrar todas as vendas no app antes de fechar',sub:''},
-  {n:'6',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
+  {n:'4',txt:'Registrar todas as vendas no app antes de fechar',sub:''},
+  {n:'5',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story 1 — o destaque da semana, reforço final com preço',
-  'HERES: Story 2 — detalhe de tecido/acabamento da peça em destaque',
-  'HERES: Story 3 — urgência real: quantidade que realmente resta',
-  '[VV] Story 1 — o destaque da semana com preço',
-  '[VV] Story 2 — look ou detalhe da peça em destaque',
-  '[VV] Story 3 — urgência suave: essas peças somem rápido'
+  'HERES: Story 1 — peça com pessoa: blazer, mostrar como usar fechado ou aberto',
+  'HERES: Story 2 — bastidor de decisão (reforço opcional da Bruna, se quiser)',
+  'HERES: Story 3 — Convite pra chamar no direct: ainda dá tempo de ver as peças de inverno',
+  '[VV] Story 1 — vídeo vestido (equipe) de 1 peça jeans, mostrar caimento',
+  '[VV] Story 2 — combinação: jeans + blusa/camisa por cima',
+  '[VV] Story 3 — chamada: passa na loja ou manda mensagem'
 ],
 stories:[
-  {tipo:'Story 1 — Reforço do destaque',hora:'9h30',desc:'A peça em destaque, reforçada mais uma vez com preço.',legenda:'Ainda dá tempo 🤍 [nome] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Detalhe de tecido',hora:'11h',desc:'Closeup da textura, acabamento e qualidade da peça em destaque.',legenda:'É assim de perto. R$ [valor].'},
-  {tipo:'Story 3 — Urgência real',hora:'14h',desc:'Fundo escuro, texto direto. Só informar a realidade do estoque — não inventar.',legenda:'Últimas unidades dessa peça. Se você está pensando, é hora de confirmar.'}
+  {tipo:'Story 1 — Vestindo a peça (blazer)',hora:'9h30',desc:'Equipe veste o blazer, mostra fechado e aberto, com composição por baixo.',legenda:'Esse blazer aqui é mais um queridinho da seleção, olha o tecido 🤍'},
+  {tipo:'Story 2 — Contando o motivo da peça (reforço da Bruna)',hora:'11h',desc:'Se a Bruna quiser mandar áudio explicando a escolha do blazer; senão, a equipe segue com o próprio bastidor.',legenda:'Escolhi esse blazer porque ele é super versátil pra compor com jaqueta por cima'},
+  {tipo:'Story 3 — Convite pra chamar no direct',hora:'14h',desc:'Sem preço — só direciona.',legenda:'Ainda dá tempo de ver as peças de inverno — chama no direct ou no grupo'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Reforço do destaque',hora:'9h30',desc:'A peça em destaque da semana, reforçada com preço.',legenda:'[nome da peça] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Look ou detalhe',hora:'11h',desc:'Look montado ou closeup de detalhe da peça em destaque.',legenda:'Qualidade que você vê. R$ [valor]. Tamanhos: [listar].'},
-  {tipo:'Story 3 — Urgência suave',hora:'14h',desc:'Fundo simples.',legenda:'Essas peças somem rápido. Manda mensagem pra reservar o seu.'}
+  {tipo:'Story 1 — Jeans vestido (equipe)',hora:'10h',desc:'Vídeo mostrando o caimento de 1 peça jeans — diferente da postada na quarta.',legenda:'Olha como fica esse jeans no corpo 🤍'},
+  {tipo:'Story 2 — Combinação',hora:'11h30',desc:'Jeans + blusa ou camisa por cima, mostrando como compor o look.',legenda:'Assim fica um look completo — manda mensagem pra saber o valor.'},
+  {tipo:'Story 3 — Convite pra chamar',hora:'14h',desc:'Fundo simples.',legenda:'Passa na loja ou manda mensagem. Temos o seu tamanho.'}
 ],
 whatsapp:[{label:'Cashback — clientes elegíveis',msg:'Oi [nome]! 🤍 Você tem cashback disponível na Heres — R$ [valor]. Separei uma peça que combina com você. Quer que eu te mande uma foto?'}],
 naofazer:[
-  {txt:'Não inventar urgência falsa',sub:'Dizer que tem só 1 quando tem 5 — a cliente percebe e perde confiança.'},
-  {txt:'Não deixar DM sem resposta no mesmo dia',sub:'Quem perguntou hoje e não recebeu resposta compra de outra loja amanhã.'}
+  {txt:'Não repetir a mesma foto de quarta',sub:'Mude o ângulo, o contexto ou a peça jeans — reforçar não é repetir.'},
+  {txt:'Não colocar preço ou cupom no Instagram',sub:'Fica só no grupo do WhatsApp.'}
 ]},
 
-{id:'sex',label:'SEX',full:'Sexta-feira',theme:'Conexão · Preparar o sábado',
-intention:'Sexta gera movimento pro sábado. Conteúdo mais leve e pessoal — mostrar quem é a Heres além do produto.',
+{id:'sex',label:'SEX',full:'Sexta-feira',theme:'Conjunto tricô + estilo · Ogochi masculino (variação)',
+intention:'Mostrar o conjunto de tricô verde com foco em estilo/combinação, e trazer uma nova variação do Ogochi masculino — sem repetir a mesma foto de polo.',
 provador:null,
 rituais:[
-  {n:'1',txt:'Reorganizar vitrine com as peças novas em destaque',sub:''},
-  {n:'2',txt:'Deixar a loja perfumada e com música antes das 10h',sub:''},
+  {n:'1',txt:'Separar o conjunto de tricô verde pra vestir (equipe)',sub:''},
+  {n:'2',txt:'Separar outra peça Ogochi masculino (não repetir a do still de quarta)',sub:''},
   {n:'3',txt:'Checar boletos e vencimentos do dia',sub:'Sexta é o último dia útil — resolver pendências antes do fim de semana'},
   {n:'4',txt:'Registrar todas as vendas no app antes de fechar',sub:''},
   {n:'5',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story 1 — bastidor: câmera percorrendo araras com peças novas',
-  'HERES: Story 2 — look do dia com peça nova e preço',
-  'HERES: Story 3 — pergunta de conexão (sem venda direta)',
-  'HERES: Story 4 — convite pra visitar no sábado',
-  '[VV] Story 1 — Consciência Jeans: foto com preço',
-  '[VV] Story 2 — detalhe do jeans: tecido, acabamento, botão',
+  'HERES: Story 1 — peça com pessoa: conjunto tricô verde, mostrar caimento',
+  'HERES: Story 2 — estilo/combinação: como usar o tricô no dia a dia ou pra sair',
+  'HERES: Story 3 — Convite pra chamar no direct: condição especial só essa semana no grupo',
+  '[VV] Story 1 — Ogochi masculino: nova peça ou ângulo, sem repetir still de quarta',
+  '[VV] Story 2 — Consciência Jeans: detalhe do tecido/acabamento',
   '[VV] Story 3 — chamada: sábado na loja ou manda mensagem'
 ],
 stories:[
-  {tipo:'Story 1 — Bastidor da loja',hora:'9h30',desc:'Vídeo suave percorrendo as araras com peças novas. Sem texto — só a loja bonita e organizada.',legenda:null},
-  {tipo:'Story 2 — Look do dia com nova peça',hora:'11h',desc:'Look completo com uma das peças novas. Preço visível.',legenda:'Look de sexta 🤍 [nome da peça] — R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 3 — Conexão (sem venda)',hora:'13h',desc:'Pergunta leve sobre estilo ou rotina. Sem produto. Gera resposta e humaniza a marca.',legenda:'Me conta: você prefere look mais estruturado ou mais relaxado no dia a dia?'},
-  {tipo:'Story 4 — Convite pro sábado',hora:'16h',desc:'Foto da loja arrumada com boa luz.',legenda:'Amanhã abrimos com as novidades 🤍 Vem nos visitar.'}
+  {tipo:'Story 1 — Vestindo a peça (tricô verde)',hora:'9h',desc:'Equipe veste o conjunto de tricô, mostra caimento da calça e conforto.',legenda:'Esse conjunto de tricô é perfeito pra dias mais frios de conforto 🤍'},
+  {tipo:'Story 2 — Como usar a peça',hora:'10h30',desc:'Como usar o tricô no dia a dia ou com um casaco por cima pra sair.',legenda:'Dá pra usar assim no dia a dia, ou com um casaco por cima pra sair'},
+  {tipo:'Story 3 — Convite pra chamar no direct',hora:'15h',desc:'Sem número — só menciona que tem condição especial no grupo.',legenda:'Só essa semana no nosso grupo do WhatsApp tem uma condição especial nas peças de inverno'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Consciência Jeans',hora:'9h',desc:'Foto oficial com preço.',legenda:'Consciência Jeans na Via Vogue. A partir de R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 2 — Detalhe do jeans',hora:'10h30',desc:'Closeup do tecido, acabamento, botão — mostrar qualidade.',legenda:'Qualidade que você sente na mão. R$ [valor].'},
-  {tipo:'Story 3 — Chamada sábado',hora:'15h',desc:'Fundo simples.',legenda:'Sábado na loja ou manda mensagem. Entregamos em todo o Brasil.'}
+  {tipo:'Story 1 — Ogochi masculino (variação)',hora:'9h30',desc:'Peça diferente da mostrada na quarta, ou mesmo still em ângulo novo — nunca repetir a mesma foto de polo.',legenda:'Mais uma opção da linha masculina Ogochi 🤍'},
+  {tipo:'Story 2 — Consciência Jeans (detalhe)',hora:'11h',desc:'Closeup do tecido, acabamento, botão — mostrar qualidade.',legenda:'Qualidade que você sente na mão.'},
+  {tipo:'Story 3 — Convite pra chamar (sábado)',hora:'15h',desc:'Fundo simples.',legenda:'Sábado na loja ou manda mensagem. Entregamos em todo o Brasil.'}
 ],
 whatsapp:[],
 naofazer:[
-  {txt:'Não forçar venda direta no Story 3',sub:'A pergunta de conexão aproxima o público e prepara a venda do sábado — não transformar em produto.'},
-  {txt:'Não postar com luz ruim',sub:'Sexta tem energia — o conteúdo precisa refletir isso.'}
+  {txt:'Não repetir a mesma foto de polo Ogochi de semanas anteriores',sub:'Cada postagem precisa de peça, ângulo ou contexto novo.'},
+  {txt:'Não colocar % ou valor de desconto no story',sub:'Fica só no grupo do WhatsApp.'}
 ]},
 
-{id:'sab',label:'SÁB',full:'Sábado',theme:'Conversão máxima · Cada atendimento conta',
-intention:'Sábado decide a semana. Energia total — registrar cada cliente nova, oferecer look completo, não peça isolada.',
+{id:'sab',label:'SÁB',full:'Sábado',theme:'Fechamento da semana · Inverno + Jeans',
+intention:'Fechar a semana reforçando a seleção de inverno e o que rodou de Consciência Jeans / Ogochi masculino. Cada atendimento no sábado conta — energia total.',
 provador:null,
 rituais:[
   {n:'1',txt:'Receber cada cliente como se fosse a primeira vez',sub:''},
@@ -1264,24 +1253,18 @@ rituais:[
   {n:'6',txt:'Checar cashback disponível (Painel → Clientes → 💰 Cashback) e mandar mensagem pra quem tiver',sub:'Priorizar quem vence hoje ou amanhã'}
 ],
 checklist:[
-  'HERES: Story 1 — câmera suave percorrendo araras (loja pronta)',
-  'HERES: Story 2 — peça destaque da semana com preço',
-  'HERES: Story 3 — registro de movimento (cliente de costas ou só a roupa, com permissão)',
-  'HERES: Story 4 — encerramento',
-  '[VV] Story 1 — melhor peça da semana Via Vogue com preço',
-  '[VV] Story 2 — urgência: últimas peças dessa seleção',
-  '[VV] Story 3 — encerramento'
+  'HERES: Story 1 — reforço final da seleção de inverno, sem preço',
+  'HERES: Story 2 — bastidor leve (equipe): o que mais amaram mostrar essa semana',
+  '[VV] Story 1 — reforço final: Consciência Jeans + Ogochi masculino',
+  '[VV] Story 2 — encerramento da semana'
 ],
 stories:[
-  {tipo:'Story 1 — Araras em movimento',hora:'9h30',desc:'Câmera passando devagar pelas araras. Sem texto — só a loja pronta e bonita.',legenda:null},
-  {tipo:'Story 2 — Peça destaque com preço',hora:'10h30',desc:'A peça mais forte da semana. Foto limpa com preço.',legenda:'Ainda tem 🤍 R$ [valor]. Manda mensagem.'},
-  {tipo:'Story 3 — Registro de movimento',hora:'13h',desc:'Cliente de costas ou só a roupa (sempre com permissão).',legenda:'Ela levou. Ainda tem o seu.'},
-  {tipo:'Story 4 — Encerramento',hora:'18h',desc:'Vídeo curto arrumando a loja no final do dia.',legenda:'Obrigada pelo sábado 🤍 Até segunda.'}
+  {tipo:'Story 1 — Último lembrete',hora:'9h30',desc:'Sem preço — só reforça que a condição especial da seleção de inverno segue no grupo do WhatsApp.',legenda:'Últimos dias pra aproveitar as peças de inverno com condição especial — só no nosso grupo do WhatsApp'},
+  {tipo:'Story 2 — Comentário rápido da equipe',hora:'18h',desc:'Equipe comenta rapidamente o que mais gostou de mostrar na semana.',legenda:'Essa semana foi de mostrar pra vocês as peças que a gente mais amou — e vocês, qual gostaram mais?'}
 ],
 storiesVV:[
-  {tipo:'Story 1 — Melhor peça da semana',hora:'10h',desc:'A peça Via Vogue que mais engajou. Foto com preço.',legenda:'Ainda tem. Último dia tranquilo.'},
-  {tipo:'Story 2 — Urgência',hora:'13h',desc:'Fundo simples, texto direto.',legenda:'Últimas peças dessa seleção. Manda mensagem agora.'},
-  {tipo:'Story 3 — Encerramento',hora:'18h',desc:'',legenda:'Obrigada pelo sábado 🤍 Até segunda com novidades.'}
+  {tipo:'Story 1 — Último lembrete (jeans + Ogochi)',hora:'10h',desc:'Reforça as peças de Consciência Jeans e Ogochi masculino mostradas na semana.',legenda:'Ainda dá tempo de ver o que mostramos essa semana — manda mensagem.'},
+  {tipo:'Story 2 — Encerramento',hora:'18h',desc:'',legenda:'Obrigada pelo sábado 🤍 Até segunda com novidades.'}
 ],
 whatsapp:[],
 naofazer:[
