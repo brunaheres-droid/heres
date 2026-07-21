@@ -446,6 +446,61 @@ select:focus,input:focus{border-color:var(--camel);}
     <div id="semana-day-screens"></div>
   </div>
 
+  <!-- COLEÇÃO DO MÊS -->
+  <div id="s-colecao" class="screen">
+    <div style="padding:12px 0 0;">
+      <div class="rel-tabs">
+        <button class="rel-tab active" id="col-tab-heres" onclick="colSwitchTab('heres')">Heres</button>
+        <button class="rel-tab" id="col-tab-vv" onclick="colSwitchTab('vv')">Via Vogue</button>
+      </div>
+      <div id="colecao-display"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 8px;">
+        <div class="section-label" style="margin:0;">Editar roteiro</div>
+        <button class="edit-mode-btn" id="colecao-edit-btn" onclick="toggleColecaoEdit()">Editar</button>
+      </div>
+      <div id="colecao-edit-wrap" style="display:none;">
+        <div class="card"><div class="card-body">
+          <div class="toast" id="toast-colecao"></div>
+          <div class="form-row"><label class="form-lbl">Nome da coleção</label>
+            <input type="text" id="col-nome" placeholder="ex: Alfaiataria de Inverno">
+          </div>
+          <div class="form-row"><label class="form-lbl">Essência / conceito</label>
+            <textarea id="col-essencia" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);background:var(--card2);color:var(--dark);resize:vertical;" placeholder="Qual é o espírito dessa coleção? O que ela representa, pra quem ela fala."></textarea>
+          </div>
+          <div class="form-row"><label class="form-lbl">Paleta de cores</label>
+            <input type="text" id="col-cores" placeholder="ex: off-white, camel, terracota">
+          </div>
+          <div class="form-row"><label class="form-lbl">Peças-chave (uma por linha, opcional)</label>
+            <textarea id="col-pecas" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);background:var(--card2);color:var(--dark);resize:vertical;" placeholder="Blazer camel&#10;Calça reta&#10;Colete"></textarea>
+          </div>
+          <div class="form-row"><label class="form-lbl">Início</label>
+            <input type="text" id="col-inicio" placeholder="dd/mm/aaaa">
+          </div>
+          <div class="form-row"><label class="form-lbl">Fim</label>
+            <input type="text" id="col-fim" placeholder="dd/mm/aaaa">
+          </div>
+          <div class="form-row"><label class="form-lbl">Tem brinde ou desconto nessa coleção?</label>
+            <div class="disc-row">
+              <div class="disc-btn" id="col-brinde-nao" onclick="colSelBrinde(false)">Não</div>
+              <div class="disc-btn" id="col-brinde-sim" onclick="colSelBrinde(true)">Sim</div>
+            </div>
+          </div>
+          <div id="col-brinde-detalhes" style="display:none;">
+            <div class="form-row"><label class="form-lbl">A partir de quanto (R$)</label>
+              <input type="number" id="col-valor-min" placeholder="0,00" min="0" step="0.01">
+            </div>
+            <div class="form-row"><label class="form-lbl">Qual brinde ou desconto</label>
+              <input type="text" id="col-brinde-desc" placeholder="ex: bolsa de feltro caramelo, ou 10% de desconto">
+            </div>
+          </div>
+          <button class="btn-primary" onclick="salvarColecao()">Salvar coleção</button>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- COMISSÕES -->
   <div id="s-comm" class="screen">
     <div class="card"><div class="card-header"><span class="card-title">Tabela de comissões</span></div><div class="card-body">
@@ -551,6 +606,10 @@ select:focus,input:focus{border-color:var(--camel);}
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke-width="1.4"/><path d="M1 13c0-2.76 2.24-5 5-5" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="10" r="2" stroke-width="1.3"/><path d="M10 14h4" stroke-width="1.3" stroke-linecap="round"/></svg></div>
     <div class="nav-label">Clientes</div>
   </button>
+  <button class="nav-btn" onclick="nav('colecao',this)">
+    <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M2 2h5.5l6.5 6.5-5.5 5.5L2 7.5V2z" stroke-width="1.3" stroke-linejoin="round"/><circle cx="5" cy="5" r="1" stroke-width="1.1"/></svg></div>
+    <div class="nav-label">Coleção</div>
+  </button>
   <button class="nav-btn" onclick="nav('comm',this)">
     <div class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke-width="1.5"/><path d="M8 5v1.5m0 3V11m-1.5-4.5h2.5a1 1 0 010 2H7a1 1 0 000 2h2.5" stroke-width="1.2" stroke-linecap="round"/></svg></div>
     <div class="nav-label">Comissões</div>
@@ -563,7 +622,7 @@ select:focus,input:focus{border-color:var(--camel);}
 
 <script>
 const COMM={normal:{av:5,cartao:3,boleto:1},promo:{av:3,cartao:2,boleto:1}};
-const CASHBACK_NORMAL=0.10,CASHBACK_PROMO=0.00,CASHBACK_DIAS_INICIO=1,CASHBACK_VALIDADE=10,CASHBACK_MULTIPLO=3;
+const CASHBACK_NORMAL=0.10,CASHBACK_PROMO=0.00,CASHBACK_DIAS_INICIO=1,CASHBACK_VALIDADE=30,CASHBACK_MULTIPLO=3,CASHBACK_ALERTA_DIAS=7;
 const VENDEDORAS=['Bruna','Ana','Jamile','Lucimeire'];
 const PAGS_CX=[{id:'pix',label:'Pix'},{id:'dinheiro',label:'Dinheiro'},{id:'debito',label:'Cartão débito'},{id:'credito',label:'Cartão crédito'},{id:'boleto',label:'Boleto/parcelado'}];
 const CATS_SAIDA={fornecedor:'Fornecedor',retirada:'Retirada sócia',despesa:'Despesa da loja',troco:'Troco/devolução',outra:'Outra saída'};
@@ -571,7 +630,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 
-let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{}};
+let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{},colecao:{heres:null,vv:null}};
 let CX={entradas:[],saidas:[]};
 let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='';
 let db=null,relPin_str='',relAuthed=false;
@@ -609,6 +668,16 @@ function initFirebase(){
     db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;}renderPainel();buildMetasForm();});
     db.collection('heres').doc('checklist').onSnapshot(snap=>{ST.checklist=snap.exists?(snap.data()||{}):{};renderDayScreen(activeDayIdx);});
     db.collection('heres').doc('semanaCustom').onSnapshot(snap=>{if(snap.exists&&snap.data().data){applyCustomSemana(snap.data().data);buildSemana();}});
+const COLECAO_PADRAO={
+  heres:{nome:'Inverno Essenciais',essencia:'Poucas peças, todas certas. O inverno pede menos escolhas e mais qualidade — cada peça dessa coleção substitui três do guarda-roupa antigo. Aquecer sem perder a leveza, vestir bem sem esforço.',cores:'off-white, camel, preto, terracota',pecas:['Blazer camel','Tricô canelado','Calça reta alfaiataria','Colete de lã'],inicio:'',fim:'',temBrinde:true,valorMinimo:500,brindeDesc:'Echarpe de lã na cor camel'},
+  vv:{nome:'Legado',essencia:'Tem estilo que se aprende vendo o pai se vestir. Essa coleção é pra quem quer presentear com significado — peças que o pai vai usar de verdade, não só ganhar e guardar.',cores:'azul marinho, cinza chumbo, camel, branco',pecas:['Ogochi masculino — camisas','Consciência Jeans — modelos retos','Cinto de couro'],inicio:'',fim:'',temBrinde:true,valorMinimo:400,brindeDesc:'Nécessaire ou porta-cartão como embalagem especial de presente'}
+};
+    db.collection('heres').doc('colecao').onSnapshot(snap=>{
+      const d=snap.exists?snap.data():null;
+      if(d&&(d.heres||d.vv)){ST.colecao=d;}
+      else{ST.colecao={heres:COLECAO_PADRAO.heres,vv:COLECAO_PADRAO.vv};}
+      if(document.getElementById('s-colecao').classList.contains('active'))renderColecao();
+    });
     const cxKey='caixa_'+today();
     db.collection('heres_caixa').doc(cxKey).onSnapshot(snap=>{if(snap.exists){const d=snap.data();CX.entradas=d.entradas||[];CX.saidas=d.saidas||[];}else{CX.entradas=[];CX.saidas=[];}renderCaixa();});
     showConnected(true);
@@ -619,6 +688,7 @@ async function save(){if(!db){saveLocal();return;}try{await db.collection('heres
 async function saveConfig(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('config').set({metas:ST.config.metas,metaLoja:ST.config.metaLoja||0});}catch(e){saveLocal();}}
 async function saveChecklist(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('checklist').set(ST.checklist||{});}catch(e){saveLocal();}}
 async function saveCaixa(){const cxKey='caixa_'+today();if(!db)return;try{await db.collection('heres_caixa').doc(cxKey).set({entradas:CX.entradas,saidas:CX.saidas,data:today()});}catch(e){}}
+async function saveColecao(){if(!db)return;try{await db.collection('heres').doc('colecao').set(ST.colecao||{heres:null,vv:null});}catch(e){}}
 async function saveSemanaCustom(){if(!db)return;try{await db.collection('heres').doc('semanaCustom').set({data:SEMANA.map(d=>({rituais:d.rituais.map(r=>({txt:r.txt,sub:r.sub})),checklist:[...d.checklist],stories:d.stories.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})),storiesVV:d.storiesVV?d.storiesVV.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})):null,whatsapp:d.whatsapp?d.whatsapp.map(w=>({label:w.label,msg:w.msg})):null,naofazer:d.naofazer.map(n=>({txt:n.txt,sub:n.sub}))}))});}catch(e){}}
 function applyCustomSemana(data){data.forEach((dd,i)=>{if(!SEMANA[i])return;if(dd.rituais)dd.rituais.forEach((r,ri)=>{if(SEMANA[i].rituais[ri]){SEMANA[i].rituais[ri].txt=r.txt;SEMANA[i].rituais[ri].sub=r.sub;}});if(dd.checklist)dd.checklist.forEach((c,ci)=>{if(SEMANA[i].checklist[ci]!==undefined)SEMANA[i].checklist[ci]=c;});if(dd.stories)dd.stories.forEach((s,si)=>{if(SEMANA[i].stories[si]){SEMANA[i].stories[si].tipo=s.tipo;SEMANA[i].stories[si].hora=s.hora;SEMANA[i].stories[si].desc=s.desc;SEMANA[i].stories[si].legenda=s.legenda;}});if(dd.storiesVV&&SEMANA[i].storiesVV)dd.storiesVV.forEach((s,si)=>{if(SEMANA[i].storiesVV[si]){SEMANA[i].storiesVV[si].tipo=s.tipo;SEMANA[i].storiesVV[si].hora=s.hora;SEMANA[i].storiesVV[si].desc=s.desc;SEMANA[i].storiesVV[si].legenda=s.legenda;}});if(dd.whatsapp&&SEMANA[i].whatsapp)dd.whatsapp.forEach((w,wi)=>{if(SEMANA[i].whatsapp[wi]){SEMANA[i].whatsapp[wi].label=w.label;SEMANA[i].whatsapp[wi].msg=w.msg;}});if(dd.naofazer)dd.naofazer.forEach((n,ni)=>{if(SEMANA[i].naofazer[ni]){SEMANA[i].naofazer[ni].txt=n.txt;SEMANA[i].naofazer[ni].sub=n.sub;}});});}
 function saveLocal(){try{localStorage.setItem('heres_v6',JSON.stringify(ST));}catch(e){}}
@@ -635,6 +705,7 @@ function nav(id,btn){
   if(id==='comm')renderComm();
   if(id==='caixa')renderCaixa();
   if(id==='clientes')renderClientes();
+  if(id==='colecao')renderColecao();
   if(id==='rel'&&relAuthed){renderRelVendas();renderRelLista();renderRelDinheiro();}
 }
 
@@ -672,6 +743,75 @@ function registrar(){
   document.getElementById('cashback-alert').classList.remove('show');document.getElementById('cashback-applied').style.display='none';
   cashbackDisponivel=null;cashbackAplicado=false;
   const t=document.getElementById('toast-venda');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+function parseDateBR(str){if(!str)return'';const parts=str.trim().split('/');if(parts.length!==3)return'';const[d,m,y]=parts;if(!d||!m||!y)return'';return y.padStart(4,'20').slice(-4)+'-'+m.padStart(2,'0')+'-'+d.padStart(2,'0');}
+let colBrindeSel=false;
+let colTabAtiva='heres';
+function colSwitchTab(tab){
+  colTabAtiva=tab;
+  document.getElementById('col-tab-heres').classList.toggle('active',tab==='heres');
+  document.getElementById('col-tab-vv').classList.toggle('active',tab==='vv');
+  document.getElementById('colecao-edit-wrap').style.display='none';
+  document.getElementById('colecao-edit-btn').textContent='Editar';
+  document.getElementById('colecao-edit-btn').classList.remove('on');
+  renderColecao();
+}
+function colSelBrinde(v){colBrindeSel=v;document.getElementById('col-brinde-nao').classList.toggle('on',!v);document.getElementById('col-brinde-sim').classList.toggle('on',v);document.getElementById('col-brinde-detalhes').style.display=v?'block':'none';}
+function toggleColecaoEdit(){
+  const wrap=document.getElementById('colecao-edit-wrap');
+  const isOpen=wrap.style.display==='block';
+  if(isOpen){wrap.style.display='none';document.getElementById('colecao-edit-btn').textContent='Editar';document.getElementById('colecao-edit-btn').classList.remove('on');return;}
+  const pw=prompt('Senha para editar:');if(pw===null)return;if(pw!==EDIT_PIN){alert('Senha incorreta.');return;}
+  const c=(ST.colecao&&ST.colecao[colTabAtiva])||{};
+  document.getElementById('col-nome').value=c.nome||'';
+  document.getElementById('col-essencia').value=c.essencia||'';
+  document.getElementById('col-cores').value=c.cores||'';
+  document.getElementById('col-pecas').value=(c.pecas||[]).join('\n');
+  document.getElementById('col-inicio').value=c.inicio?fmtDate(c.inicio):'';
+  document.getElementById('col-fim').value=c.fim?fmtDate(c.fim):'';
+  colSelBrinde(!!c.temBrinde);
+  document.getElementById('col-valor-min').value=c.valorMinimo||'';
+  document.getElementById('col-brinde-desc').value=c.brindeDesc||'';
+  wrap.style.display='block';
+  document.getElementById('colecao-edit-btn').textContent='Fechar';
+  document.getElementById('colecao-edit-btn').classList.add('on');
+}
+function salvarColecao(){
+  const nome=document.getElementById('col-nome').value.trim();
+  const essencia=document.getElementById('col-essencia').value.trim();
+  const cores=document.getElementById('col-cores').value.trim();
+  const pecas=document.getElementById('col-pecas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const inicio=parseDateBR(document.getElementById('col-inicio').value);
+  const fim=parseDateBR(document.getElementById('col-fim').value);
+  if(!nome){alert('Dê um nome pra coleção.');return;}
+  if(!ST.colecao)ST.colecao={heres:null,vv:null};
+  ST.colecao[colTabAtiva]={nome,essencia,cores,pecas,inicio,fim,temBrinde:colBrindeSel,valorMinimo:colBrindeSel?(parseFloat(document.getElementById('col-valor-min').value)||0):0,brindeDesc:colBrindeSel?document.getElementById('col-brinde-desc').value.trim():''};
+  saveColecao();
+  const t=document.getElementById('toast-colecao');t.textContent='Coleção salva!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+  renderColecao();
+}
+function renderColecao(){
+  const el=document.getElementById('colecao-display');if(!el)return;
+  const c=ST.colecao&&ST.colecao[colTabAtiva];
+  if(!c||!c.nome){el.innerHTML='<div class="card"><div class="card-body"><div class="empty" style="padding:1rem;">Nenhum roteiro definido ainda pra '+(colTabAtiva==='vv'?'Via Vogue':'Heres')+'. Toque em "Editar" pra criar.</div></div></div>';return;}
+  const hoje=today();
+  let statusTag='';
+  if(c.inicio&&hoje<c.inicio)statusTag='<span style="font-size:9px;font-weight:700;background:var(--bg2);color:var(--muted);border-radius:20px;padding:2px 8px;">COMEÇA '+fmtDate(c.inicio)+'</span>';
+  else if(c.fim&&hoje>c.fim)statusTag='<span style="font-size:9px;font-weight:700;background:var(--bg2);color:var(--muted);border-radius:20px;padding:2px 8px;">ENCERRADA</span>';
+  else statusTag='<span style="font-size:9px;font-weight:700;background:var(--gold-bg);color:var(--gold-txt);border:1px solid var(--gold);border-radius:20px;padding:2px 8px;">ATIVA AGORA</span>';
+  const periodo=(c.inicio||c.fim)?`<div style="font-size:11px;color:var(--muted);margin-top:4px;">${c.inicio?fmtDate(c.inicio):'?'} até ${c.fim?fmtDate(c.fim):'?'}</div>`:'';
+  const essenciaHtml=c.essencia?`<div style="font-size:13px;color:var(--mid);line-height:1.6;margin-top:10px;">${c.essencia}</div>`:'';
+  const coresHtml=c.cores?`<div style="margin-top:10px;"><div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;">Paleta de cores</div><div style="font-size:13px;color:var(--dark);margin-top:3px;">${c.cores}</div></div>`:'';
+  const pecasHtml=(c.pecas&&c.pecas.length)?`<div style="margin-top:10px;"><div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;">Peças-chave</div>${c.pecas.map(p=>`<div style="font-size:12px;color:var(--dark);padding:5px 0;border-bottom:1px solid var(--border2);">• ${p}</div>`).join('')}</div>`:'';
+  const brindeHtml=c.temBrinde?`<div style="margin-top:10px;padding:10px 12px;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;"><div style="font-size:10px;font-weight:700;color:var(--gold-txt);text-transform:uppercase;letter-spacing:.06em;">Brinde/desconto da coleção</div><div style="font-size:12px;color:var(--dark);margin-top:3px;">${c.brindeDesc||'—'}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">A partir de ${fmt(c.valorMinimo||0)}</div></div>`:'';
+  el.innerHTML=`<div class="card"><div class="card-body"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="font-size:17px;font-weight:700;color:var(--dark);">${c.nome}</div>${statusTag}</div>${periodo}${essenciaHtml}${coresHtml}${pecasHtml}${brindeHtml}</div></div>`;
+}
+function enviarAvisoCashbackVenda(id){
+  const v=ST.vendas.find(x=>x.id===id);if(!v||!v.cliWpp)return;
+  const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
+  const link=linkCashback(v.cliWpp);
+  const msg=encodeURIComponent(`Oi ${v.cliNome||''}! Que alegria te ver hoje 🤍 Já separei seu cashback de R$ ${v.cashbackVal.toFixed(2).replace('.',',')} — a partir de amanhã já é seu pra usar, válido até ${fmtDate(fim)}. Quando quiser vir ver as novidades, me chama que separo tudo com carinho pra você.${link?'\n\n'+link:''}`);
+  window.open(`https://wa.me/55${v.cliWpp}?text=${msg}`,'_blank');
 }
 function deletar(id){ST.vendas=ST.vendas.filter(v=>v.id!==id);save();}
 function editarWpp(id){
@@ -754,7 +894,9 @@ function renderHoje(){
     const cliInfo=x.cliNome||x.cliWpp?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">${[x.cliNome,x.cliWpp?'📱 '+x.cliWpp:''].filter(Boolean).join(' · ')}</div>`:'';
     const wppBtn=x.cliWpp?`<span style="font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">editar WhatsApp</span>`:(x.cashbackVal>0?`<span style="font-size:10px;color:var(--gold-txt);font-weight:700;cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">+ Adicionar WhatsApp (opcional)</span>`:`<span style="font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;" onclick="editarWpp(${x.id})">+ Adicionar WhatsApp</span>`);
     const copyBtn=x.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:5px;padding:6px 10px;font-size:10px;" onclick="copiarLinkCashback(${x.id}, this)">📋 Copiar link do cashback</button>`:'';
-    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}<div style="margin-top:3px;">${wppBtn}</div>${copyBtn}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
+    const fimVenda=addDias(x.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
+    const avisoVendaBtn=(x.cashbackVal>0&&x.cliWpp)?`<button class="btn-wa" style="margin-top:5px;padding:6px 10px;font-size:10px;" onclick="enviarAvisoCashbackVenda(${x.id})">📲 Avisar cliente do cashback</button>`:'';
+    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}<div style="margin-top:3px;">${wppBtn}</div>${copyBtn}${avisoVendaBtn}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
   }).join('');
 }
 
@@ -794,7 +936,7 @@ function renderClientes(){
 function toggleCliDetalhe(idx){document.getElementById('cli-det-'+idx).classList.toggle('open');}
 function renderCliDetalheContent(c){
   const cbDisp=getCashbacksDisponiveis(c.wpp||('nome:'+c.nome));let html='';
-  if(cbDisp.length>0){html+=`<div class="cli-detail-section">Cashback disponível</div>`;cbDisp.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;const link=c.wpp?linkCashback(c.wpp):'';const msg=encodeURIComponent(`Oi ${c.nome||''}! 🤍 Você tem R$ ${v.cashbackVal.toFixed(2).replace('.',',')} de cashback na Heres. Válido até ${fmtDate(fim)}, em compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}. Bora usar? 😊${link?'\n\n'+link:''}`);const wppUrl=c.wpp?`https://wa.me/55${c.wpp}?text=${msg}`:'';html+=`<div class="cli-cashback-row"><div class="cli-cashback-status"><div class="cli-cashback-lbl">Compra de ${fmtDate(v.data)}</div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div>${wppUrl?`<button class="btn-wa" onclick="window.open('${wppUrl}','_blank')">📲 Enviar no WhatsApp</button>`:`<div style="font-size:11px;color:var(--muted2);text-align:center;padding:4px 0;">Sem WhatsApp</div>`}</div>`;});}
+  if(cbDisp.length>0){html+=`<div class="cli-detail-section">Cashback disponível</div>`;cbDisp.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;const link=c.wpp?linkCashback(c.wpp):'';const msg=encodeURIComponent(`Oi ${c.nome||''}, passando pra lembrar: seu cashback de R$ ${v.cashbackVal.toFixed(2).replace('.',',')} vence dia ${fmtDate(fim)} 🕒 Ainda dá tempo de aproveitar (compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}). Chegaram peças novas essa semana — quer que eu separe algumas pra você?${link?'\n\n'+link:''}`);const wppUrl=c.wpp?`https://wa.me/55${c.wpp}?text=${msg}`:'';html+=`<div class="cli-cashback-row"><div class="cli-cashback-status"><div class="cli-cashback-lbl">Compra de ${fmtDate(v.data)}</div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div>${wppUrl?`<button class="btn-wa" onclick="window.open('${wppUrl}','_blank')">📲 Enviar no WhatsApp</button>`:`<div style="font-size:11px;color:var(--muted2);text-align:center;padding:4px 0;">Sem WhatsApp</div>`}</div>`;});}
   html+=`<div class="cli-detail-section">Histórico</div>`;
   c.vendas.slice().reverse().forEach(v=>{const s=getCashbackStatus(v);let cbInfo='';if(s==='disponivel')cbInfo=`<span style="font-size:10px;color:var(--gold-txt);background:var(--gold-bg);border:1px solid var(--gold);border-radius:10px;padding:1px 5px;margin-left:4px;">💰 ${fmt(v.cashbackVal)}</span>`;else if(s==='usado')cbInfo=`<span style="font-size:10px;color:var(--muted2);">cashback usado</span>`;else if(s==='expirado')cbInfo=`<span style="font-size:10px;color:var(--muted2);">expirado</span>`;else if(s==='pendente')cbInfo=`<span style="font-size:10px;color:var(--muted2);">libera ${fmtDate(addDias(v.data,CASHBACK_DIAS_INICIO))}</span>`;html+=`<div class="cli-sale-row"><div class="cli-sale-left"><div class="cli-sale-date">${fmtDate(v.data)} · ${v.vendedora} ${cbInfo}</div><div class="cli-sale-pay">${v.pagamento}${v.desconto?' · promoção':''}</div></div><div class="cli-sale-right"><div class="cli-sale-val">${fmt(v.valor)}</div></div></div>`;});
   return html;
@@ -818,7 +960,7 @@ function renderCliCashback(){
     .sort((a,b)=>addDias(a.data,CASHBACK_DIAS_INICIO).localeCompare(addDias(b.data,CASHBACK_DIAS_INICIO)));
   if(!disponiveis.length&&!pendentes.length){el.innerHTML='<div class="empty">Nenhum cashback disponível.</div>';return;}
   let html='';
-  if(disponiveis.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--gold-txt);margin-bottom:8px;padding:7px 12px;background:var(--gold-bg);border-radius:8px;border:1px solid var(--gold);">💰 ${disponiveis.length} cashback${disponiveis.length!==1?'s':''} prontos — ordenados por urgência</div>`;disponiveis.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const hoje=today();const amanha=addDias(hoje,1);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;let urgTag='';if(fim===hoje)urgTag='<span style="font-size:9px;font-weight:700;background:var(--red);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE HOJE</span>';else if(fim===amanha)urgTag='<span style="font-size:9px;font-weight:700;background:var(--terra);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE AMANHÃ</span>';const contatoInfo=v.cliWpp?`📱 ${v.cliWpp} · ${fmtDate(v.data)}`:`${fmtDate(v.data)} · sem WhatsApp salvo`;let acaoBtn='';if(v.cliWpp){const link=linkCashback(v.cliWpp);const msg=encodeURIComponent(`Oi ${v.cliNome||''}! 🤍 Você tem R$ ${v.cashbackVal.toFixed(2).replace('.',',')} de cashback na Heres — válido até ${fmtDate(fim)}, em compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}. Passe na loja ou me fala se quiser ver novidades 🤍\n\n${link}`);acaoBtn=`<button class="btn-wa" onclick="window.open('https://wa.me/55${v.cliWpp}?text=${msg}','_blank')">📲 Enviar no WhatsApp</button>`;}else{acaoBtn=`<button class="btn-wa" style="background:var(--gold);" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`;}html+=`<div class="cli-cashback-row" style="margin-bottom:8px;"><div class="cli-cashback-status"><div><div class="cli-cashback-lbl">${v.cliNome||'Cliente sem nome'}${urgTag}</div><div style="font-size:10px;color:var(--gold-txt);opacity:.7;">${contatoInfo}</div></div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div>${acaoBtn}</div>`;});}
+  if(disponiveis.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--gold-txt);margin-bottom:8px;padding:7px 12px;background:var(--gold-bg);border-radius:8px;border:1px solid var(--gold);">💰 ${disponiveis.length} cashback${disponiveis.length!==1?'s':''} prontos — ordenados por urgência</div>`;disponiveis.forEach(v=>{const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);const hoje=today();const amanha=addDias(hoje,1);const minCompra=v.cashbackVal*CASHBACK_MULTIPLO;const diasRestantes=Math.round((new Date(fim+'T12:00:00')-new Date(hoje+'T12:00:00'))/86400000);let urgTag='';if(fim===hoje)urgTag='<span style="font-size:9px;font-weight:700;background:var(--red);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE HOJE</span>';else if(fim===amanha)urgTag='<span style="font-size:9px;font-weight:700;background:var(--terra);color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE AMANHÃ</span>';else if(diasRestantes>0&&diasRestantes<=CASHBACK_ALERTA_DIAS)urgTag='<span style="font-size:9px;font-weight:700;background:var(--gold);color:#3a2808;border-radius:20px;padding:2px 7px;margin-left:6px;">VENCE EM '+diasRestantes+' DIAS — ENVIAR LEMBRETE</span>';const contatoInfo=v.cliWpp?`📱 ${v.cliWpp} · ${fmtDate(v.data)}`:`${fmtDate(v.data)} · sem WhatsApp salvo`;let acaoBtn='';if(v.cliWpp){const link=linkCashback(v.cliWpp);const msg=encodeURIComponent(`Oi ${v.cliNome||''}, passando pra lembrar: seu cashback de R$ ${v.cashbackVal.toFixed(2).replace('.',',')} vence dia ${fmtDate(fim)} 🕒 Ainda dá tempo de aproveitar (compras a partir de R$ ${minCompra.toFixed(2).replace('.',',')}). Chegaram peças novas essa semana — quer que eu separe algumas pra você?\n\n${link}`);acaoBtn=`<button class="btn-wa" onclick="window.open('https://wa.me/55${v.cliWpp}?text=${msg}','_blank')">📲 Enviar no WhatsApp</button>`;}else{acaoBtn=`<button class="btn-wa" style="background:var(--gold);" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`;}html+=`<div class="cli-cashback-row" style="margin-bottom:8px;"><div class="cli-cashback-status"><div><div class="cli-cashback-lbl">${v.cliNome||'Cliente sem nome'}${urgTag}</div><div style="font-size:10px;color:var(--gold-txt);opacity:.7;">${contatoInfo}</div></div><div class="cli-cashback-val">${fmt(v.cashbackVal)}</div></div><div class="cli-cashback-info">Válido até ${fmtDate(fim)} · mín. ${fmt(minCompra)}</div>${acaoBtn}</div>`;});}
   if(pendentes.length){html+=`<div style="font-size:11px;font-weight:700;color:var(--muted);margin:12px 0 8px;padding:6px 12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">⏳ ${pendentes.length} a liberar</div>`;pendentes.forEach(v=>{const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);html+=`<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12px;font-weight:700;">${v.cliNome||(v.cliWpp||'Cliente sem nome')}</div><div style="font-size:10px;color:var(--muted);">libera em ${fmtDate(inicio)}</div></div><div style="font-size:16px;color:var(--muted);">${fmt(v.cashbackVal)}</div></div>`;});}
   el.innerHTML=html;
 }
