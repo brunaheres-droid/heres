@@ -364,6 +364,13 @@ select:focus,input:focus{border-color:var(--camel);}
           <div class="disc-btn" id="disc-sim" onclick="selDisc('sim')">Sim — promoção</div>
         </div>
       </div>
+      <div class="form-row" id="cashback-promo-override-wrap" style="display:none;">
+        <label class="form-lbl">Gerar cashback mesmo sendo promoção?</label>
+        <div class="disc-row">
+          <div class="disc-btn on" id="cbpromo-nao" onclick="selCashbackPromoOverride(false)">Não</div>
+          <div class="disc-btn" id="cbpromo-sim" onclick="selCashbackPromoOverride(true)">Sim</div>
+        </div>
+      </div>
       <div class="preview-box" id="preview-box">
         <div>
           <div class="preview-lbl">Comissão</div>
@@ -632,7 +639,7 @@ const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{},colecao:{heres:null,vv:null}};
 let CX={entradas:[],saidas:[]};
-let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='';
+let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='',cashbackPromoOverride=false;
 let db=null,relPin_str='',relAuthed=false;
 let relMesV=new Date().getMonth(),relAnoV=new Date().getFullYear();
 let relMesDin=new Date().getMonth(),relAnoDin=new Date().getFullYear();
@@ -650,7 +657,7 @@ function weekKey(){const now=new Date();const brt=new Date(now.toLocaleString('e
 function inicialNome(nome){if(!nome)return'?';const parts=nome.trim().split(' ');return(parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();}
 function addDias(dateStr,n){const d=new Date(dateStr+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 
-function calcCashbackVenda(valor,descOn,payTipo){if(payTipo==='boleto')return 0;if(descOn===true)return 0;return(valor||0)*CASHBACK_NORMAL;}
+function calcCashbackVenda(valor,descOn,payTipo,override){if(payTipo==='boleto')return 0;if(descOn===true&&!override)return 0;return(valor||0)*CASHBACK_NORMAL;}
 function getCashbacksDisponiveis(wpp){if(!wpp)return[];const wppClean=wpp.replace(/\D/g,'');const hoje=today();return ST.vendas.filter(v=>{if(!v.cliWpp)return false;if(v.cliWpp.replace(/\D/g,'')!==wppClean)return false;if(!v.cashbackVal||v.cashbackVal<=0)return false;if(v.cashbackUsado)return false;const inicio=addDias(v.data,CASHBACK_DIAS_INICIO);const fim=addDias(v.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);if(hoje<inicio)return false;if(hoje>fim)return false;return true;});}
 function getCashbackStatus(venda){if(!venda.cashbackVal||venda.cashbackVal<=0)return null;const hoje=today();const inicio=addDias(venda.data,CASHBACK_DIAS_INICIO);const fim=addDias(venda.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);if(venda.cashbackUsado)return'usado';if(hoje>fim)return'expirado';if(hoje<inicio)return'pendente';return'disponivel';}
 let _wppCheckTimer=null;
@@ -710,14 +717,18 @@ function nav(id,btn){
 }
 
 function selPay(el,lbl,tipo){document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');payLbl=lbl;payTipo=tipo;calcPreview();}
-function selDisc(v){descOn=(v==='sim');document.getElementById('disc-nao').classList.toggle('on',v==='nao');document.getElementById('disc-sim').classList.toggle('on',v==='sim');calcPreview();}
+function selDisc(v){descOn=(v==='sim');document.getElementById('disc-nao').classList.toggle('on',v==='nao');document.getElementById('disc-sim').classList.toggle('on',v==='sim');
+  const ow=document.getElementById('cashback-promo-override-wrap');
+  if(v==='sim'){ow.style.display='block';}else{ow.style.display='none';selCashbackPromoOverride(false);}
+  calcPreview();}
+function selCashbackPromoOverride(v){cashbackPromoOverride=v;document.getElementById('cbpromo-nao').classList.toggle('on',!v);document.getElementById('cbpromo-sim').classList.toggle('on',v);calcPreview();}
 function calcPreview(){
   const val=parseFloat(document.getElementById('f-val').value)||0;
   if(!payTipo||descOn===null||!val){document.getElementById('prev-pct').textContent='Selecione pagamento, valor e desconto';document.getElementById('prev-val').textContent='—';document.getElementById('preview-cashback-wrap').style.display='none';return;}
   const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
   document.getElementById('prev-pct').textContent=pct+'% · '+(descOn?'promoção':'normal');
   document.getElementById('prev-val').textContent=fmt(val*pct/100);
-  const cb=calcCashbackVenda(val,descOn,payTipo);
+  const cb=calcCashbackVenda(val,descOn,payTipo,cashbackPromoOverride);
   const cbWrap=document.getElementById('preview-cashback-wrap');
   if(cb>0){cbWrap.style.display='block';document.getElementById('preview-cashback-val').textContent=fmt(cb);}
   else{cbWrap.style.display='none';}
@@ -730,7 +741,7 @@ function registrar(){
   if(!vend||val<=0||!payLbl){alert('Preencha vendedora, valor e pagamento.');return;}
   if(descOn===null){alert('Informe se a peça tem desconto ou promoção.');return;}
   const pct=(descOn?COMM.promo:COMM.normal)[payTipo]||0;
-  const cbGerado=calcCashbackVenda(val,descOn,payTipo);
+  const cbGerado=calcCashbackVenda(val,descOn,payTipo,cashbackPromoOverride);
   if(cashbackAplicado&&cashbackDisponivel){const idxOrig=ST.vendas.findIndex(v=>v.id===cashbackDisponivel.vendaId);if(idxOrig>=0)ST.vendas[idxOrig].cashbackUsado=true;}
   const pagMap={'Pix':'pix','Dinheiro':'dinheiro','Cartão débito':'debito','Cartão crédito':'credito','Boleto / parcelado':'boleto'};
   ST.vendas.push({id:Date.now(),vendedora:vend,valor:val,cliNome:cliNome||'',cliWpp:cliWpp||'',pagamento:payLbl,payTipo,pagId:pagMap[payLbl]||'',desconto:descOn,commPct:pct,commVal:val*pct/100,cashbackVal:cbGerado,cashbackUsado:false,cashbackAplicado:cashbackAplicado?(cashbackDisponivel?cashbackDisponivel.valor:0):0,data:today(),hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
@@ -738,7 +749,7 @@ function registrar(){
   document.getElementById('f-vend').value='';document.getElementById('f-val').value='';document.getElementById('f-cli-nome').value='';document.getElementById('f-cli-wpp').value='';
   document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('disc-nao').classList.remove('on');document.getElementById('disc-sim').classList.remove('on');
-  payLbl='';payTipo='';descOn=null;
+  payLbl='';payTipo='';descOn=null;cashbackPromoOverride=false;document.getElementById('cashback-promo-override-wrap').style.display='none';document.getElementById('cbpromo-nao').classList.add('on');document.getElementById('cbpromo-sim').classList.remove('on');
   document.getElementById('prev-pct').textContent='Selecione pagamento, valor e desconto';document.getElementById('prev-val').textContent='—';document.getElementById('preview-cashback-wrap').style.display='none';
   document.getElementById('cashback-alert').classList.remove('show');document.getElementById('cashback-applied').style.display='none';
   cashbackDisponivel=null;cashbackAplicado=false;
@@ -805,6 +816,17 @@ function renderColecao(){
   const pecasHtml=(c.pecas&&c.pecas.length)?`<div style="margin-top:10px;"><div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;">Peças-chave</div>${c.pecas.map(p=>`<div style="font-size:12px;color:var(--dark);padding:5px 0;border-bottom:1px solid var(--border2);">• ${p}</div>`).join('')}</div>`:'';
   const brindeHtml=c.temBrinde?`<div style="margin-top:10px;padding:10px 12px;background:var(--gold-bg);border:1px solid var(--gold);border-radius:8px;"><div style="font-size:10px;font-weight:700;color:var(--gold-txt);text-transform:uppercase;letter-spacing:.06em;">Brinde/desconto da coleção</div><div style="font-size:12px;color:var(--dark);margin-top:3px;">${c.brindeDesc||'—'}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">A partir de ${fmt(c.valorMinimo||0)}</div></div>`:'';
   el.innerHTML=`<div class="card"><div class="card-body"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="font-size:17px;font-weight:700;color:var(--dark);">${c.nome}</div>${statusTag}</div>${periodo}${essenciaHtml}${coresHtml}${pecasHtml}${brindeHtml}</div></div>`;
+}
+function gerarCashbackManual(id){
+  const v=ST.vendas.find(x=>x.id===id);if(!v)return;
+  const sugestao=(v.valor*CASHBACK_NORMAL).toFixed(2).replace('.',',');
+  const resp=prompt('Valor do cashback pra essa venda (R$):', sugestao);
+  if(resp===null)return;
+  const val=parseFloat(resp.replace(',','.'));
+  if(!val||val<=0){alert('Valor inválido.');return;}
+  v.cashbackVal=val;
+  save();
+  renderHoje();
 }
 function enviarAvisoCashbackVenda(id){
   const v=ST.vendas.find(x=>x.id===id);if(!v||!v.cliWpp)return;
@@ -896,7 +918,8 @@ function renderHoje(){
     const copyBtn=x.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:5px;padding:6px 10px;font-size:10px;" onclick="copiarLinkCashback(${x.id}, this)">📋 Copiar link do cashback</button>`:'';
     const fimVenda=addDias(x.data,CASHBACK_DIAS_INICIO+CASHBACK_VALIDADE);
     const avisoVendaBtn=(x.cashbackVal>0&&x.cliWpp)?`<button class="btn-wa" style="margin-top:5px;padding:6px 10px;font-size:10px;" onclick="enviarAvisoCashbackVenda(${x.id})">📲 Avisar cliente do cashback</button>`:'';
-    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}<div style="margin-top:3px;">${wppBtn}</div>${copyBtn}${avisoVendaBtn}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
+    const gerarCbBtn=(!x.cashbackVal||x.cashbackVal<=0)?`<button class="btn-sec" style="margin-top:5px;padding:6px 10px;font-size:10px;width:auto;" onclick="gerarCashbackManual(${x.id})">💰 Gerar cashback pra essa venda</button>`:'';
+    return`<div class="sale-item"><div class="sale-top"><div><div class="sale-who">${x.vendedora}${x.desconto?'<span class="promo-pill">promoção</span>':''}${cbBadge}</div><div class="sale-meta">${x.hora}</div>${cliInfo}<div style="margin-top:3px;">${wppBtn}</div>${copyBtn}${avisoVendaBtn}${gerarCbBtn}</div><div style="display:flex;gap:4px;align-items:flex-start;"><div class="sale-right"><div class="sale-val">${fmt(x.valor)}</div><div class="sale-pay">${x.pagamento}</div></div><button class="del-btn" onclick="deletar(${x.id})">×</button></div></div><div class="sale-bottom"><div class="sale-comm">Comissão = ${fmt(x.commVal)}</div><div class="sale-tipo">${x.desconto?'tabela promoção':'tabela normal'}</div></div></div>`;
   }).join('');
 }
 
@@ -1034,7 +1057,7 @@ function renderRelLista(){
   <div id="lista-vendas-items"></div>`;
   const cont=document.getElementById('lista-vendas-items');
   if(!vM.length){cont.innerHTML='<div class="empty">Nenhuma venda neste mês.</div>';return;}
-  cont.innerHTML=vM.map(v=>{const[ano,mes,dia]=v.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});const wppChip=v.cliWpp?`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">📱 ${v.cliWpp}</span>`:(v.cashbackVal>0?`<span class="venda-ind-chip" style="color:var(--gold-txt);font-weight:700;cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp (opcional)</span>`:`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp</span>`);const copyBtn=v.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:6px;padding:6px 10px;font-size:10px;width:auto;display:inline-flex;" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`:'';return`<div class="venda-ind-item"><div class="venda-ind-top"><div class="venda-ind-nome">${v.cliNome||'Cliente não identificado'}</div><div class="venda-ind-val">${fmt(v.valor)}</div></div><div class="venda-ind-sub"><span class="venda-ind-chip">${dataFmt} · ${v.hora}</span><span class="venda-ind-chip">${v.vendedora}</span><span class="venda-ind-chip">${v.pagamento}</span>${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}${wppChip}<span class="venda-ind-chip" style="color:var(--terra);">comissão: ${fmt(v.commVal)}</span></div>${copyBtn}</div>`;}).join('');
+  cont.innerHTML=vM.map(v=>{const[ano,mes,dia]=v.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});const wppChip=v.cliWpp?`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">📱 ${v.cliWpp}</span>`:(v.cashbackVal>0?`<span class="venda-ind-chip" style="color:var(--gold-txt);font-weight:700;cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp (opcional)</span>`:`<span class="venda-ind-chip" style="cursor:pointer;text-decoration:underline;" onclick="editarWpp(${v.id})">+ WhatsApp</span>`);const copyBtn=v.cashbackVal>0?`<button class="btn-wa" style="background:var(--gold);margin-top:6px;padding:6px 10px;font-size:10px;width:auto;display:inline-flex;" onclick="copiarLinkCashback(${v.id}, this)">📋 Copiar link do cashback</button>`:'';const gerarCbBtn=(!v.cashbackVal||v.cashbackVal<=0)?`<button class="btn-sec" style="margin-top:6px;padding:6px 10px;font-size:10px;width:auto;" onclick="gerarCashbackManual(${v.id});renderRelLista();">💰 Gerar cashback</button>`:'';return`<div class="venda-ind-item"><div class="venda-ind-top"><div class="venda-ind-nome">${v.cliNome||'Cliente não identificado'}</div><div class="venda-ind-val">${fmt(v.valor)}</div></div><div class="venda-ind-sub"><span class="venda-ind-chip">${dataFmt} · ${v.hora}</span><span class="venda-ind-chip">${v.vendedora}</span><span class="venda-ind-chip">${v.pagamento}</span>${v.desconto?'<span class="venda-ind-chip" style="color:var(--gold-txt);">promoção</span>':''}${wppChip}<span class="venda-ind-chip" style="color:var(--terra);">comissão: ${fmt(v.commVal)}</span></div>${copyBtn}${gerarCbBtn}</div>`;}).join('');
 }
 
 let relMesSaidas=new Date().getMonth(),relAnoSaidas=new Date().getFullYear();
