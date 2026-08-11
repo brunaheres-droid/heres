@@ -72,6 +72,7 @@ select:focus,input:focus{border-color:var(--camel);}
 .preview-cashback-val{font-size:12px;font-weight:700;color:var(--gold-txt);}
 .btn-primary{width:100%;padding:12px;border:none;border-radius:10px;background:var(--dark);color:#f5f0e8;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);letter-spacing:0.04em;transition:transform .1s,background .15s;}
 .btn-primary:active{transform:scale(.98);background:#2e2c28;}
+.btn-primary:disabled{opacity:.55;cursor:default;transform:none;}
 .btn-sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;font-size:12px;color:var(--muted);cursor:pointer;font-family:var(--sans);margin-top:8px;transition:border-color .15s;}
 .btn-sec:hover{border-color:var(--camel);}
 .btn-wa{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:none;border-radius:8px;background:#25d366;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);}
@@ -288,6 +289,13 @@ select:focus,input:focus{border-color:var(--camel);}
 .comm-mes-total{background:var(--dark);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
 .comm-mes-total-lbl{font-size:10px;color:var(--camel2);letter-spacing:.12em;text-transform:uppercase;font-weight:700;}
 .comm-mes-total-val{font-size:22px;font-weight:700;color:#f5f0e8;}
+.dup-warning{display:none;background:#fdf0ee;border:1.5px solid var(--red);border-radius:10px;padding:11px 13px;margin-bottom:10px;}
+.dup-warning.show{display:block;animation:slideDown .3s ease;}
+.dup-warning-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;}
+.dup-warning-item{font-size:11px;color:var(--red);opacity:.85;margin-bottom:8px;line-height:1.5;}
+.dup-warning-row{display:flex;gap:8px;}
+.dup-warning-btn{flex:1;padding:8px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--red);background:transparent;color:var(--red);text-align:center;font-family:var(--sans);}
+.dup-warning-btn.confirm{background:var(--red);color:#fff;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -338,7 +346,7 @@ select:focus,input:focus{border-color:var(--camel);}
         <button class="cashback-applied-remove" onclick="removerCashback()">Remover</button>
       </div>
       <div class="form-row"><label class="form-lbl">Vendedora</label>
-        <select id="f-vend"><option value="">Selecione...</option><option>Bruna</option><option>Ana</option><option>Jamile</option><option>Lucimeire</option></select>
+        <select id="f-vend"><option value="">Selecione...</option><option>Bruna</option><option>Jamile</option><option>Lucimeire</option></select>
       </div>
       <div class="form-row"><label class="form-lbl">Nome do cliente (opcional)</label>
         <input type="text" id="f-cli-nome" placeholder="ex: Maria Silva">
@@ -384,7 +392,7 @@ select:focus,input:focus{border-color:var(--camel);}
         </div>
         <div class="preview-val" id="prev-val">—</div>
       </div>
-      <button class="btn-primary" onclick="registrar()">Registrar venda</button>
+      <button class="btn-primary" id="btn-registrar-venda" onclick="registrar()">Registrar venda</button>
     </div></div>
     <div class="card"><div class="card-header"><span class="card-title">Vendas de hoje</span></div><div class="card-body" id="list-hoje"></div></div>
   </div>
@@ -403,6 +411,14 @@ select:focus,input:focus{border-color:var(--camel);}
       <div id="cx-pag-bd"></div>
     </div></div>
     <div class="card"><div class="card-header"><span class="card-title">Recebimento a prazo</span></div><div class="card-body">
+      <div class="dup-warning" id="dup-warning-receb">
+        <div class="dup-warning-title">⚠️ Pode ser duplicado</div>
+        <div class="dup-warning-item" id="dup-warning-receb-item"></div>
+        <div class="dup-warning-row">
+          <div class="dup-warning-btn" onclick="cancelarDupReceb()">Cancelar</div>
+          <div class="dup-warning-btn confirm" onclick="confirmarDupReceb()">Registrar mesmo assim</div>
+        </div>
+      </div>
       <div class="form-row"><label class="form-lbl">Nome do cliente</label><input type="text" id="cx-cli" placeholder="Nome do cliente"></div>
       <div class="form-row"><label class="form-lbl">Forma de pagamento</label>
         <div class="cx-rbrow" id="cx-pag-receb-row">
@@ -415,9 +431,17 @@ select:focus,input:focus{border-color:var(--camel);}
       <input type="hidden" id="cx-pag-receb" value="">
       <div class="form-row"><label class="form-lbl">Valor (R$)</label><input type="number" id="cx-val-receb" placeholder="0,00" step="0.01" min="0"></div>
       <div class="form-row"><label class="form-lbl">Descrição (opcional)</label><input type="text" id="cx-desc-receb" placeholder="Observação"></div>
-      <button class="btn-primary" onclick="cxAddReceb()">+ Registrar recebimento</button>
+      <button class="btn-primary" id="btn-receb" onclick="cxAddReceb()">+ Registrar recebimento</button>
     </div></div>
     <div class="card"><div class="card-header"><span class="card-title">Registrar saída</span></div><div class="card-body">
+      <div class="dup-warning" id="dup-warning-saida">
+        <div class="dup-warning-title">⚠️ Pode ser duplicado</div>
+        <div class="dup-warning-item" id="dup-warning-saida-item"></div>
+        <div class="dup-warning-row">
+          <div class="dup-warning-btn" onclick="cancelarDupSaida()">Cancelar</div>
+          <div class="dup-warning-btn confirm" onclick="confirmarDupSaida()">Registrar mesmo assim</div>
+        </div>
+      </div>
       <div class="form-row"><label class="form-lbl">Categoria</label>
         <div class="cx-rbrow" id="cx-cat-row">
           <div class="cx-rb" onclick="cxSelCat(this,'fornecedor')">Fornecedor</div>
@@ -437,7 +461,7 @@ select:focus,input:focus{border-color:var(--camel);}
       <input type="hidden" id="cx-cat" value=""><input type="hidden" id="cx-pag-saida" value="">
       <div class="form-row"><label class="form-lbl">Valor (R$)</label><input type="number" id="cx-val-saida" placeholder="0,00" step="0.01" min="0"></div>
       <div class="form-row"><label class="form-lbl">Descrição (opcional)</label><input type="text" id="cx-desc-saida" placeholder="Observação"></div>
-      <button class="btn-primary" onclick="cxAddSaida()">+ Registrar saída</button>
+      <button class="btn-primary" id="btn-saida" onclick="cxAddSaida()">+ Registrar saída</button>
     </div></div>
     <div class="card"><div class="card-header"><span class="card-title">Movimentações do dia</span></div><div class="card-body" id="cx-mov-list"></div></div>
   </div>
@@ -630,14 +654,15 @@ select:focus,input:focus{border-color:var(--camel);}
 <script>
 const COMM={normal:{av:5,cartao:3,boleto:1},promo:{av:3,cartao:2,boleto:1}};
 const CASHBACK_NORMAL=0.10,CASHBACK_PROMO=0.00,CASHBACK_DIAS_INICIO=1,CASHBACK_VALIDADE=30,CASHBACK_MULTIPLO=3,CASHBACK_ALERTA_DIAS=7;
-const VENDEDORAS=['Bruna','Ana','Jamile','Lucimeire'];
+const VENDEDORAS=['Bruna','Jamile','Lucimeire'];
 const PAGS_CX=[{id:'pix',label:'Pix'},{id:'dinheiro',label:'Dinheiro'},{id:'debito',label:'Cartão débito'},{id:'credito',label:'Cartão crédito'},{id:'boleto',label:'Boleto/parcelado'}];
 const CATS_SAIDA={fornecedor:'Fornecedor',retirada:'Retirada sócia',despesa:'Despesa da loja',troco:'Troco/devolução',outra:'Outra saída'};
 const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
+const DUP_JANELA_MIN=3;
 
-let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{},colecao:{heres:null,vv:null}};
+let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{},colecao:{heres:null,vv:null}};
 let CX={entradas:[],saidas:[]};
 let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='',cashbackPromoOverride=false;
 let db=null,relPin_str='',relAuthed=false;
@@ -648,6 +673,8 @@ let relMesComm=new Date().getMonth(),relAnoComm=new Date().getFullYear();
 let semanaEditMode=false,activeDayIdx=0;
 let cashbackDisponivel=null,cashbackAplicado=false;
 let _cxCache={};
+let _pendingReceb=null,_pendingSaida=null;
+let _savingReceb=false,_savingSaida=false;
 
 function fmt(v){return'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtN(v){return'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});}
@@ -672,7 +699,7 @@ function initFirebase(){
     firebase.initializeApp({apiKey:"AIzaSyC6dOhUnAmn3YuCN74jHWz5EsfoaI9yYLc",authDomain:"heres-app-3e71f.firebaseapp.com",projectId:"heres-app-3e71f",storageBucket:"heres-app-3e71f.firebasestorage.app",messagingSenderId:"155615760966",appId:"1:155615760966:web:9a642d8b3205104f1cf047"});
     db=firebase.firestore();
     db.collection('heres').doc('vendas').onSnapshot(snap=>{ST.vendas=snap.exists?(snap.data().list||[]):[];renderPainel();renderHoje();renderComm();renderClientes();if(relAuthed){renderRelVendas();renderRelLista();renderRelSaidas();}});
-    db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;}renderPainel();buildMetasForm();});
+    db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;}renderPainel();buildMetasForm();});
     db.collection('heres').doc('checklist').onSnapshot(snap=>{ST.checklist=snap.exists?(snap.data()||{}):{};renderDayScreen(activeDayIdx);});
     db.collection('heres').doc('semanaCustom').onSnapshot(snap=>{if(snap.exists&&snap.data().data){applyCustomSemana(snap.data().data);buildSemana();}});
 const COLECAO_PADRAO={
@@ -699,7 +726,7 @@ async function saveColecao(){if(!db)return;try{await db.collection('heres').doc(
 async function saveSemanaCustom(){if(!db)return;try{await db.collection('heres').doc('semanaCustom').set({data:SEMANA.map(d=>({rituais:d.rituais.map(r=>({txt:r.txt,sub:r.sub})),checklist:[...d.checklist],stories:d.stories.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})),storiesVV:d.storiesVV?d.storiesVV.map(s=>({tipo:s.tipo,hora:s.hora,desc:s.desc,legenda:s.legenda})):null,whatsapp:d.whatsapp?d.whatsapp.map(w=>({label:w.label,msg:w.msg})):null,naofazer:d.naofazer.map(n=>({txt:n.txt,sub:n.sub}))}))});}catch(e){}}
 function applyCustomSemana(data){data.forEach((dd,i)=>{if(!SEMANA[i])return;if(dd.rituais)dd.rituais.forEach((r,ri)=>{if(SEMANA[i].rituais[ri]){SEMANA[i].rituais[ri].txt=r.txt;SEMANA[i].rituais[ri].sub=r.sub;}});if(dd.checklist)dd.checklist.forEach((c,ci)=>{if(SEMANA[i].checklist[ci]!==undefined)SEMANA[i].checklist[ci]=c;});if(dd.stories)dd.stories.forEach((s,si)=>{if(SEMANA[i].stories[si]){SEMANA[i].stories[si].tipo=s.tipo;SEMANA[i].stories[si].hora=s.hora;SEMANA[i].stories[si].desc=s.desc;SEMANA[i].stories[si].legenda=s.legenda;}});if(dd.storiesVV&&SEMANA[i].storiesVV)dd.storiesVV.forEach((s,si)=>{if(SEMANA[i].storiesVV[si]){SEMANA[i].storiesVV[si].tipo=s.tipo;SEMANA[i].storiesVV[si].hora=s.hora;SEMANA[i].storiesVV[si].desc=s.desc;SEMANA[i].storiesVV[si].legenda=s.legenda;}});if(dd.whatsapp&&SEMANA[i].whatsapp)dd.whatsapp.forEach((w,wi)=>{if(SEMANA[i].whatsapp[wi]){SEMANA[i].whatsapp[wi].label=w.label;SEMANA[i].whatsapp[wi].msg=w.msg;}});if(dd.naofazer)dd.naofazer.forEach((n,ni)=>{if(SEMANA[i].naofazer[ni]){SEMANA[i].naofazer[ni].txt=n.txt;SEMANA[i].naofazer[ni].sub=n.sub;}});});}
 function saveLocal(){try{localStorage.setItem('heres_v6',JSON.stringify(ST));}catch(e){}}
-function loadLocal(){try{const s=localStorage.getItem('heres_v6');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Ana:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}};ST.checklist=d.checklist||{};}}catch(e){}}
+function loadLocal(){try{const s=localStorage.getItem('heres_v6');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}};ST.checklist=d.checklist||{};}}catch(e){}}
 
 function irParaCashback(){const btns=document.querySelectorAll('.nav-btn');const clientesBtn=[...btns].find(b=>b.querySelector('.nav-label')&&b.querySelector('.nav-label').textContent==='Clientes');if(clientesBtn){nav('clientes',clientesBtn);setTimeout(()=>cliTab('cashback'),0);}}
 function nav(id,btn){
@@ -927,8 +954,94 @@ function cxSel(el,rowId,hiddenId,val){document.querySelectorAll('#'+rowId+' .cx-
 function cxSelCat(el,cat){document.querySelectorAll('#cx-cat-row .cx-rb').forEach(b=>b.classList.remove('on'));el.classList.add('on');cxCat=cat;document.getElementById('cx-cat').value=cat;const precisa=CATS_COM_PAG.includes(cat);document.getElementById('cx-pag-saida-wrap').style.display=precisa?'block':'none';document.getElementById('cx-aviso-saida').innerHTML='';cxPagSaida='';document.getElementById('cx-pag-saida').value='';document.querySelectorAll('#cx-pag-saida-row .cx-rb').forEach(b=>b.classList.remove('on'));}
 function cxSelPagSaida(el,val){document.querySelectorAll('#cx-pag-saida-row .cx-rb').forEach(b=>b.classList.remove('on'));el.classList.add('on');cxPagSaida=val;document.getElementById('cx-pag-saida').value=val;const av=document.getElementById('cx-aviso-saida');av.className='cx-info '+(val==='banco'?'neutral':'warn');av.textContent=val==='banco'?'Registrado apenas para histórico — não afeta o saldo do caixa.':'Saída em dinheiro — será descontado do saldo do caixa.';}
 function hm(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-function cxAddReceb(){const cli=document.getElementById('cx-cli').value.trim();const pag=document.getElementById('cx-pag-receb').value;const val=parseFloat(document.getElementById('cx-val-receb').value);const desc=document.getElementById('cx-desc-receb').value.trim();if(!cli){alert('Informe o nome do cliente.');return;}if(!pag){alert('Selecione a forma de pagamento.');return;}if(!val||val<=0){alert('Informe o valor.');return;}const pagLb=PAGS_CX.find(p=>p.id===pag).label;CX.entradas.push({id:Date.now(),tipo:'receb',label:'Recebimento a prazo',pag,pagLabel:pagLb,val,cli,desc,hora:hm()});saveCaixa();document.getElementById('cx-cli').value='';document.getElementById('cx-val-receb').value='';document.getElementById('cx-desc-receb').value='';document.getElementById('cx-pag-receb').value='';document.querySelectorAll('#cx-pag-receb-row .cx-rb').forEach(b=>b.classList.remove('on'));cxToast('Recebimento registrado!');}
-function cxAddSaida(){const cat=document.getElementById('cx-cat').value;if(!cat){alert('Selecione a categoria.');return;}const precisa=CATS_COM_PAG.includes(cat);const pagS=document.getElementById('cx-pag-saida').value;if(precisa&&!pagS){alert('Informe se foi pago com dinheiro ou banco.');return;}const val=parseFloat(document.getElementById('cx-val-saida').value);if(!val||val<=0){alert('Informe o valor.');return;}const desc=document.getElementById('cx-desc-saida').value.trim();const afeta=!precisa||(pagS==='dinheiro');CX.saidas.push({id:Date.now(),cat,label:CATS_SAIDA[cat],val,desc,hora:hm(),pagSaida:pagS||'dinheiro',afeta});saveCaixa();document.getElementById('cx-val-saida').value='';document.getElementById('cx-desc-saida').value='';document.getElementById('cx-cat').value='';document.getElementById('cx-pag-saida').value='';document.querySelectorAll('#cx-cat-row .cx-rb,#cx-pag-saida-row .cx-rb').forEach(b=>b.classList.remove('on'));cxCat='';cxPagSaida='';document.getElementById('cx-pag-saida-wrap').style.display='none';document.getElementById('cx-aviso-saida').innerHTML='';cxToast('Saída registrada!');}
+
+function minutosDesde(hhmm){
+  if(!hhmm)return 9999;
+  const[h,m]=hhmm.split(':').map(Number);
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  let itemMin=h*60+m;
+  let diff=nowMin-itemMin;
+  if(diff<0)diff+=24*60;
+  return diff;
+}
+function acharRecebDuplicado(cli,pag,val){
+  return CX.entradas.find(e=>e.tipo==='receb'&&(e.cli||'').trim().toLowerCase()===cli.trim().toLowerCase()&&e.pag===pag&&Math.abs(e.val-val)<0.01&&minutosDesde(e.hora)<=DUP_JANELA_MIN);
+}
+function acharSaidaDuplicada(cat,val,desc){
+  return CX.saidas.find(s=>s.cat===cat&&Math.abs(s.val-val)<0.01&&(s.desc||'').trim().toLowerCase()===(desc||'').trim().toLowerCase()&&minutosDesde(s.hora)<=DUP_JANELA_MIN);
+}
+
+function cxAddReceb(force){
+  if(_savingReceb)return;
+  const cli=document.getElementById('cx-cli').value.trim();
+  const pag=document.getElementById('cx-pag-receb').value;
+  const val=parseFloat(document.getElementById('cx-val-receb').value);
+  const desc=document.getElementById('cx-desc-receb').value.trim();
+  if(!cli){alert('Informe o nome do cliente.');return;}
+  if(!pag){alert('Selecione a forma de pagamento.');return;}
+  if(!val||val<=0){alert('Informe o valor.');return;}
+  if(!force){
+    const dup=acharRecebDuplicado(cli,pag,val);
+    if(dup){
+      _pendingReceb={cli,pag,val,desc};
+      document.getElementById('dup-warning-receb-item').textContent=`Já existe um recebimento de ${fmt(dup.val)} pra "${dup.cli}" (${dup.pagLabel}) lançado às ${dup.hora}, há poucos minutos.`;
+      document.getElementById('dup-warning-receb').classList.add('show');
+      return;
+    }
+  }
+  document.getElementById('dup-warning-receb').classList.remove('show');
+  const pagLb=PAGS_CX.find(p=>p.id===pag).label;
+  const btn=document.getElementById('btn-receb');
+  _savingReceb=true;btn.disabled=true;btn.textContent='Salvando...';
+  CX.entradas.push({id:Date.now(),tipo:'receb',label:'Recebimento a prazo',pag,pagLabel:pagLb,val,cli,desc,hora:hm()});
+  saveCaixa().finally(()=>{
+    _savingReceb=false;btn.disabled=false;btn.textContent='+ Registrar recebimento';
+  });
+  document.getElementById('cx-cli').value='';document.getElementById('cx-val-receb').value='';document.getElementById('cx-desc-receb').value='';document.getElementById('cx-pag-receb').value='';
+  document.querySelectorAll('#cx-pag-receb-row .cx-rb').forEach(b=>b.classList.remove('on'));
+  cxToast('Recebimento registrado!');
+  _pendingReceb=null;
+}
+function confirmarDupReceb(){if(_pendingReceb)cxAddReceb(true);}
+function cancelarDupReceb(){_pendingReceb=null;document.getElementById('dup-warning-receb').classList.remove('show');}
+
+function cxAddSaida(force){
+  if(_savingSaida)return;
+  const cat=document.getElementById('cx-cat').value;
+  if(!cat){alert('Selecione a categoria.');return;}
+  const precisa=CATS_COM_PAG.includes(cat);
+  const pagS=document.getElementById('cx-pag-saida').value;
+  if(precisa&&!pagS){alert('Informe se foi pago com dinheiro ou banco.');return;}
+  const val=parseFloat(document.getElementById('cx-val-saida').value);
+  if(!val||val<=0){alert('Informe o valor.');return;}
+  const desc=document.getElementById('cx-desc-saida').value.trim();
+  if(!force){
+    const dup=acharSaidaDuplicada(cat,val,desc);
+    if(dup){
+      _pendingSaida={cat,val,desc,pagS};
+      document.getElementById('dup-warning-saida-item').textContent=`Já existe uma saída de ${fmt(dup.val)} em "${dup.label}"${dup.desc?' ('+dup.desc+')':''} lançada às ${dup.hora}, há poucos minutos.`;
+      document.getElementById('dup-warning-saida').classList.add('show');
+      return;
+    }
+  }
+  document.getElementById('dup-warning-saida').classList.remove('show');
+  const afeta=!precisa||(pagS==='dinheiro');
+  const btn=document.getElementById('btn-saida');
+  _savingSaida=true;btn.disabled=true;btn.textContent='Salvando...';
+  CX.saidas.push({id:Date.now(),cat,label:CATS_SAIDA[cat],val,desc,hora:hm(),pagSaida:pagS||'dinheiro',afeta});
+  saveCaixa().finally(()=>{
+    _savingSaida=false;btn.disabled=false;btn.textContent='+ Registrar saída';
+  });
+  document.getElementById('cx-val-saida').value='';document.getElementById('cx-desc-saida').value='';document.getElementById('cx-cat').value='';document.getElementById('cx-pag-saida').value='';
+  document.querySelectorAll('#cx-cat-row .cx-rb,#cx-pag-saida-row .cx-rb').forEach(b=>b.classList.remove('on'));
+  cxCat='';cxPagSaida='';document.getElementById('cx-pag-saida-wrap').style.display='none';document.getElementById('cx-aviso-saida').innerHTML='';
+  cxToast('Saída registrada!');
+  _pendingSaida=null;
+}
+function confirmarDupSaida(){if(_pendingSaida)cxAddSaida(true);}
+function cancelarDupSaida(){_pendingSaida=null;document.getElementById('dup-warning-saida').classList.remove('show');}
+
 function cxDelItem(tipo,id){if(tipo==='e')CX.entradas=CX.entradas.filter(x=>x.id!==id);else CX.saidas=CX.saidas.filter(x=>x.id!==id);saveCaixa();}
 function cxToast(msg){const t=document.getElementById('toast-cx');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function renderCaixa(){
@@ -1095,7 +1208,7 @@ async function renderRelSaidas(){
         const[ano,mes,dia]=s.data.split('-');
         const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
         const bancoTag=s.afeta===false?'<span style="font-size:9px;color:var(--muted);background:var(--bg2);border-radius:20px;padding:1px 6px;margin-left:5px;">banco</span>':'';
-        html+=`<div class="rel-row"><div><div class="nome" style="color:var(--dark);">${s.desc||'Sem descrição'}${bancoTag}</div><div class="rsub">${dataFmt} · ${s.hora||''}</div></div><span class="rval red">${fmt(s.val)}</span></div>`;
+        html+=`<div class="rel-row"><div><div class="nome" style="color:var(--dark);">${s.desc||'Sem descrição'}${bancoTag}</div><div class="rsub">${dataFmt} · ${s.hora||''}</div></div><div style="display:flex;align-items:center;gap:6px;"><span class="rval red">${fmt(s.val)}</span><button class="del-btn" title="Excluir" onclick="relExcluirMovCaixa('${s.data}','saida',${s.id})">×</button></div></div>`;
       });
       html+='</div></div>';
     });
@@ -1151,6 +1264,36 @@ function renderRelComissoes(){
 function mudarMesDin(d){relMesDin+=d;if(relMesDin<0){relMesDin=11;relAnoDin--;}if(relMesDin>11){relMesDin=0;relAnoDin++;}renderRelDinheiro();}
 async function buscarCaixaMes(ano,mes){const key=ano+'-'+mes;if(_cxCache[key])return _cxCache[key];const mesStr=String(mes).padStart(2,'0');const diasNoMes=new Date(ano,mes,0).getDate();const promises=[];for(let d=1;d<=diasNoMes;d++){const dStr=String(d).padStart(2,'0');const docId='caixa_'+ano+'-'+mesStr+'-'+dStr;promises.push(db?db.collection('heres_caixa').doc(docId).get().catch(()=>null):Promise.resolve(null));}const snaps=await Promise.all(promises);const resultado=[];snaps.forEach((snap,i)=>{if(snap&&snap.exists){const d=snap.data();const dStr=String(i+1).padStart(2,'0');resultado.push({data:ano+'-'+mesStr+'-'+dStr,entradas:d.entradas||[],saidas:d.saidas||[]});}});_cxCache[key]=resultado;return resultado;}
 
+function relPedirSenhaEExecutar(cb){
+  const pw=prompt('Senha para excluir este lançamento:');
+  if(pw===null)return;
+  if(pw!==REL_SENHA){alert('Senha incorreta.');return;}
+  cb();
+}
+async function relExcluirMovCaixa(dataStr,tipo,id){
+  relPedirSenhaEExecutar(async ()=>{
+    if(!confirm('Excluir esse lançamento de '+fmtDate(dataStr)+' permanentemente? Essa ação não pode ser desfeita.'))return;
+    const docId='caixa_'+dataStr;
+    try{
+      let entradas=[],saidas=[];
+      if(db){
+        const snap=await db.collection('heres_caixa').doc(docId).get();
+        if(!snap.exists){alert('Registro não encontrado.');return;}
+        const d=snap.data();entradas=d.entradas||[];saidas=d.saidas||[];
+      }
+      if(tipo==='entrada')entradas=entradas.filter(e=>e.id!==id);
+      else saidas=saidas.filter(s=>s.id!==id);
+      if(db)await db.collection('heres_caixa').doc(docId).set({entradas,saidas,data:dataStr});
+      const[ano,mes]=dataStr.split('-');
+      const key=Number(ano)+'-'+Number(mes);
+      delete _cxCache[key];
+      if(dataStr===today()){CX.entradas=entradas;CX.saidas=saidas;renderCaixa();}
+      renderRelSaidas();
+      renderRelDinheiro();
+    }catch(e){alert('Erro ao excluir. Tente novamente.');}
+  });
+}
+
 async function renderRelDinheiro(){
   const el=document.getElementById('rel-dinheiro');if(!el)return;
   el.innerHTML=`<div class="mes-nav"><button class="mes-nav-btn" onclick="mudarMesDin(-1)">‹</button><span class="mes-lbl">${MESES[relMesDin]} ${relAnoDin}</span><button class="mes-nav-btn" onclick="mudarMesDin(1)">›</button></div><div style="text-align:center;padding:32px;font-size:12px;color:var(--muted2);">Carregando...</div>`;
@@ -1174,6 +1317,8 @@ async function renderRelDinheiro(){
   <div class="sum-row ${saldoMes>=0?'green-row':'red-row'}" style="margin-bottom:12px;"><span class="sum-row-lbl" style="color:${saldoMes>=0?'var(--green)':'var(--red)'};">Saldo em dinheiro do mês</span><span class="sum-row-val" style="color:${saldoMes>=0?'var(--green)':'var(--red)'};">${fmt(saldoMes)}</span></div>
   <div class="card" style="margin-bottom:10px;"><div class="card-header"><span class="card-title">Entradas em dinheiro</span></div><div class="card-body"><div class="rel-row"><div><div class="nome">Vendas pagas em dinheiro</div><div class="rsub">${vendasDin.length} venda${vendasDin.length!==1?'s':''}</div></div><span class="rval green">${fmt(totalVendasDin)}</span></div><div class="rel-row"><div><div class="nome">Recebimentos a prazo (dinheiro)</div><div class="rsub">${recebDin.length} registro${recebDin.length!==1?'s':''}</div></div><span class="rval green">${fmt(totalRecebDin)}</span></div><div class="sum-row green-row" style="margin-top:6px;"><span class="sum-row-lbl" style="color:var(--green);font-size:12px;">Total entradas</span><span class="sum-row-val" style="color:var(--green);">${fmt(totalEntradas)}</span></div></div></div>
   <div class="card" style="margin-bottom:10px;"><div class="card-header"><span class="card-title">Saídas em dinheiro</span></div><div class="card-body">${Object.keys(saidasPorCat).length===0?'<div class="empty" style="padding:12px 0;">Nenhuma saída em dinheiro registrada.</div>':Object.entries(saidasPorCat).map(([cat,val])=>`<div class="rel-row"><span class="nome">${cat}</span><span class="rval red">${fmt(val)}</span></div>`).join('')}${totalSaidasDin>0?`<div class="sum-row red-row" style="margin-top:6px;"><span class="sum-row-lbl" style="color:var(--red);font-size:12px;">Total saídas</span><span class="sum-row-val" style="color:var(--red);">${fmt(totalSaidasDin)}</span></div>`:''}</div></div>
+  <div class="card" style="margin-bottom:10px;"><div class="card-header"><span class="card-title">Detalhamento — recebimentos em dinheiro</span></div><div class="card-body">${recebDin.length===0?'<div class="empty" style="padding:12px 0;">Nenhum recebimento em dinheiro neste mês.</div>':recebDin.slice().sort((a,b)=>b.data.localeCompare(a.data)||b.id-a.id).map(e=>{const[ano,mes,dia]=e.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{day:'numeric',month:'short'});return`<div class="rel-row"><div><div class="nome" style="color:var(--dark);">${e.cli?'Cliente: '+e.cli:'Recebimento'}${e.desc?' · '+e.desc:''}</div><div class="rsub">${dataFmt} · ${e.hora||''}</div></div><div style="display:flex;align-items:center;gap:6px;"><span class="rval green">${fmt(e.val)}</span><button class="del-btn" title="Excluir" onclick="relExcluirMovCaixa('${e.data}','entrada',${e.id})">×</button></div></div>`;}).join('')}</div></div>
+  <div class="card" style="margin-bottom:10px;"><div class="card-header"><span class="card-title">Detalhamento — saídas em dinheiro</span></div><div class="card-body">${saidasDin.length===0?'<div class="empty" style="padding:12px 0;">Nenhuma saída em dinheiro neste mês.</div>':saidasDin.slice().sort((a,b)=>b.data.localeCompare(a.data)||b.id-a.id).map(s=>{const[ano,mes,dia]=s.data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{day:'numeric',month:'short'});return`<div class="rel-row"><div><div class="nome" style="color:var(--dark);">${s.label||CATS_SAIDA[s.cat]||'Saída'}${s.desc?' · '+s.desc:''}</div><div class="rsub">${dataFmt} · ${s.hora||''}</div></div><div style="display:flex;align-items:center;gap:6px;"><span class="rval red">${fmt(s.val)}</span><button class="del-btn" title="Excluir" onclick="relExcluirMovCaixa('${s.data}','saida',${s.id})">×</button></div></div>`;}).join('')}</div></div>
   <div class="card"><div class="card-header"><span class="card-title">Por dia</span></div><div class="card-body">${diasOrd.length===0?'<div class="empty" style="padding:12px 0;">Nenhuma movimentação em dinheiro neste mês.</div>':diasOrd.map(data=>{const info=porDia[data];const ent=info.v+info.r;const saldo=ent-info.s;const[ano,mes,dia]=data.split('-');const dataFmt=new Date(Number(ano),Number(mes)-1,Number(dia)).toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});return`<div class="day-rel-row"><div class="day-rel-top"><span class="day-rel-date">${dataFmt}</span><span class="day-rel-saldo" style="color:${saldo>=0?'var(--green)':'var(--red)'};">${fmt(saldo)}</span></div><div class="day-rel-detail">${info.v>0?`<span class="day-rel-chip">vendas: <strong>${fmt(info.v)}</strong></span>`:''}${info.r>0?`<span class="day-rel-chip">receb.: <strong>${fmt(info.r)}</strong></span>`:''}${info.s>0?`<span class="day-rel-chip" style="color:var(--red);">saídas: <strong>${fmt(info.s)}</strong></span>`:''}</div></div>`;}).join('')}</div></div>`;
 }
 
