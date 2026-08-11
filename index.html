@@ -19,11 +19,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .navbar{position:fixed;bottom:0;left:0;right:0;background:var(--dark);display:flex;border-top:1px solid #2e2c28;height:60px;}
 .nav-btn{flex:1;min-width:40px;padding:8px 2px 6px;text-align:center;cursor:pointer;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:opacity .15s;}
 .nav-btn:active{opacity:.7;}
-.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.nav-icon{width:22px;height:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .nav-icon svg{width:16px;height:16px;transition:stroke .2s;}
 .nav-btn .nav-icon svg path,.nav-btn .nav-icon svg rect,.nav-btn .nav-icon svg circle{stroke:#5a5550;}
 .nav-btn.active .nav-icon svg path,.nav-btn.active .nav-icon svg rect,.nav-btn.active .nav-icon svg circle{stroke:var(--camel2);}
-.nav-label{font-size:9px;color:#5a5550;letter-spacing:0.06em;font-weight:600;text-transform:uppercase;transition:color .2s;}
+.nav-label{font-size:8px;color:#5a5550;letter-spacing:0.06em;font-weight:600;text-transform:uppercase;transition:color .2s;}
 .nav-btn.active .nav-label{color:var(--camel2);}
 .screen{display:none;}.screen.active{display:block;}
 .content{padding:14px 14px 0;}
@@ -298,9 +298,9 @@ select:focus,input:focus{border-color:var(--camel);}
 .dup-warning-btn.confirm{background:var(--red);color:#fff;}
 
 /* ===== AGOSTO / CENTRAL DE ESTRATÉGIA ===== */
-.navbar{overflow-x:auto;scrollbar-width:none;}
+.navbar{overflow:hidden;scrollbar-width:none;width:100%;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));}
 .navbar::-webkit-scrollbar{display:none;}
-.nav-btn{min-width:74px;flex:0 0 74px;}
+.nav-btn{min-width:0;width:auto;flex:initial;}
 .strategy-hero{background:var(--dark);border-radius:14px;padding:18px;margin-bottom:12px;color:#f5f0e8;}
 .strategy-kicker{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--camel2);font-weight:700;margin-bottom:6px;}
 .strategy-title{font-size:25px;font-weight:700;line-height:1.15;margin-bottom:7px;}
@@ -337,7 +337,7 @@ select:focus,input:focus{border-color:var(--camel);}
 .action-dot{width:7px;height:7px;border-radius:50%;background:var(--terra);margin-top:6px;flex-shrink:0;}
 .action-text{font-size:12px;line-height:1.5;color:var(--dark);}
 .action-sub{font-size:10px;color:var(--muted);margin-top:2px;}
-@media(max-width:360px){.strategy-grid{grid-template-columns:1fr;}.nav-btn{min-width:68px;flex-basis:68px;}}
+@media(max-width:360px){.strategy-grid{grid-template-columns:1fr;}.navbar{grid-template-columns:repeat(9,minmax(0,1fr));}.nav-btn{min-width:0;width:auto;}.nav-label{font-size:7px;letter-spacing:.03em;}}
 
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
