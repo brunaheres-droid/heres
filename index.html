@@ -152,16 +152,15 @@ select:focus,input:focus{border-color:var(--camel);}
 .var-tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:20px;margin-left:6px;}
 .var-tag.up{background:#e8f4ec;color:var(--green2);}.var-tag.down{background:#f8ece8;color:var(--terra);}
 .logout-lnk{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;font-family:var(--sans);}
-.semana-day-tabs{display:flex;overflow-x:auto;gap:6px;padding:14px 14px 0;scrollbar-width:none;}
-.semana-day-tabs::-webkit-scrollbar{display:none;}
-.day-tab-btn{flex-shrink:0;padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);cursor:pointer;transition:all .15s;font-family:var(--sans);}
+.program-month-tabs{display:flex;gap:6px;padding:12px 14px 0;overflow-x:auto;scrollbar-width:none;}
+.program-month-tabs::-webkit-scrollbar{display:none;}
+.program-month-btn{flex:1;min-width:120px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);cursor:pointer;font-family:var(--sans);}
+.program-month-btn.active{background:var(--dark);color:var(--camel2);border-color:var(--dark);}
+.program-month-title{padding:12px 14px 0;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.semana-day-tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:10px 14px 0;}
+.day-tab-btn{padding:8px 4px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);cursor:pointer;transition:all .15s;font-family:var(--sans);}
 .day-tab-btn.active{background:var(--dark);color:var(--camel2);border-color:var(--dark);}
-.month-tabs{display:flex;gap:8px;padding:14px 0 8px;overflow-x:auto;scrollbar-width:none;}
-.month-tabs::-webkit-scrollbar{display:none;}
-.month-tab-btn{flex:1;min-width:110px;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;font-family:var(--sans);}
-.month-tab-btn.active{background:var(--dark);color:var(--camel2);border-color:var(--dark);}
-.month-note{font-size:11px;color:var(--muted);padding:0 0 5px;}
-
+@media(max-width:360px){.semana-day-tabs{grid-template-columns:repeat(5,1fr);}}
 .semana-day-screen{display:none;padding:12px 14px 0;}
 .semana-day-screen.active{display:block;}
 .intention-box{background:var(--dark);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:10px;}
@@ -348,12 +347,6 @@ select:focus,input:focus{border-color:var(--camel);}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-<style>
-.month-day.sunday-day{display:none!important;}
-.month-weekday.sunday-header{display:none!important;}
-</style>
-
 </head>
 <body>
 
@@ -550,6 +543,8 @@ select:focus,input:focus{border-color:var(--camel);}
       <button class="edit-mode-btn" id="semana-edit-btn" onclick="toggleSemanaEdit()">Editar</button>
     </div>
     <div id="semana-edit-bar-wrap"></div>
+    <div class="program-month-tabs" id="semana-month-tabs"></div>
+    <div class="program-month-title">Escolha o mês e depois o dia · domingos não entram porque a loja está fechada</div>
     <div class="semana-day-tabs" id="semana-day-tabs"></div>
     <div id="semana-day-screens"></div>
   </div>
@@ -1612,25 +1607,45 @@ function setPath(obj,path,val){const last=path[path.length-1];const parent=path.
 function edEl(di,path,extraClass){const val=getPath(SEMANA[di],path)||'';const idx=_edPaths.push({di,path})-1;return'<span class="editable '+(extraClass||'')+'" data-edidx="'+idx+'" onclick="handleEdClick(this)">'+(val||'<em style="color:var(--border)">+ adicionar</em>')+'</span>';}
 let _edPaths=[];
 function handleEdClick(el){const idx=parseInt(el.dataset.edidx);const{di,path}=_edPaths[idx];startInlineEdit(el,di,path);}
-let activeMonthKey='';
-function monthKeyFromDay(d){const m=String(d.full||'').match(/(\d{2})\/(\d{2})/);return m?'2026-'+m[2]:'2026-08';}
-function monthName(key){const names={'2026-08':'AGOSTO 2026','2026-09':'SETEMBRO 2026'};return names[key]||key;}
+let programMonth='2026-08';
+function monthLabel(key){
+  const [y,m]=key.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'America/Sao_Paulo'}).replace(/^./,c=>c.toUpperCase());
+}
+function monthKeys(){
+  return [...new Set(SEMANA.map(d=>String(d.id||'').slice(0,7)))];
+}
 function buildSemana(){
-  const monthHost=document.getElementById('semana-day-tabs');
-  const months=[...new Set(SEMANA.map(monthKeyFromDay))];
-  if(!activeMonthKey||!months.includes(activeMonthKey))activeMonthKey=monthKeyFromDay(SEMANA[activeDayIdx]||SEMANA[0]);
-  const monthIndexes=SEMANA.map((d,i)=>({key:monthKeyFromDay(d),i}));
-  monthHost.innerHTML=`<div class="month-tabs">${months.map(k=>`<button class="month-tab-btn${k===activeMonthKey?' active':''}" onclick="switchMonth('${k}')">${monthName(k)}</button>`).join('')}</div><div class="month-note">Escolha o mês e depois o dia para abrir o planejamento completo.</div>`;
-  const dayHost=document.createElement('div');dayHost.className='semana-day-tabs';dayHost.style.padding='4px 0 0';
-  const idxs=monthIndexes.filter(x=>x.key===activeMonthKey).map(x=>x.i);
-  dayHost.innerHTML=idxs.map(i=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${SEMANA[i].label}</button>`).join('');
-  monthHost.appendChild(dayHost);
+  const keys=monthKeys();
+  if(!keys.includes(programMonth))programMonth=keys[0]||'2026-08';
+  const monthEl=document.getElementById('semana-month-tabs');
+  monthEl.innerHTML=keys.map(k=>`<button class="program-month-btn${k===programMonth?' active':''}" onclick="switchProgramMonth('${k}')">${monthLabel(k)}</button>`).join('');
+  renderMonthDays();
+}
+function renderMonthDays(){
+  const tabsEl=document.getElementById('semana-day-tabs');
+  const indexes=SEMANA.map((d,i)=>({d,i})).filter(x=>String(x.d.id||'').startsWith(programMonth+'-'));
+  if(!indexes.some(x=>x.i===activeDayIdx))activeDayIdx=indexes.length?indexes[0].i:0;
+  tabsEl.innerHTML=indexes.map(x=>`<button class="day-tab-btn${x.i===activeDayIdx?' active':''}" onclick="switchDay(${x.i})">${x.d.label}</button>`).join('');
   const screensEl=document.getElementById('semana-day-screens');
   screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');
   renderDayScreen(activeDayIdx);
 }
-function switchMonth(key){activeMonthKey=key;const first=SEMANA.findIndex(d=>monthKeyFromDay(d)===key);if(first>=0)activeDayIdx=first;buildSemana();}
-function switchDay(i){activeDayIdx=i;activeMonthKey=monthKeyFromDay(SEMANA[i]);buildSemana();}
+function switchProgramMonth(k){
+  programMonth=k;
+  const indexes=SEMANA.map((d,i)=>({d,i})).filter(x=>String(x.d.id||'').startsWith(k+'-'));
+  activeDayIdx=indexes.length?indexes[0].i:0;
+  buildSemana();
+}
+function switchDay(i){
+  activeDayIdx=i;
+  document.querySelectorAll('.day-tab-btn').forEach((b)=>{
+    b.classList.toggle('active',b.textContent===SEMANA[i].label);
+  });
+  document.querySelectorAll('.semana-day-screen').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  const container=document.getElementById('day-screen-'+i);
+  if(!container.dataset.built||semanaEditMode)renderDayScreen(i);
+}
 
 function renderDayScreen(di){
   const d=SEMANA[di];const container=document.getElementById('day-screen-'+di);if(!container)return;
@@ -1701,7 +1716,7 @@ function renderDayScreen(di){
   container.innerHTML=html;updateDayProg(di);
 }
 
-const SEMANA_ORIGINAL=[ 
+const SEMANA_RAW=[
   {
     "id": "2026-08-19",
     "label": "19/08",
@@ -5692,9 +5707,15 @@ const SEMANA_ORIGINAL=[
       }
     ]
   }
-];;;
+]; 
 
-const _idxHojePlano=SEMANA.findIndex(d=>d.id===today());activeDayIdx=_idxHojePlano>=0?_idxHojePlano:0;
+const SEMANA=SEMANA_RAW.filter(d=>{
+  const p=String(d.id||'').split('-');
+  if(p.length!==3)return true;
+  return new Date(Number(p[0]),Number(p[1])-1,Number(p[2])).getDay()!==0;
+});
+
+const _idxHojePlano=SEMANA.findIndex(d=>d.id===today());activeDayIdx=_idxHojePlano>=0?_idxHojePlano:0;programMonth=String(SEMANA[activeDayIdx]?.id||'2026-08').slice(0,7);
 document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Sao_Paulo'});
 buildSemana();
 renderEstrategia();
