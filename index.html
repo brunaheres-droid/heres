@@ -156,6 +156,12 @@ select:focus,input:focus{border-color:var(--camel);}
 .semana-day-tabs::-webkit-scrollbar{display:none;}
 .day-tab-btn{flex-shrink:0;padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);cursor:pointer;transition:all .15s;font-family:var(--sans);}
 .day-tab-btn.active{background:var(--dark);color:var(--camel2);border-color:var(--dark);}
+.month-tabs{display:flex;gap:8px;padding:14px 0 8px;overflow-x:auto;scrollbar-width:none;}
+.month-tabs::-webkit-scrollbar{display:none;}
+.month-tab-btn{flex:1;min-width:110px;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;font-family:var(--sans);}
+.month-tab-btn.active{background:var(--dark);color:var(--camel2);border-color:var(--dark);}
+.month-note{font-size:11px;color:var(--muted);padding:0 0 5px;}
+
 .semana-day-screen{display:none;padding:12px 14px 0;}
 .semana-day-screen.active{display:block;}
 .intention-box{background:var(--dark);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:10px;}
@@ -342,6 +348,12 @@ select:focus,input:focus{border-color:var(--camel);}
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<style>
+.month-day.sunday-day{display:none!important;}
+.month-weekday.sunday-header{display:none!important;}
+</style>
+
 </head>
 <body>
 
@@ -534,7 +546,7 @@ select:focus,input:focus{border-color:var(--camel);}
   <!-- SEMANA -->
   <div id="s-semana" class="screen">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;">
-      <div style="font-size:15px;font-weight:700;color:var(--dark);">Plano Diário · 30 dias</div>
+      <div style="font-size:15px;font-weight:700;color:var(--dark);">Programação Mensal</div>
       <button class="edit-mode-btn" id="semana-edit-btn" onclick="toggleSemanaEdit()">Editar</button>
     </div>
     <div id="semana-edit-bar-wrap"></div>
@@ -1600,8 +1612,25 @@ function setPath(obj,path,val){const last=path[path.length-1];const parent=path.
 function edEl(di,path,extraClass){const val=getPath(SEMANA[di],path)||'';const idx=_edPaths.push({di,path})-1;return'<span class="editable '+(extraClass||'')+'" data-edidx="'+idx+'" onclick="handleEdClick(this)">'+(val||'<em style="color:var(--border)">+ adicionar</em>')+'</span>';}
 let _edPaths=[];
 function handleEdClick(el){const idx=parseInt(el.dataset.edidx);const{di,path}=_edPaths[idx];startInlineEdit(el,di,path);}
-function buildSemana(){const tabsEl=document.getElementById('semana-day-tabs');tabsEl.innerHTML=SEMANA.map((d,i)=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${d.label}</button>`).join('');const screensEl=document.getElementById('semana-day-screens');screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');renderDayScreen(activeDayIdx);}
-function switchDay(i){activeDayIdx=i;document.querySelectorAll('.day-tab-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));document.querySelectorAll('.semana-day-screen').forEach((s,idx)=>s.classList.toggle('active',idx===i));const container=document.getElementById('day-screen-'+i);if(!container.dataset.built||semanaEditMode)renderDayScreen(i);}
+let activeMonthKey='';
+function monthKeyFromDay(d){const m=String(d.full||'').match(/(\d{2})\/(\d{2})/);return m?'2026-'+m[2]:'2026-08';}
+function monthName(key){const names={'2026-08':'AGOSTO 2026','2026-09':'SETEMBRO 2026'};return names[key]||key;}
+function buildSemana(){
+  const monthHost=document.getElementById('semana-day-tabs');
+  const months=[...new Set(SEMANA.map(monthKeyFromDay))];
+  if(!activeMonthKey||!months.includes(activeMonthKey))activeMonthKey=monthKeyFromDay(SEMANA[activeDayIdx]||SEMANA[0]);
+  const monthIndexes=SEMANA.map((d,i)=>({key:monthKeyFromDay(d),i}));
+  monthHost.innerHTML=`<div class="month-tabs">${months.map(k=>`<button class="month-tab-btn${k===activeMonthKey?' active':''}" onclick="switchMonth('${k}')">${monthName(k)}</button>`).join('')}</div><div class="month-note">Escolha o mês e depois o dia para abrir o planejamento completo.</div>`;
+  const dayHost=document.createElement('div');dayHost.className='semana-day-tabs';dayHost.style.padding='4px 0 0';
+  const idxs=monthIndexes.filter(x=>x.key===activeMonthKey).map(x=>x.i);
+  dayHost.innerHTML=idxs.map(i=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${SEMANA[i].label}</button>`).join('');
+  monthHost.appendChild(dayHost);
+  const screensEl=document.getElementById('semana-day-screens');
+  screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');
+  renderDayScreen(activeDayIdx);
+}
+function switchMonth(key){activeMonthKey=key;const first=SEMANA.findIndex(d=>monthKeyFromDay(d)===key);if(first>=0)activeDayIdx=first;buildSemana();}
+function switchDay(i){activeDayIdx=i;activeMonthKey=monthKeyFromDay(SEMANA[i]);buildSemana();}
 
 function renderDayScreen(di){
   const d=SEMANA[di];const container=document.getElementById('day-screen-'+di);if(!container)return;
@@ -1672,7 +1701,7 @@ function renderDayScreen(di){
   container.innerHTML=html;updateDayProg(di);
 }
 
-const SEMANA=[
+const SEMANA_ORIGINAL=[ 
   {
     "id": "2026-08-19",
     "label": "19/08",
