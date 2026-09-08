@@ -709,7 +709,7 @@ const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agos
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
 
-let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}},checklist:{},colecao:null,contatosBase:{}};
+let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{}};
 let ESTRATEGIA={};
 let CX={entradas:[],saidas:[]};
 let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='',cashbackPromoOverride=false;
@@ -765,7 +765,9 @@ function initFirebase(){
     firebase.initializeApp({apiKey:"AIzaSyC6dOhUnAmn3YuCN74jHWz5EsfoaI9yYLc",authDomain:"heres-app-3e71f.firebaseapp.com",projectId:"heres-app-3e71f",storageBucket:"heres-app-3e71f.firebasestorage.app",messagingSenderId:"155615760966",appId:"1:155615760966:web:9a642d8b3205104f1cf047"});
     db=firebase.firestore();
     db.collection('heres').doc('vendas').onSnapshot(snap=>{ST.vendas=snap.exists?(snap.data().list||[]):[];renderPainel();renderHoje();renderComm();renderClientes();if(relAuthed){renderRelVendas();renderRelLista();renderRelSaidas();}});
-    db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;}renderPainel();buildMetasForm();});
+    db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;ST.config.bonusMeta=d.bonusMeta!==undefined?d.bonusMeta:100;ST.config.bonusSite=d.bonusSite!==undefined?d.bonusSite:100;ST.config.bonusReelValor=d.bonusReelValor!==undefined?d.bonusReelValor:50;ST.config.bonusReelQtd=d.bonusReelQtd!==undefined?d.bonusReelQtd:5;}renderPainel();buildMetasForm();renderComm();});
+    db.collection('heres').doc('reels').onSnapshot(snap=>{ST.reels=snap.exists?(snap.data().list||[]):[];renderComm();});
+    db.collection('heres').doc('siteFotos').onSnapshot(snap=>{ST.siteFotos=snap.exists?(snap.data()||{}):{};renderComm();});
     db.collection('heres').doc('estrategiaAgosto2026').onSnapshot(snap=>{
       ESTRATEGIA=snap.exists?snap.data():ESTRATEGIA_PADRAO;
       renderEstrategia();
@@ -796,7 +798,9 @@ function initFirebase(){
 }
 function showConnected(ok){const el=document.getElementById('conn-dot');if(el){el.style.background=ok?'var(--green)':'var(--terra)';el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3000);}}
 async function save(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('vendas').set({list:ST.vendas});}catch(e){saveLocal();}}
-async function saveConfig(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('config').set({metas:ST.config.metas,metaLoja:ST.config.metaLoja||0});}catch(e){saveLocal();}}
+async function saveConfig(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('config').set({metas:ST.config.metas,metaLoja:ST.config.metaLoja||0,bonusMeta:ST.config.bonusMeta||0,bonusSite:ST.config.bonusSite||0,bonusReelValor:ST.config.bonusReelValor||0,bonusReelQtd:ST.config.bonusReelQtd||1});}catch(e){saveLocal();}}
+async function saveReels(){if(!db)return;try{await db.collection('heres').doc('reels').set({list:ST.reels||[]});}catch(e){}}
+async function saveSiteFotos(){if(!db)return;try{await db.collection('heres').doc('siteFotos').set(ST.siteFotos||{});}catch(e){}}
 async function saveChecklist(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('checklist').set(ST.checklist||{});}catch(e){saveLocal();}}
 async function saveCaixa(){const cxKey='caixa_'+today();if(!db)return;try{await db.collection('heres_caixa').doc(cxKey).set({entradas:CX.entradas,saidas:CX.saidas,data:today()});}catch(e){}}
 async function saveColecao(){if(!db)return;try{await db.collection('heres').doc('mensagensApp').set(ST.colecao||MENSAGENS_PADRAO);}catch(e){}}
@@ -1320,18 +1324,64 @@ function renderCliCashback(){
   el.innerHTML=html;
 }
 
-function buildMetasForm(){const el=document.getElementById('metas-form');if(!el)return;const mesAtual=MESES[new Date().getMonth()];el.innerHTML=`<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">Meta da loja — ${mesAtual}</div><div class="form-row" style="margin:0;"><label class="form-lbl">Meta mensal da loja (R$)</label><input type="number" id="meta-loja" value="${ST.config.metaLoja||''}" placeholder="0" min="0"></div><div style="font-size:10px;color:var(--muted);margin-top:4px;">Ajuste esse valor todo início de mês.</div></div>`+VENDEDORAS.map(v=>`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">${v}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div class="form-row" style="margin:0;"><label class="form-lbl">Meta diária</label><input type="number" id="meta-dia-${v}" value="${(ST.config.metas[v]||{}).dia||''}" placeholder="0" min="0"></div><div class="form-row" style="margin:0;"><label class="form-lbl">Meta mensal</label><input type="number" id="meta-mes-${v}" value="${(ST.config.metas[v]||{}).mes||''}" placeholder="0" min="0"></div></div></div>`).join('');}
+function buildMetasForm(){const el=document.getElementById('metas-form');if(!el)return;const mesAtual=MESES[new Date().getMonth()];el.innerHTML=`<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">Meta da loja — ${mesAtual}</div><div class="form-row" style="margin:0;"><label class="form-lbl">Meta mensal da loja (R$)</label><input type="number" id="meta-loja" value="${ST.config.metaLoja||''}" placeholder="0" min="0"></div><div style="font-size:10px;color:var(--muted);margin-top:4px;">Ajuste esse valor todo início de mês.</div></div>`+
+  `<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">Bônus</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="form-row" style="margin:0;"><label class="form-lbl">Bônus por meta batida (R$)</label><input type="number" id="bonus-meta" value="${ST.config.bonusMeta||0}" placeholder="0" min="0"></div>
+      <div class="form-row" style="margin:0;"><label class="form-lbl">Bônus fotos do site (R$)</label><input type="number" id="bonus-site" value="${ST.config.bonusSite||0}" placeholder="0" min="0"></div>
+      <div class="form-row" style="margin:0;"><label class="form-lbl">Bônus reels (R$)</label><input type="number" id="bonus-reel-valor" value="${ST.config.bonusReelValor||0}" placeholder="0" min="0"></div>
+      <div class="form-row" style="margin:0;"><label class="form-lbl">A cada quantos reels</label><input type="number" id="bonus-reel-qtd" value="${ST.config.bonusReelQtd||5}" placeholder="5" min="1"></div>
+    </div>
+  </div>`+
+  VENDEDORAS.map(v=>`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border2);"><div style="font-size:12px;font-weight:700;color:var(--dark);margin-bottom:8px;">${v}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div class="form-row" style="margin:0;"><label class="form-lbl">Meta diária</label><input type="number" id="meta-dia-${v}" value="${(ST.config.metas[v]||{}).dia||''}" placeholder="0" min="0"></div><div class="form-row" style="margin:0;"><label class="form-lbl">Meta mensal</label><input type="number" id="meta-mes-${v}" value="${(ST.config.metas[v]||{}).mes||''}" placeholder="0" min="0"></div></div></div>`).join('');}
 
+function mesAtualKey(){return today().slice(0,7);}
+function countReelsMes(nome){const mk=mesAtualKey();return (ST.reels||[]).filter(r=>r.vendedora===nome&&r.data.startsWith(mk)).length;}
+function bonusReelValor(nome){const qtd=countReelsMes(nome);const cadaN=ST.config.bonusReelQtd||5;return Math.floor(qtd/cadaN)*(ST.config.bonusReelValor||0);}
+function siteFotosKey(nome){return nome+'_'+mesAtualKey();}
+function siteFotosFeito(nome){return !!(ST.siteFotos||{})[siteFotosKey(nome)];}
+function bonusSiteValor(nome){return siteFotosFeito(nome)?(ST.config.bonusSite||0):0;}
+function bonusMetaValor(nome,totalVendidoMes){const meta=(ST.config.metas[nome]||{}).mes||0;return(meta>0&&totalVendidoMes>=meta)?(ST.config.bonusMeta||0):0;}
+function registrarReel(nome){if(!ST.reels)ST.reels=[];ST.reels.push({id:Date.now(),vendedora:nome,data:today()});saveReels();renderComm();}
+function removerReel(nome){const mk=mesAtualKey();const lista=(ST.reels||[]).filter(r=>r.vendedora===nome&&r.data.startsWith(mk)).sort((a,b)=>b.id-a.id);if(!lista.length)return;const idRem=lista[0].id;ST.reels=ST.reels.filter(r=>r.id!==idRem);saveReels();renderComm();}
+function toggleSiteFotos(nome){if(!ST.siteFotos)ST.siteFotos={};const k=siteFotosKey(nome);ST.siteFotos[k]=!ST.siteFotos[k];saveSiteFotos();renderComm();}
 function renderComm(){
   const td=today();const vM=ST.vendas.filter(v=>v.data.startsWith(td.slice(0,7)));
   const totalCommMes=vM.reduce((a,v)=>a+v.commVal,0);
+  const totalBonusMes=VENDEDORAS.reduce((a,n)=>{const tot=vM.filter(v=>v.vendedora===n).reduce((x,v)=>x+v.valor,0);return a+bonusReelValor(n)+bonusSiteValor(n)+bonusMetaValor(n,tot);},0);
   document.getElementById('comm-detalhe').innerHTML=
-    `<div class="comm-mes-total"><div><div class="comm-mes-total-lbl">Total comissões do mês</div><div style="font-size:10px;color:var(--stone);margin-top:3px;">${vM.length} vendas registradas</div></div><div class="comm-mes-total-val">${fmt(totalCommMes)}</div></div>`+
-    VENDEDORAS.map(nome=>{const vs=vM.filter(v=>v.vendedora===nome);const tot=vs.reduce((a,v)=>a+v.valor,0);const comm=vs.reduce((a,v)=>a+v.commVal,0);const norm=vs.filter(v=>!v.desconto).reduce((a,v)=>a+v.commVal,0);const prom=vs.filter(v=>v.desconto).reduce((a,v)=>a+v.commVal,0);return`<div class="vend-comm"><div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total">${fmt(comm)}</div></div><div class="vc-grid"><div class="vc-stat"><div class="vc-lbl">Vendas</div><div class="vc-val">${fmt(tot)}</div></div><div class="vc-stat"><div class="vc-lbl">Normal</div><div class="vc-val">${fmt(norm)}</div></div><div class="vc-stat"><div class="vc-lbl">Promoção</div><div class="vc-val">${fmt(prom)}</div></div></div></div>`;}).join('');
+    `<div class="comm-mes-total"><div><div class="comm-mes-total-lbl">Total comissões + bônus do mês</div><div style="font-size:10px;color:var(--stone);margin-top:3px;">${vM.length} vendas registradas</div></div><div class="comm-mes-total-val">${fmt(totalCommMes+totalBonusMes)}</div></div>`+
+    VENDEDORAS.map(nome=>{
+      const vs=vM.filter(v=>v.vendedora===nome);const tot=vs.reduce((a,v)=>a+v.valor,0);const comm=vs.reduce((a,v)=>a+v.commVal,0);const norm=vs.filter(v=>!v.desconto).reduce((a,v)=>a+v.commVal,0);const prom=vs.filter(v=>v.desconto).reduce((a,v)=>a+v.commVal,0);
+      const qtdReel=countReelsMes(nome);const bReel=bonusReelValor(nome);const bSite=bonusSiteValor(nome);const bMeta=bonusMetaValor(nome,tot);
+      const totalReceber=comm+bReel+bSite+bMeta;
+      const metaMes=(ST.config.metas[nome]||{}).mes||0;
+      return`<div class="vend-comm">
+        <div class="vc-top"><div class="vc-name">${nome}</div><div class="vc-total">${fmt(totalReceber)}</div></div>
+        <div class="vc-grid"><div class="vc-stat"><div class="vc-lbl">Vendas</div><div class="vc-val">${fmt(tot)}</div></div><div class="vc-stat"><div class="vc-lbl">Normal</div><div class="vc-val">${fmt(norm)}</div></div><div class="vc-stat"><div class="vc-lbl">Promoção</div><div class="vc-val">${fmt(prom)}</div></div></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:3px 0;"><span>Comissão de vendas</span><span style="color:var(--dark);font-weight:600;">${fmt(comm)}</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);padding:3px 0;">
+            <span>Reels feitos: <b style="color:var(--dark);">${qtdReel}</b> (${ST.config.bonusReelQtd||5} = ${fmt(ST.config.bonusReelValor||0)})</span>
+            <span style="display:flex;gap:4px;align-items:center;">
+              <button class="btn-sec" style="width:auto;margin:0;padding:2px 9px;font-size:13px;" onclick="removerReel('${nome}')">−</button>
+              <button class="btn-sec" style="width:auto;margin:0;padding:2px 9px;font-size:13px;" onclick="registrarReel('${nome}')">+</button>
+            </span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:3px 0;"><span>Bônus reels</span><span style="color:${bReel>0?'var(--green)':'var(--muted)'};font-weight:600;">${fmt(bReel)}</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);padding:3px 0;">
+            <span>Fotos do site (${fmt(ST.config.bonusSite||0)})</span>
+            <span onclick="toggleSiteFotos('${nome}')" style="cursor:pointer;font-size:16px;">${siteFotosFeito(nome)?'✅':'⬜'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:3px 0;"><span>Bateu a meta${metaMes?' ('+fmtN(metaMes)+')':''}?</span><span style="color:${bMeta>0?'var(--green)':'var(--muted)'};font-weight:600;">${bMeta>0?fmt(bMeta):'ainda não'}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--dark);padding-top:6px;margin-top:4px;border-top:1px dashed var(--border);"><span>Total a receber</span><span>${fmt(totalReceber)}</span></div>
+        </div>
+      </div>`;
+    }).join('');
   buildMetasForm();
 }
 
-function salvarConfig(){const pw=prompt('PIN para salvar metas:');if(pw!==META_PIN){alert('PIN incorreto.');return;}ST.config.metaLoja=parseFloat(document.getElementById('meta-loja').value)||0;VENDEDORAS.forEach(v=>{ST.config.metas[v]={dia:parseFloat(document.getElementById('meta-dia-'+v).value)||0,mes:parseFloat(document.getElementById('meta-mes-'+v).value)||0};});saveConfig();const t=document.getElementById('toast-config');t.textContent='Metas salvas!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function salvarConfig(){const pw=prompt('PIN para salvar metas:');if(pw!==META_PIN){alert('PIN incorreto.');return;}ST.config.metaLoja=parseFloat(document.getElementById('meta-loja').value)||0;ST.config.bonusMeta=parseFloat(document.getElementById('bonus-meta').value)||0;ST.config.bonusSite=parseFloat(document.getElementById('bonus-site').value)||0;ST.config.bonusReelValor=parseFloat(document.getElementById('bonus-reel-valor').value)||0;ST.config.bonusReelQtd=parseInt(document.getElementById('bonus-reel-qtd').value)||1;VENDEDORAS.forEach(v=>{ST.config.metas[v]={dia:parseFloat(document.getElementById('meta-dia-'+v).value)||0,mes:parseFloat(document.getElementById('meta-mes-'+v).value)||0};});saveConfig();renderComm();const t=document.getElementById('toast-config');t.textContent='Metas salvas!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function limparMes(){const pw=prompt('Senha para zerar dados do mês:');if(pw!==REL_SENHA){alert('Senha incorreta.');return;}if(confirm('Zerar todas as vendas do mês atual?')){const td=today().slice(0,7);ST.vendas=ST.vendas.filter(v=>!v.data.startsWith(td));save();}}
 
 function relPin(d){if(relPin_str.length>=4)return;relPin_str+=d;updateRelDots();if(relPin_str.length===4)checkRelSenha();}
