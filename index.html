@@ -556,7 +556,7 @@ select:focus,input:focus{border-color:var(--camel);}
   <div id="s-semana" class="screen">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;">
       <div style="font-size:15px;font-weight:700;color:var(--dark);">Plano Semanal</div>
-      <button class="edit-mode-btn" id="semana-edit-btn" onclick="toggleSemanaEdit()">Editar checklist</button>
+      <button class="edit-mode-btn" id="semana-edit-btn" onclick="toggleSemanaEdit()">Editar</button>
     </div>
     <div class="card" style="margin-top:10px;">
       <div class="card-header"><span class="card-title">Foco da semana</span><button class="edit-mode-btn" id="foco-edit-btn" onclick="toggleFocoEdit()">Editar</button></div>
@@ -1649,7 +1649,7 @@ function chkKey(di,ci){return weekKey()+'_d'+di+'_c'+ci;}
 function isChkDone(di,ci){return !!(ST.checklist&&ST.checklist[chkKey(di,ci)]);}
 function toggleChk(di,ci){const newVal=!isChkDone(di,ci);if(!ST.checklist)ST.checklist={};ST.checklist[chkKey(di,ci)]=newVal;saveChecklist();const item=document.getElementById('chk-'+di+'-'+ci);if(item){item.classList.toggle('done',newVal);const box=item.querySelector('.chk-box');if(box)box.innerHTML=newVal?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';}updateDayProg(di);}
 function updateDayProg(di){const d=SEMANA[di];const tot=d.checklist.length;const done=d.checklist.filter((_,ci)=>isChkDone(di,ci)).length;const pct=Math.round(done/tot*100);const lbl=document.getElementById('prog-lbl-'+di);const fill=document.getElementById('prog-fill-'+di);if(lbl)lbl.textContent=done+'/'+tot+' concluídas';if(fill)fill.style.width=pct+'%';}
-function toggleSemanaEdit(){if(semanaEditMode){exitSemanaEdit();return;}const pw=prompt('Senha para editar:');if(pw===null)return;if(pw!==EDIT_PIN){alert('Senha incorreta.');return;}semanaEditMode=true;document.getElementById('semana-edit-btn').textContent='Sair';document.getElementById('semana-edit-btn').classList.add('on');document.getElementById('semana-edit-bar-wrap').innerHTML='<div class="edit-bar" style="margin:8px 0 0;"><span class="edit-bar-txt">Modo edição — toque em qualquer texto para editar o conteúdo do dia.</span><button class="edit-bar-btn" onclick="exitSemanaEdit()">Concluir</button></div>';renderDayScreen(activeDayIdx);}
+function toggleSemanaEdit(){if(semanaEditMode){exitSemanaEdit();return;}const pw=prompt('Senha para editar:');if(pw===null)return;if(pw!==EDIT_PIN){alert('Senha incorreta.');return;}semanaEditMode=true;document.getElementById('semana-edit-btn').textContent='Sair';document.getElementById('semana-edit-btn').classList.add('on');document.getElementById('semana-edit-bar-wrap').innerHTML='<div class="edit-bar" style="margin:8px 0 0;"><span class="edit-bar-txt">Modo edição — toque pra editar, use o × pra remover, ou adicione novo abaixo.</span><button class="edit-bar-btn" onclick="exitSemanaEdit()">Concluir</button></div>';renderDayScreen(activeDayIdx);}
 function exitSemanaEdit(){semanaEditMode=false;document.getElementById('semana-edit-btn').textContent='Editar';document.getElementById('semana-edit-btn').classList.remove('on');document.getElementById('semana-edit-bar-wrap').innerHTML='';renderDayScreen(activeDayIdx);}
 function startInlineEdit(el,di,path){if(el.querySelector('input')||el.querySelector('textarea'))return;const current=getPath(SEMANA[di],path)||'';const isLong=current.length>60;const inp=document.createElement(isLong?'textarea':'input');inp.className='edit-input'+(isLong?' sub':'');inp.value=current;if(isLong){inp.style.minHeight='60px';inp.rows=3;}el.innerHTML='';el.appendChild(inp);inp.focus();inp.select();const s=()=>{const nv=inp.value.trim();setPath(SEMANA[di],path,nv);saveSemanaCustom();renderDayScreen(di);};inp.onblur=s;inp.onkeydown=(e)=>{if(!isLong&&e.key==='Enter'){e.preventDefault();inp.blur();}if(e.key==='Escape')inp.blur();};}
 function getPath(obj,path){return path.reduce((o,k)=>o&&o[k]!==undefined?o[k]:'',obj);}
@@ -1670,7 +1670,8 @@ function renderDayScreen(di){
 
   html+=`<div class="section-label">O que fazer hoje</div>`;
   html+=`<div class="day-prog-bar-wrap"><div class="day-prog-row"><span class="day-prog-lbl">Progresso</span><span class="day-prog-pct" id="prog-lbl-${di}">${done}/${tot} concluídas</span></div><div class="day-prog-bar"><div class="day-prog-fill" id="prog-fill-${di}" style="width:${pct}%"></div></div></div>`;
-  d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const txt=resolveFoco(item);html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick}><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):txt}</div></div>`;});
+  d.checklist.forEach((item,ci)=>{const isDone=isChkDone(di,ci);const chkClick=ed?'':'onclick="toggleChk('+di+','+ci+')"';const txt=resolveFoco(item);const delBtn=ed?`<button class="del-btn" onclick="excluirTarefa(${di},${ci})">×</button>`:'';html+=`<div class="chk-item${isDone?' done':''}" id="chk-${di}-${ci}" ${chkClick} style="justify-content:space-between;"><div style="display:flex;gap:11px;align-items:flex-start;flex:1;"><div class="chk-box">${isDone?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5L11 3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div class="chk-txt">${ed?edEl(di,['checklist',ci]):txt}</div></div>${delBtn}</div>`;});
+  if(ed)html+=`<button class="btn-sec" onclick="adicionarTarefa(${di})">+ Adicionar tarefa</button>`;
 
   html+=`<div class="section-label" style="margin-top:16px;">Mensagens prontas</div>
   <div class="card" style="margin-bottom:10px;"><div class="card-body">
@@ -1686,6 +1687,19 @@ function renderDayScreen(di){
   renderDiaMsgList(di,dmTabState[di]||'clientes');
 }
 let dmTabState={};
+function excluirTarefa(di,ci){
+  SEMANA[di].checklist.splice(ci,1);
+  const mk=weekKey();
+  Object.keys(ST.checklist||{}).forEach(k=>{if(k.startsWith(mk+'_d'+di+'_c'))delete ST.checklist[k];});
+  saveChecklist();
+  saveSemanaCustom();
+  renderDayScreen(di);
+}
+function adicionarTarefa(di){
+  SEMANA[di].checklist.push('Nova tarefa');
+  saveSemanaCustom();
+  renderDayScreen(di);
+}
 function diaMsgTab(di,tab){
   dmTabState[di]=tab;
   ['clientes','posvenda'].forEach(t=>{const el=document.getElementById('dmt-'+di+'-'+t);if(el)el.classList.toggle('active',t===tab);});
@@ -1715,16 +1729,55 @@ function renderDiaMsgList(di,tab){
   const el=document.getElementById('dm-list-'+di);if(!el)return;
   let lista=(ST.colecao&&ST.colecao[tab]&&ST.colecao[tab].length)?ST.colecao[tab]:(MENSAGENS_PADRAO[tab]||[]);
   let html='';
-  if(tab==='clientes'){
+  const ed=semanaEditMode;
+  if(tab==='clientes'&&!ed){
     lista=filtroClientesPorDia(di,lista);
     html+=`<div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">${DIA_TIER_LABEL[di]||''}</div>`;
     html+=`<button class="btn-sec" style="margin-bottom:10px;" onclick="irParaBase(${di})">📋 Ver essas clientes na lista</button>`;
   }
-  if(tab==='posvenda'){
+  if(tab==='clientes'&&ed){
+    html+=`<div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Editando todas as mensagens de Clientes (não só a de hoje)</div>`;
+  }
+  if(tab==='posvenda'&&!ed){
     html+=`<div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Mande 1 mensagem certa pra cada cliente que comprou hoje</div>`;
   }
-  html+=lista.map(item=>`<div class="wa-box" style="margin-bottom:8px;"><div class="wa-lbl">${item.titulo}</div><div class="wa-txt">${item.texto}</div><button class="btn-wa" style="margin-top:8px;width:auto;padding:6px 14px;" onclick='copiarTexto(${JSON.stringify(item.texto)},this)'>📋 Copiar</button></div>`).join('');
+  if(ed){
+    html+=lista.map(item=>{
+      const ot=JSON.stringify(item.titulo);
+      return `<div class="card" style="margin-bottom:8px;"><div class="card-body">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:-4px;"><button class="del-btn" onclick='diaMsgExcluir(${JSON.stringify(tab)},${ot},${di})'>×</button></div>
+        <div class="form-row" style="margin-bottom:8px;"><input type="text" value="${item.titulo.replace(/"/g,'&quot;')}" style="font-weight:700;" onchange='diaMsgEditar(${JSON.stringify(tab)},${ot},"titulo",this.value)'></div>
+        <div class="form-row" style="margin-bottom:0;"><textarea rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);background:var(--card2);color:var(--dark);resize:vertical;" onchange='diaMsgEditar(${JSON.stringify(tab)},${ot},"texto",this.value)'>${item.texto}</textarea></div>
+      </div></div>`;
+    }).join('');
+    html+=`<button class="btn-sec" onclick='diaMsgAdicionar(${JSON.stringify(tab)},${di})'>+ Adicionar mensagem</button>`;
+  }else{
+    html+=lista.map(item=>`<div class="wa-box" style="margin-bottom:8px;"><div class="wa-lbl">${item.titulo}</div><div class="wa-txt">${item.texto}</div><button class="btn-wa" style="margin-top:8px;width:auto;padding:6px 14px;" onclick='copiarTexto(${JSON.stringify(item.texto)},this)'>📋 Copiar</button></div>`).join('');
+  }
   el.innerHTML=html;
+}
+function ensureColecaoCustom(){
+  if(!ST.colecao)ST.colecao=JSON.parse(JSON.stringify(MENSAGENS_PADRAO));
+  ['clientes','posvenda'].forEach(t=>{if(!ST.colecao[t]||!ST.colecao[t].length)ST.colecao[t]=JSON.parse(JSON.stringify(MENSAGENS_PADRAO[t]||[]));});
+}
+function diaMsgEditar(tab,originalTitulo,campo,novoValor){
+  ensureColecaoCustom();
+  const idx=ST.colecao[tab].findIndex(m=>m.titulo===originalTitulo);
+  if(idx<0)return;
+  ST.colecao[tab][idx][campo]=novoValor;
+  saveColecao();
+}
+function diaMsgExcluir(tab,originalTitulo,di){
+  ensureColecaoCustom();
+  ST.colecao[tab]=ST.colecao[tab].filter(m=>m.titulo!==originalTitulo);
+  saveColecao();
+  renderDiaMsgList(di,tab);
+}
+function diaMsgAdicionar(tab,di){
+  ensureColecaoCustom();
+  ST.colecao[tab].push({titulo:'Nova mensagem',texto:''});
+  saveColecao();
+  renderDiaMsgList(di,tab);
 }
 function irParaBase(di){
   const nivel=(di!==undefined&&DIA_TIER_NIVEL[di])?DIA_TIER_NIVEL[di]:'todos';
