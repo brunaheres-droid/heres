@@ -199,7 +199,7 @@ select:focus,input:focus{border-color:var(--camel);}
 .story-legenda-txt{font-size:13px;font-weight:400;color:var(--dark);font-style:italic;}
 .wa-box{background:var(--bg2);border-left:2px solid var(--camel2);border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:6px;}
 .wa-lbl{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
-.wa-txt{font-size:13px;font-weight:400;color:var(--dark);line-height:1.7;font-style:italic;}
+.wa-txt{font-size:13px;font-weight:400;color:var(--dark);line-height:1.7;font-style:italic;white-space:pre-line;}
 .nao-item{display:flex;gap:10px;align-items:flex-start;padding:10px 13px;background:#fdf5f2;border:1px solid #e8c8bc;border-radius:10px;margin-bottom:6px;}
 .nao-x{font-size:12px;color:var(--terra);font-weight:700;flex-shrink:0;padding-top:2px;}
 .nao-body{flex:1;}
@@ -563,6 +563,10 @@ select:focus,input:focus{border-color:var(--camel);}
       <div class="card-body" id="foco-semana-display"></div>
     </div>
     <div id="semana-edit-bar-wrap"></div>
+    <div class="card" style="margin-top:10px;">
+      <div class="card-header"><span class="card-title">Fotos no Drive (site)</span></div>
+      <div class="card-body" id="fotos-marca-list"></div>
+    </div>
     <div class="semana-day-tabs" id="semana-day-tabs"></div>
     <div id="semana-day-screens"></div>
   </div>
@@ -709,7 +713,7 @@ const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agos
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
 
-let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{}};
+let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
 let ESTRATEGIA={};
 let CX={entradas:[],saidas:[]};
 let payLbl='',payTipo='',descOn=null,cxCat='',cxPagSaida='',cashbackPromoOverride=false;
@@ -746,18 +750,25 @@ const MENSAGENS_PADRAO={
   clientes:[
     {titulo:"VIP — novidade",texto:"Oi, [nome]! Chegaram algumas peças novas e lembrei de você na hora. Tem algumas opções muito a sua cara. Quer que eu te mande?"},
     {titulo:"VIP — atendimento exclusivo",texto:"[Nome], vi uma peça nova que combina muito com o seu estilo. Pensei até em duas combinações para você. Quer que eu te envie?"},
-    {titulo:"Cliente forte",texto:"Oi, [nome]! Chegaram peças novas que me lembraram muito do seu estilo. Separei mentalmente algumas opções pensando em você — quer que eu te mande?"},
+    {titulo:"Cliente forte",texto:"Oi [nome]! Chegou uma peça nova aqui que jurava que era sua cara. Quer que eu te mande foto?"},
     {titulo:"3–4 produtos — aumentar ticket",texto:"Oi, [nome]! Vi algumas peças que combinam muito com o que você já comprou aqui. Se quiser, monto um look completo e te mando as opções."},
     {titulo:"1–2 produtos — reativação",texto:"Oi, [nome]! Faz um tempinho que você comprou com a gente e chegaram algumas peças que acho que combinam com você. Quer que eu te mostre 2 opções?"},
     {titulo:"Depois que ela gostar",texto:"Perfeito! Vou separar essa para você. E encontrei uma segunda peça que deixa o look ainda mais completo. Quer ver junto?"},
     {titulo:"Follow-up de quem respondeu",texto:"Oi [nome]! Passando só pra saber se você viu as opções que te mandei — ficou alguma dúvida de tamanho ou combinação? Fico à disposição pra te ajudar a decidir."},
-    {titulo:"Fechar orçamento de ontem",texto:"Oi [nome]! Sobre o orçamento que fizemos — já separei a peça certinha pra você. Quer passar aqui pra fechar e já levar, ou prefere que eu finalize por aqui mesmo?"}
+    {titulo:"Fechar orçamento de ontem",texto:"Oi [nome]! Sobre o orçamento que fizemos — já separei a peça certinha pra você. Quer passar aqui pra fechar e já levar, ou prefere que eu finalize por aqui mesmo?"},
+    {titulo:"Dia do Cliente — esquenta (segunda)",texto:"[Nome], amanhã é Dia do Cliente e separei um mimo pensando em você. Passa aqui, vai ter surpresa te esperando 🎁"},
+    {titulo:"Dia do Cliente — agradecimento (terça, dia principal, Via Vogue)",texto:"✨ Hoje é Dia do Cliente na Via Vogue! ✨\nHoje queremos, acima de tudo, agradecer a você. 🤍\nObrigada por escolher a Via Vogue, por confiar em nosso trabalho, por cada visita, cada compra, cada mensagem e por permitir que a nossa loja faça parte de tantos momentos especiais da sua vida.\nCada cliente que passa por aqui faz parte da nossa história e é por vocês que buscamos sempre trazer novidades, qualidade e uma experiência cada vez mais especial. ✨\nComo forma de retribuir todo esse carinho, preparamos um brinde especial para você em sua compra hoje. 🎁\nQue Deus abençoe grandemente a sua vida, sua família e todos os seus caminhos. 🙏🏻🤍\nObrigada por fazer parte da nossa história. É uma alegria ter você conosco!\nCom carinho,\nVia Vogue 🤍"},
+    {titulo:"Dia do Cliente — agradecimento (terça, dia principal, Heres)",texto:"✨ Hoje é Dia do Cliente! ✨\nHoje queremos agradecer, de coração, por cada compra, cada visita, cada mensagem e por escolher fazer parte da nossa história. 🤍\nPara celebrar você, 10% OFF em todas as peças hoje. ✨\nQue Deus abençoe grandemente sua vida, sua família e seus caminhos. 🙏🏻🤍\nObrigada por escolher a Heres!\nCom carinho,\nHeres Store"},
+    {titulo:"Dia do Cliente — reforço meio de semana",texto:"Oi [nome], ainda dá tempo de aproveitar a semana especial que preparamos aqui — desconto e parcelamento facilitado até sábado. Quer que eu separe algo pra você?"},
+    {titulo:"Dia do Cliente — urgência (últimos dias)",texto:"[Nome], últimos dias da nossa semana especial! Fecha amanhã. Posso separar uma peça pra você?"},
+    {titulo:"Dia do Cliente — agradecimento final",texto:"[Nome], hoje encerra a nossa semana especial e eu só queria dizer obrigada por fazer parte dela. Foi muito bom te ter por aqui 🤍"}
   ],
   posvenda:[
     {titulo:"Logo após a compra",texto:"Oi [nome]! Muito obrigada pela compra 🤍 Espero que você ame a peça. Qualquer dúvida sobre cuidado com o tecido ou troca de tamanho, é só me chamar."},
     {titulo:"Aviso de cashback",texto:"Oi [nome]! Já separei seu cashback dessa compra — está disponível pra usar em qualquer peça, é só me chamar quando quiser aproveitar."},
     {titulo:"Reengajamento (15–20 dias depois)",texto:"Oi [nome]! Faz um tempinho que você não aparece por aqui. Chegaram peças novas que acho que têm a sua cara — quer que eu separe algumas pra você dar uma olhada?"},
-    {titulo:"Pedido de indicação",texto:"Oi [nome], que bom que você gostou da peça! Se conhecer alguém que também curte esse estilo, fico super feliz em te dar um cashback especial por indicação 🤍"}
+    {titulo:"Pedido de indicação",texto:"Oi [nome], que bom que você gostou da peça! Se conhecer alguém que também curte esse estilo, fico super feliz em te dar um cashback especial por indicação 🤍"},
+    {titulo:"Dia do Cliente — compra com envelope",texto:"[Nome], que alegria ter você aqui hoje! Espero que ame a peça (e a surpresa do envelope 🎁). Qualquer coisa, me chama, tá?"}
   ]
 };
 function initFirebase(){
@@ -768,6 +779,7 @@ function initFirebase(){
     db.collection('heres').doc('config').onSnapshot(snap=>{if(snap.exists){const d=snap.data();ST.config.metas=d.metas||{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}};ST.config.metaLoja=d.metaLoja||0;ST.config.bonusMeta=d.bonusMeta!==undefined?d.bonusMeta:100;ST.config.bonusSite=d.bonusSite!==undefined?d.bonusSite:100;ST.config.bonusReelValor=d.bonusReelValor!==undefined?d.bonusReelValor:50;ST.config.bonusReelQtd=d.bonusReelQtd!==undefined?d.bonusReelQtd:5;}renderPainel();buildMetasForm();renderComm();});
     db.collection('heres').doc('reels').onSnapshot(snap=>{ST.reels=snap.exists?(snap.data().list||[]):[];renderComm();});
     db.collection('heres').doc('siteFotos').onSnapshot(snap=>{ST.siteFotos=snap.exists?(snap.data()||{}):{};renderComm();});
+    db.collection('heres').doc('fotosMarca').onSnapshot(snap=>{ST.fotosMarca=snap.exists?(snap.data()||{}):{};renderFotosMarca();});
     db.collection('heres').doc('estrategiaAgosto2026').onSnapshot(snap=>{
       ESTRATEGIA=snap.exists?snap.data():ESTRATEGIA_PADRAO;
       renderEstrategia();
@@ -801,6 +813,7 @@ async function save(){if(!db){saveLocal();return;}try{await db.collection('heres
 async function saveConfig(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('config').set({metas:ST.config.metas,metaLoja:ST.config.metaLoja||0,bonusMeta:ST.config.bonusMeta||0,bonusSite:ST.config.bonusSite||0,bonusReelValor:ST.config.bonusReelValor||0,bonusReelQtd:ST.config.bonusReelQtd||1});}catch(e){saveLocal();}}
 async function saveReels(){if(!db)return;try{await db.collection('heres').doc('reels').set({list:ST.reels||[]});}catch(e){}}
 async function saveSiteFotos(){if(!db)return;try{await db.collection('heres').doc('siteFotos').set(ST.siteFotos||{});}catch(e){}}
+async function saveFotosMarca(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('fotosMarca').set(ST.fotosMarca||{});}catch(e){saveLocal();}}
 async function saveChecklist(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('checklist').set(ST.checklist||{});}catch(e){saveLocal();}}
 async function saveCaixa(){const cxKey='caixa_'+today();if(!db)return;try{await db.collection('heres_caixa').doc(cxKey).set({entradas:CX.entradas,saidas:CX.saidas,data:today()});}catch(e){}}
 async function saveColecao(){if(!db)return;try{await db.collection('heres').doc('mensagensApp').set(ST.colecao||MENSAGENS_PADRAO);}catch(e){}}
@@ -951,7 +964,7 @@ function renderHojeEstrategia(){
 }
 
 function saveLocal(){try{localStorage.setItem('heres_v6',JSON.stringify(ST));}catch(e){}}
-function loadLocal(){try{const s=localStorage.getItem('heres_v6');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}};ST.checklist=d.checklist||{};}}catch(e){}}
+function loadLocal(){try{const s=localStorage.getItem('heres_v6');if(s){const d=JSON.parse(s);ST.vendas=d.vendas||[];ST.config=d.config||{metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}}};ST.checklist=d.checklist||{};ST.fotosMarca=d.fotosMarca||{};}}catch(e){}}
 
 function irParaCashback(){const btns=document.querySelectorAll('.nav-btn');const clientesBtn=[...btns].find(b=>b.querySelector('.nav-label')&&b.querySelector('.nav-label').textContent==='Clientes');if(clientesBtn){nav('clientes',clientesBtn);setTimeout(()=>cliTab('cashback'),0);}}
 let baseFiltroAtivo='todos';
@@ -1657,7 +1670,12 @@ function setPath(obj,path,val){const last=path[path.length-1];const parent=path.
 function edEl(di,path,extraClass){const val=getPath(SEMANA[di],path)||'';const idx=_edPaths.push({di,path})-1;return'<span class="editable '+(extraClass||'')+'" data-edidx="'+idx+'" onclick="handleEdClick(this)">'+(val||'<em style="color:var(--border)">+ adicionar</em>')+'</span>';}
 let _edPaths=[];
 function handleEdClick(el){const idx=parseInt(el.dataset.edidx);const{di,path}=_edPaths[idx];startInlineEdit(el,di,path);}
-function buildSemana(){const tabsEl=document.getElementById('semana-day-tabs');tabsEl.innerHTML=SEMANA.map((d,i)=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${d.dia}</button>`).join('');const screensEl=document.getElementById('semana-day-screens');screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');renderDayScreen(activeDayIdx);}
+function buildSemana(){const tabsEl=document.getElementById('semana-day-tabs');tabsEl.innerHTML=SEMANA.map((d,i)=>`<button class="day-tab-btn${i===activeDayIdx?' active':''}" onclick="switchDay(${i})">${d.dia}</button>`).join('');const screensEl=document.getElementById('semana-day-screens');screensEl.innerHTML=SEMANA.map((_,i)=>`<div class="semana-day-screen${i===activeDayIdx?' active':''}" id="day-screen-${i}"></div>`).join('');renderFotosMarca();renderDayScreen(activeDayIdx);}
+const FOTO_MARCAS=['Heres','Patogê','Ogochi','Consciência Jeans','Pury','Gatabakana','Outros'];
+function fotoMarcaKey(nome){return weekKey()+'_'+nome;}
+function fotoMarcaFeita(nome){return !!(ST.fotosMarca||{})[fotoMarcaKey(nome)];}
+function toggleFotoMarca(nome){if(!ST.fotosMarca)ST.fotosMarca={};const k=fotoMarcaKey(nome);ST.fotosMarca[k]=!ST.fotosMarca[k];saveFotosMarca();renderFotosMarca();}
+function renderFotosMarca(){const el=document.getElementById('fotos-marca-list');if(!el)return;el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px;">${FOTO_MARCAS.map(nome=>{const done=fotoMarcaFeita(nome);return `<div onclick="toggleFotoMarca('${nome}')" style="cursor:pointer;padding:7px 12px;border-radius:20px;font-size:13px;font-weight:600;border:1px solid ${done?'var(--dark)':'#ddd'};background:${done?'var(--dark)':'#fff'};color:${done?'#fff':'var(--dark)'};display:flex;align-items:center;gap:6px;">${done?'✅':'⬜'} ${nome}</div>`;}).join('')}</div>`;}
 function switchDay(i){activeDayIdx=i;document.querySelectorAll('.day-tab-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));document.querySelectorAll('.semana-day-screen').forEach((s,idx)=>s.classList.toggle('active',idx===i));const container=document.getElementById('day-screen-'+i);if(!container.dataset.built||semanaEditMode)renderDayScreen(i);}
 
 function renderDayScreen(di){
@@ -1710,16 +1728,16 @@ function copiarTexto(texto,btnEl){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(texto).then(done).catch(()=>{prompt('Copie a mensagem:',texto);});}
   else{prompt('Copie a mensagem:',texto);}
 }
-const DIA_TIER_LABEL=['Hoje: Clientes VIP','Hoje: Clientes fortes (recorrentes)','Hoje: Em desenvolvimento (aumentar ticket)','Hoje: Atenção (reativação)','Hoje: Follow-up da semana','Hoje: Fechamento / convite pra provar'];
-const DIA_TIER_NIVEL=['VIP','Forte','Desenvolvimento','Atenção','todos','todos'];
+const DIA_TIER_LABEL=['Hoje: Esquenta Dia do Cliente','Hoje: Dia do Cliente (principal)','Hoje: Reforço da condição especial','Hoje: Urgência — faltam poucos dias','Hoje: Urgência — últimos dias','Hoje: Encerramento da semana'];
+const DIA_TIER_NIVEL=['VIP','todos','Desenvolvimento','Atenção','todos','todos'];
 function filtroClientesPorDia(di,lista){
   const filtros=[
-    it=>it.titulo.startsWith('VIP'),
-    it=>it.titulo.toLowerCase().includes('forte'),
-    it=>it.titulo.toLowerCase().includes('ticket'),
-    it=>it.titulo.toLowerCase().includes('reativação'),
-    it=>it.titulo.toLowerCase().includes('follow-up')||it.titulo.toLowerCase().includes('gostar'),
-    it=>it.titulo.toLowerCase().includes('fechar')||it.titulo.toLowerCase().includes('provar')
+    it=>it.titulo.toLowerCase().includes('esquenta'),
+    it=>it.titulo.toLowerCase().includes('dia principal'),
+    it=>it.titulo.toLowerCase().includes('reforço'),
+    it=>it.titulo.toLowerCase().includes('urgência'),
+    it=>it.titulo.toLowerCase().includes('urgência'),
+    it=>it.titulo.toLowerCase().includes('agradecimento final')
   ];
   const f=filtros[di];
   const filtrada=f?lista.filter(f):lista;
@@ -1788,13 +1806,13 @@ function irParaBase(di){
 const SEMANA=[
   {
     "dia": "Segunda",
-    "theme": "Fotografar Heres",
-    "intention": "Semana de catálogo: hoje é fotografar peças da Heres e mandar pra Bruna.",
+    "theme": "Esquenta Semana do Cliente",
+    "intention": "Criar expectativa: amanhã é Dia do Cliente e a condição especial (desconto + parcelamento facilitado) já começa a ser anunciada, válida a semana toda até sábado.",
     "checklist": [
-      "HERES: fotografar peças ({HERES}) — frente inteira + close de tecido/detalhe",
-      "HERES: anotar tamanho e quantidade de cada peça fotografada",
-      "FOTOS: enviar as fotos do dia pra Bruna",
-      "WHATSAPP: mandar mensagem pra 5 clientes VIP (ver Mensagens prontas → Clientes)",
+      "REELS: gravar reel-teaser \"amanhã é Dia do Cliente\" — você falando direto pra câmera avisando que tem surpresa amanhã, sem revelar tudo (10-15seg, tom de expectativa, gravar em pé perto da vitrine ou araras)",
+      "STORIES: postar 2-3 stories de contagem regressiva (sticker de contagem + enquete \"você tá pronta?\")",
+      "HERES E VIA VOGUE: separar as peças que vão aparecer nos posts da semana (reservar estoque específico)",
+      "WHATSAPP: avisar clientes VIP que a condição especial começa amanhã e vale a semana toda (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
@@ -1803,14 +1821,14 @@ const SEMANA=[
   },
   {
     "dia": "Terça",
-    "theme": "Fotografar Via Vogue",
-    "intention": "Semana de catálogo: hoje é fotografar peças da Via Vogue e mandar pra Bruna.",
+    "theme": "DIA DO CLIENTE (15/09)",
+    "intention": "O grande dia: envelope surpresa pra quem comprar (Heres e Via Vogue), condição especial ativa a semana toda, foco total em fazer a cliente se sentir especial.",
     "checklist": [
-      "VIA VOGUE: fotografar peças ({VV}) — frente inteira + close de tecido/detalhe",
-      "VIA VOGUE: anotar tamanho e quantidade de cada peça fotografada",
-      "FOTOS: enviar as fotos do dia pra Bruna",
-      "WHATSAPP: mandar mensagem pra 5 clientes fortes (ver Mensagens prontas → Clientes)",
-      "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
+      "REELS: gravar reel \"Feliz Dia do Cliente\" — agradecimento direto pra câmera + mostrar a dinâmica do envelope surpresa (peça pra alguém filmar você entregando um envelope pra uma cliente real na loja)",
+      "STORIES: postar stories ao vivo do movimento da loja (cliente escolhendo/abrindo o envelope, reação) + sticker de link pro WhatsApp",
+      "LOJA: aplicar a dinâmica do envelope surpresa pra quem comprar hoje (Heres e Via Vogue)",
+      "WHATSAPP: disparar mensagem de condição especial pra toda a base de clientes fiéis (ver Mensagens prontas → Clientes)",
+      "PÓS-VENDA: mandar mensagem de agradecimento reforçando o Dia do Cliente pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
       "APP: registrar vendas do dia"
@@ -1818,13 +1836,13 @@ const SEMANA=[
   },
   {
     "dia": "Quarta",
-    "theme": "Fotografar Heres",
-    "intention": "Continuar o catálogo: mais peças da Heres hoje.",
+    "theme": "Prova social do Dia do Cliente",
+    "intention": "Manter o clima da semana usando as reações de ontem como prova social. Condição especial e envelope surpresa continuam valendo.",
     "checklist": [
-      "HERES: fotografar peças ({HERES}) — frente inteira + close de tecido/detalhe",
-      "HERES: anotar tamanho e quantidade de cada peça fotografada",
-      "FOTOS: enviar as fotos do dia pra Bruna",
-      "WHATSAPP: mandar mensagem pra 5 clientes em desenvolvimento (ver Mensagens prontas → Clientes)",
+      "REELS: gravar reel de prova social — compilar prints/vídeos das reações de clientes abrindo o envelope ontem (usar a lente de \"social proof\")",
+      "STORIES: repostar os melhores momentos de ontem + lembrete que a condição especial vale até sábado",
+      "LOJA: continuar a dinâmica do envelope surpresa pra quem comprar (Heres e Via Vogue)",
+      "WHATSAPP: mandar mensagem pra quem não respondeu ontem, reforçando que ainda dá tempo (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
@@ -1833,14 +1851,13 @@ const SEMANA=[
   },
   {
     "dia": "Quinta",
-    "theme": "Fotografar Via Vogue (masculino em flat lay)",
-    "intention": "Continuar o catálogo: peças da Via Vogue hoje. Peça masculina sem modelo — fotografar em flat lay (peça arrumada numa superfície plana, foto de cima).",
+    "theme": "Combo A/B com condição especial",
+    "intention": "Mostrar peças específicas com a condição especial aplicada, pra facilitar a decisão de compra.",
     "checklist": [
-      "VIA VOGUE: fotografar peças ({VV}) — frente inteira + close de tecido/detalhe",
-      "VIA VOGUE: peça masculina em flat lay (arrumada numa superfície plana, foto de cima)",
-      "VIA VOGUE: anotar tamanho e quantidade de cada peça fotografada",
-      "FOTOS: enviar as fotos do dia pra Bruna",
-      "WHATSAPP: mandar mensagem pra 5 clientes de atenção — reativação (ver Mensagens prontas → Clientes)",
+      "REELS: gravar reel de combo A/B — duas peças lado a lado (uma Heres, uma Via Vogue) mostrando o preço com a condição especial aplicada",
+      "STORIES: enquete \"qual look você prefere: A ou B?\" + sticker de contagem regressiva pro fim da semana",
+      "LOJA: continuar a dinâmica do envelope surpresa pra quem comprar (Heres e Via Vogue)",
+      "WHATSAPP: mandar mensagem de urgência (faltam poucos dias) pra clientes em desenvolvimento (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
@@ -1849,13 +1866,13 @@ const SEMANA=[
   },
   {
     "dia": "Sexta",
-    "theme": "Fechar pendências do catálogo",
-    "intention": "Revisar a lista e fotografar qualquer peça (Heres ou Via Vogue) que tenha ficado pra trás.",
+    "theme": "Últimos dias da condição especial",
+    "intention": "Reforçar urgência: a condição especial fecha amanhã (sábado). Hora de puxar quem ainda está decidindo.",
     "checklist": [
-      "Revisar o que ainda falta fotografar de {HERES} e {VV}",
-      "Fotografar qualquer peça pendente",
-      "FOTOS: enviar as fotos do dia pra Bruna",
-      "WHATSAPP: fazer follow-up de quem respondeu essa semana (ver Mensagens prontas → Clientes)",
+      "REELS: gravar reel de urgência — tom \"última chance\", mostrando as peças que ainda restam com a condição especial",
+      "STORIES: contagem regressiva final (\"acaba amanhã\") + sticker de link direto pro WhatsApp",
+      "LOJA: continuar a dinâmica do envelope surpresa pra quem comprar (Heres e Via Vogue)",
+      "WHATSAPP: mandar mensagem final de urgência pra toda a base (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
@@ -1864,12 +1881,13 @@ const SEMANA=[
   },
   {
     "dia": "Sábado",
-    "theme": "Últimas fotos + conferência",
-    "intention": "Fechar a semana de catálogo: última chance de fotografar o que faltou e confirmar tudo com a Bruna.",
+    "theme": "Fechamento da Semana do Cliente",
+    "intention": "Último dia da condição especial e do envelope surpresa. Encerrar a semana agradecendo, sem tom de venda.",
     "checklist": [
-      "Fotografar qualquer peça que ainda não tenha foto",
-      "FOTOS: confirmar com a Bruna que todas as fotos da semana foram recebidas",
-      "WHATSAPP: convidar clientes quentes da semana pra provar/fechar (ver Mensagens prontas → Clientes)",
+      "REELS: gravar reel de encerramento agradecendo a todas que participaram da semana (tom caloroso, foco em gratidão, sem pedir pra comprar)",
+      "STORIES: post de agradecimento + bastidores do resultado da semana (quantos envelopes entregues, clima da loja)",
+      "LOJA: último dia da dinâmica do envelope surpresa (Heres e Via Vogue) — avisar que acaba hoje",
+      "WHATSAPP: mandar mensagem de agradecimento final pra quem participou da semana (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem de agradecimento pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem fez orçamento ontem para fechar ou combinar retirada da peça",
       "Atender e vender normalmente",
