@@ -364,6 +364,7 @@ select:focus,input:focus{border-color:var(--camel);}
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Meta do mês</span></div><div class="card-body" id="painel-meta-mes"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Progresso do dia</span></div><div class="card-body" id="painel-prog-dia"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Bônus de reels e fotos do mês</span></div><div class="card-body" id="painel-bonus-reels"></div></div>
     <div class="card"><div class="card-header"><span class="card-title">Ranking do mês</span></div><div class="card-body" id="ranking-list"></div></div>
   </div>
 
@@ -1156,6 +1157,16 @@ function renderPainel(){
     const vv=vH.filter(v=>v.vendedora===nome);const total=vv.reduce((a,v)=>a+v.valor,0);const meta=(ST.config.metas[nome]||{}).dia||0;const pct=meta>0?Math.min(100,Math.round(total/meta*100)):0;const cls=pct>=100?'good':pct>=60?'warn':'';
     return`<div style="padding:10px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;"><span style="font-size:13px;font-weight:700;">${nome}</span><span style="font-size:12px;color:var(--muted);">${fmt(total)}${meta?' / '+fmtN(meta):''}</span></div><div class="prog-bar"><div class="prog-fill ${cls}" style="width:${pct}%"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;"><span>${meta?pct+'% da meta':'sem meta'}</span>${meta&&total<meta?'<span>faltam '+fmtN(meta-total)+'</span>':'<span style="color:var(--green)">'+(meta&&pct>=100?'meta atingida!':'')+'</span>'}</div></div>`;
   }).join('');
+  const bonusReelEl=document.getElementById('painel-bonus-reels');
+  if(bonusReelEl){
+    const vpr=valorPorReel();
+    bonusReelEl.innerHTML=['Jamile','Lucimeire'].map(nome=>{
+      const qtd=countReelsMes(nome);const ganhoReel=bonusReelValor(nome);
+      const siteFeito=siteFotosFeito(nome);const ganhoSite=bonusSiteValor(nome);
+      const totalBonus=ganhoReel+ganhoSite;
+      return`<div style="padding:10px 0;border-bottom:1px solid var(--border2);"><div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:13px;font-weight:700;">${nome}</span><span style="font-size:14px;font-weight:700;color:var(--green);">${fmt(totalBonus)}</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px;">${qtd} reel${qtd!==1?'s':''} feito${qtd!==1?'s':''} · ${fmt(vpr)} por reel = ${fmt(ganhoReel)}</div><div style="font-size:11px;color:var(--muted);margin-top:2px;">Fotos do site: ${siteFeito?'✅ feito':'⬜ pendente'} · ${fmt(ganhoSite)}</div></div>`;
+    }).join('');
+  }
   const rank=VENDEDORAS.map(n=>{const vs=vM.filter(v=>v.vendedora===n);const t=vs.reduce((a,v)=>a+v.valor,0);const c=vs.reduce((a,v)=>a+v.commVal,0);const meta=(ST.config.metas[n]||{}).mes||0;return{n,t,c,q:vs.length,pct:meta>0?Math.round(t/meta*100):null};}).sort((a,b)=>b.t-a.t);
   document.getElementById('ranking-list').innerHTML=rank.map((r,i)=>`<div class="rank-item"><div class="rank-pos ${['r1','r2','r3','r3'][i]||'r3'}">${i+1}</div><div class="rank-info"><div class="rank-name">${r.n}</div><div class="rank-detail">${r.q} venda${r.q!==1?'s':''} · comissão ${fmt(r.c)}</div></div><div class="rank-total"><div class="rank-val">${fmt(r.t)}</div><div class="rank-pct">${r.pct!==null?r.pct+'% da meta':'sem meta'}</div></div></div>`).join('');
 }
@@ -1349,7 +1360,8 @@ function buildMetasForm(){const el=document.getElementById('metas-form');if(!el)
 
 function mesAtualKey(){return today().slice(0,7);}
 function countReelsMes(nome){const mk=mesAtualKey();return (ST.reels||[]).filter(r=>r.vendedora===nome&&r.data.startsWith(mk)).length;}
-function bonusReelValor(nome){const qtd=countReelsMes(nome);const cadaN=ST.config.bonusReelQtd||5;return Math.floor(qtd/cadaN)*(ST.config.bonusReelValor||0);}
+function valorPorReel(){const cadaN=ST.config.bonusReelQtd||5;return(ST.config.bonusReelValor||0)/cadaN;}
+function bonusReelValor(nome){const qtd=countReelsMes(nome);return qtd*valorPorReel();}
 function siteFotosKey(nome){return nome+'_'+mesAtualKey();}
 function siteFotosFeito(nome){return !!(ST.siteFotos||{})[siteFotosKey(nome)];}
 function bonusSiteValor(nome){return siteFotosFeito(nome)?(ST.config.bonusSite||0):0;}
@@ -1374,7 +1386,7 @@ function renderComm(){
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);">
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);padding:3px 0;"><span>Comissão de vendas</span><span style="color:var(--dark);font-weight:600;">${fmt(comm)}</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);padding:3px 0;">
-            <span>Reels feitos: <b style="color:var(--dark);">${qtdReel}</b> (${ST.config.bonusReelQtd||5} = ${fmt(ST.config.bonusReelValor||0)})</span>
+            <span>Reels feitos: <b style="color:var(--dark);">${qtdReel}</b> (${fmt(valorPorReel())} por reel)</span>
             <span style="display:flex;gap:4px;align-items:center;">
               <button class="btn-sec" style="width:auto;margin:0;padding:2px 9px;font-size:13px;" onclick="removerReel('${nome}')">−</button>
               <button class="btn-sec" style="width:auto;margin:0;padding:2px 9px;font-size:13px;" onclick="registrarReel('${nome}')">+</button>
