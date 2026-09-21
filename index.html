@@ -712,6 +712,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
+const SEMANA_VERSION='2026-09-21-a';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
 let ESTRATEGIA={};
@@ -787,8 +788,9 @@ function initFirebase(){
     });
     db.collection('heres').doc('checklist').onSnapshot(snap=>{ST.checklist=snap.exists?(snap.data()||{}):{};renderDayScreen(activeDayIdx);});
     db.collection('heres').doc('semanaTemplate').onSnapshot(snap=>{
-      if(snap.exists&&snap.data().data){applyCustomSemana(snap.data().data);buildSemana();}
-      else if(db){saveSemanaCustom();}
+      const d=snap.exists?snap.data():null;
+      if(d&&d.data&&d.version===SEMANA_VERSION){applyCustomSemana(d.data);buildSemana();}
+      else if(db){saveSemanaCustom();buildSemana();}
     });
     db.collection('heres').doc('focoSemana').onSnapshot(snap=>{
       if(snap.exists){FOCO.heres=snap.data().heres||'';FOCO.viaVogue=snap.data().viaVogue||'';}
@@ -822,6 +824,7 @@ async function saveSemanaCustom(){
   if(!db)return;
   try{
     await db.collection('heres').doc('semanaTemplate').set({
+      version:SEMANA_VERSION,
       data:SEMANA.map(d=>({
         theme:d.theme,
         intention:d.intention,
