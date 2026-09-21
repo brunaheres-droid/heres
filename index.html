@@ -712,7 +712,8 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
-const SEMANA_VERSION='2026-09-21-d';
+const SEMANA_VERSION='2026-09-21-e';
+const MENSAGENS_VERSION='2026-09-21-a';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
 let ESTRATEGIA={};
@@ -757,20 +758,13 @@ const MENSAGENS_PADRAO={
     {titulo:"Depois que ela gostar",texto:"Perfeito! Vou separar essa para você. E encontrei uma segunda peça que deixa o look ainda mais completo. Quer ver junto?"},
     {titulo:"Follow-up de quem respondeu",texto:"Oi [nome]! Passando só pra saber se você viu as opções que te mandei — ficou alguma dúvida de tamanho ou combinação? Fico à disposição pra te ajudar a decidir."},
     {titulo:"Fechar orçamento de ontem",texto:"Oi [nome]! Sobre o orçamento que fizemos — já separei a peça certinha pra você. Quer passar aqui pra fechar e já levar, ou prefere que eu finalize por aqui mesmo?"},
-    {titulo:"Convite fim de semana",texto:"Oi [nome]! Chegaram peças novas essa semana e separei algumas com a sua cara. Passa aqui no fim de semana pra dar uma olhada? Vou adorar te ver 🤍"},
-    {titulo:"Dia do Cliente — esquenta (segunda)",texto:"[Nome], amanhã é Dia do Cliente e separei um mimo pensando em você. Passa aqui, vai ter surpresa te esperando 🎁"},
-    {titulo:"Dia do Cliente — agradecimento (terça, dia principal, Via Vogue)",texto:"✨ Hoje é Dia do Cliente na Via Vogue! ✨\nHoje queremos, acima de tudo, agradecer a você. 🤍\nObrigada por escolher a Via Vogue, por confiar em nosso trabalho, por cada visita, cada compra, cada mensagem e por permitir que a nossa loja faça parte de tantos momentos especiais da sua vida.\nCada cliente que passa por aqui faz parte da nossa história e é por vocês que buscamos sempre trazer novidades, qualidade e uma experiência cada vez mais especial. ✨\nComo forma de retribuir todo esse carinho, preparamos um brinde especial para você em sua compra hoje. 🎁\nQue Deus abençoe grandemente a sua vida, sua família e todos os seus caminhos. 🙏🏻🤍\nObrigada por fazer parte da nossa história. É uma alegria ter você conosco!\nCom carinho,\nVia Vogue 🤍"},
-    {titulo:"Dia do Cliente — agradecimento (terça, dia principal, Heres)",texto:"✨ Hoje é Dia do Cliente! ✨\nHoje queremos agradecer, de coração, por cada compra, cada visita, cada mensagem e por escolher fazer parte da nossa história. 🤍\nPara celebrar você, 10% OFF em todas as peças hoje. ✨\nQue Deus abençoe grandemente sua vida, sua família e seus caminhos. 🙏🏻🤍\nObrigada por escolher a Heres!\nCom carinho,\nHeres Store"},
-    {titulo:"Dia do Cliente — reforço meio de semana",texto:"Oi [nome], ainda dá tempo de aproveitar a semana especial que preparamos aqui — desconto e parcelamento facilitado até sábado. Quer que eu separe algo pra você?"},
-    {titulo:"Dia do Cliente — urgência (últimos dias)",texto:"[Nome], últimos dias da nossa semana especial! Fecha amanhã. Posso separar uma peça pra você?"},
-    {titulo:"Dia do Cliente — agradecimento final",texto:"[Nome], hoje encerra a nossa semana especial e eu só queria dizer obrigada por fazer parte dela. Foi muito bom te ter por aqui 🤍"}
+    {titulo:"Convite fim de semana",texto:"Oi [nome]! Chegaram peças novas essa semana e separei algumas com a sua cara. Passa aqui no fim de semana pra dar uma olhada? Vou adorar te ver 🤍"}
   ],
   posvenda:[
     {titulo:"Logo após a compra",texto:"Oi [nome]! Muito obrigada pela compra 🤍 Espero que você ame a peça. Qualquer dúvida sobre cuidado com o tecido ou troca de tamanho, é só me chamar."},
     {titulo:"Aviso de cashback",texto:"Oi [nome]! Já separei seu cashback dessa compra — está disponível pra usar em qualquer peça, é só me chamar quando quiser aproveitar."},
     {titulo:"Reengajamento (15–20 dias depois)",texto:"Oi [nome]! Faz um tempinho que você não aparece por aqui. Chegaram peças novas que acho que têm a sua cara — quer que eu separe algumas pra você dar uma olhada?"},
-    {titulo:"Pedido de indicação",texto:"Oi [nome], que bom que você gostou da peça! Se conhecer alguém que também curte esse estilo, fico super feliz em te dar um cashback especial por indicação 🤍"},
-    {titulo:"Dia do Cliente — compra com envelope",texto:"[Nome], que alegria ter você aqui hoje! Espero que ame a peça (e a surpresa do envelope 🎁). Qualquer coisa, me chama, tá?"}
+    {titulo:"Pedido de indicação",texto:"Oi [nome], que bom que você gostou da peça! Se conhecer alguém que também curte esse estilo, fico super feliz em te dar um cashback especial por indicação 🤍"}
   ]
 };
 function initFirebase(){
@@ -799,7 +793,8 @@ function initFirebase(){
     });
     db.collection('heres').doc('mensagensApp').onSnapshot(snap=>{
       const d=snap.exists?snap.data():null;
-      ST.colecao=(d&&(d.clientes||d.posvenda))?d:JSON.parse(JSON.stringify(MENSAGENS_PADRAO));
+      if(d&&d.version===MENSAGENS_VERSION&&(d.clientes||d.posvenda)){ST.colecao=d;}
+      else{ST.colecao=JSON.parse(JSON.stringify(MENSAGENS_PADRAO));saveColecao();}
       if(document.getElementById('s-semana').classList.contains('active'))renderDiaMsgList(activeDayIdx,dmTabState[activeDayIdx]||'clientes');
     });
     db.collection('heres').doc('contatosBase').onSnapshot(snap=>{
@@ -819,7 +814,7 @@ async function saveSiteFotos(){if(!db)return;try{await db.collection('heres').do
 async function saveFotosMarca(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('fotosMarca').set(ST.fotosMarca||{});}catch(e){saveLocal();}}
 async function saveChecklist(){if(!db){saveLocal();return;}try{await db.collection('heres').doc('checklist').set(ST.checklist||{});}catch(e){saveLocal();}}
 async function saveCaixa(){const cxKey='caixa_'+today();if(!db)return;try{await db.collection('heres_caixa').doc(cxKey).set({entradas:CX.entradas,saidas:CX.saidas,data:today()});}catch(e){}}
-async function saveColecao(){if(!db)return;try{await db.collection('heres').doc('mensagensApp').set(ST.colecao||MENSAGENS_PADRAO);}catch(e){}}
+async function saveColecao(){if(!db)return;try{await db.collection('heres').doc('mensagensApp').set(Object.assign({},ST.colecao||MENSAGENS_PADRAO,{version:MENSAGENS_VERSION}));}catch(e){}}
 async function saveSemanaCustom(){
   if(!db)return;
   try{
@@ -1803,7 +1798,7 @@ const SEMANA=[
     "theme": "Regata gola solta (Heres) + Bermuda Patogê (Via Vogue)",
     "intention": "Abrir a semana mostrando duas peças-chave em detalhe — a regata gola solta na Heres e a bermuda Patogê na Via Vogue — e ativar contato direto com a base de clientes e orçamentos em aberto.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "HERES — REELS: gravar reel da regata gola solta mostrando as variações de cor — abertura com a peça no cabide/arara, closeup do tecido e do caimento da gola, peça vestida com giro pra mostrar o caimento, 3-4 cortes rápidos trocando de cor, fechar com CTA de WhatsApp na tela (15-20seg)",
       "HERES — STORIES (4 no dia, sem preço na segunda): 1) manhã/bastidor: 'Bom dia! Hoje é dia de regata gola solta' pegando a peça · 2) meio da manhã/detalhe: closeup da gola e do tecido, sem preço · 3) tarde/urgência: 'só temos 2 dessa cor' ou peça saindo do estoque · 4) fim da tarde/CTA: enquete 'qual cor você prefere?' + 'manda WhatsApp que eu separo'",
       "VIA VOGUE — REELS: gravar reel da bermuda Patogê em detalhe — abertura rápida no cabide, closeup do tecido e acabamento (bolso, costura, elástico/botão), peça vestida em plano inteiro com movimento (giro ou caminhada), closeup do caimento na perna, fechar SEM mostrar preço + CTA 'manda WhatsApp que eu te conto tudo sobre essa peça' (15-20seg)",
@@ -1812,6 +1807,7 @@ const SEMANA=[
       "PÓS-VENDA: mandar mensagem pra pelo menos 5 clientes que já compraram (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   },
@@ -1820,7 +1816,7 @@ const SEMANA=[
     "theme": "Polo colorida (Via Vogue) + Linho (Heres)",
     "intention": "Girar duas categorias diferentes no mesmo dia: as polos coloridas na Via Vogue e as peças de linho (vestido, short e blusa) na Heres.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "VIA VOGUE — REELS: gravar reel das camisetas polo mostrando as cores disponíveis — closeup do tecido/gola, troca rápida entre as cores (3-4 cortes), peça vestida, fechar com CTA de WhatsApp",
       "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: provando a polo · 2) detalhe: closeup do tecido/gola, sem preço · 3) urgência: cores que estão acabando · 4) CTA: enquete 'qual cor combina mais com você?' + 'me chama que eu te falo o valor'",
       "HERES — STORIES: postar as peças de linho (vestido, short e blusa) — uma foto ou vídeo curto de cada peça",
@@ -1829,6 +1825,7 @@ const SEMANA=[
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   },
@@ -1837,7 +1834,7 @@ const SEMANA=[
     "theme": "T-shirts Patogê (Via Vogue) + Camisas passadas (Heres)",
     "intention": "Reforçar a Patogê com vídeo de detalhes e mostrar o cuidado da Heres com as peças passadas/prontas pra vestir.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "VIA VOGUE — VÍDEO + REELS: gravar vídeo das t-shirts Patogê com detalhes — closeup do tecido, estampa/acabamento, troca de cores/modelos, peça vestida; cortar a versão reels a partir desse vídeo (15-20seg)",
       "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: gravando o vídeo das t-shirts · 2) detalhe: closeup da estampa/acabamento, sem preço · 3) prova social: 'mais pedida da semana' · 4) CTA: 'chama no WhatsApp pra saber o valor e as cores disponíveis'",
       "HERES — REELS: gravar reel com as camisas passadas — mostrar o processo ou o resultado (peça bem passada, pendurada ou vestida), reforçando o cuidado com o tecido",
@@ -1845,6 +1842,7 @@ const SEMANA=[
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   },
@@ -1853,7 +1851,7 @@ const SEMANA=[
     "theme": "Shorts Consciência Jeans (Via Vogue) + Tricoline (Heres)",
     "intention": "Detalhar os shorts jeans na Via Vogue e usar as fotos do site pra vender os conjuntos tricoline lisos da Heres.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "VIA VOGUE — REELS: gravar reel dos shorts Consciência Jeans com foco em detalhes — closeup do tecido/lavagem, bolsos, acabamento, peça vestida com movimento",
       "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: provando o short jeans · 2) detalhe: closeup da lavagem/bolsos, sem preço · 3) urgência: 'chegou ontem, já foram 2' · 4) CTA: enquete 'gostou?' + 'me chama que eu te passo o valor'",
       "HERES — STORIES: postar as fotos do site dos conjuntos tricoline lisos com o link direto + stories vestindo a peça",
@@ -1861,6 +1859,7 @@ const SEMANA=[
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   },
@@ -1869,7 +1868,7 @@ const SEMANA=[
     "theme": "Básicos + Ogochi + Conjuntos de ocasião (Via Vogue)",
     "intention": "Fechar a semana girando básicos e Ogochi na Via Vogue, destacar os conjuntos de maior ticket (saia plissada e alfaiataria) e já puxar as clientes pro fim de semana.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "VIA VOGUE — CONTEÚDO: postar as camisetas básicas e os shorts Ogochi (foto ou reel rápido de cada peça)",
       "VIA VOGUE — CONTEÚDO: mostrar o conjunto saia plissada e o conjunto de alfaiataria — foto ou vídeo destacando o caimento (peças de ticket mais alto, vale a pena um closeup do tecido e um plano corpo inteiro)",
       "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: conjunto alfaiataria no cabide · 2) detalhe: closeup da saia plissada, sem preço · 3) urgência: 'separado pro fim de semana, últimas peças' · 4) CTA: 'te espero na loja ou me chama no WhatsApp pra eu te passar o valor'",
@@ -1877,6 +1876,7 @@ const SEMANA=[
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   },
@@ -1885,13 +1885,14 @@ const SEMANA=[
     "theme": "Vestidos Heres + Via Vogue",
     "intention": "Fechar a semana com os vestidos das duas marcas, aproveitando o movimento de loja no fim de semana.",
     "checklist": [
-      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
+      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "HERES — CONTEÚDO: postar vestidos — foto ou reel com detalhes do tecido/caimento e peça vestida",
       "HERES — STORIES (4 no dia): 1) bastidor: vestido no provador · 2) detalhe: closeup do caimento/tecido · 3) prova social: cliente experimentando (se tiver) · 4) CTA: 'vem na loja hoje' + WhatsApp",
       "VIA VOGUE — CONTEÚDO: postar vestidos — foto ou reel com detalhes do tecido/caimento e peça vestida",
       "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: vestido no provador · 2) detalhe: closeup do caimento, sem preço · 3) prova social: cliente experimentando (se tiver) · 4) CTA: 'vem na loja hoje ou me chama no WhatsApp pra eu te passar o valor'",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "Atender e vender normalmente",
+      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
     ]
   }
