@@ -712,7 +712,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
-const SEMANA_VERSION='2026-09-21-a';
+const SEMANA_VERSION='2026-09-21-d';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
 let ESTRATEGIA={};
@@ -1803,9 +1803,11 @@ const SEMANA=[
     "theme": "Regata gola solta (Heres) + Bermuda Patogê (Via Vogue)",
     "intention": "Abrir a semana mostrando duas peças-chave em detalhe — a regata gola solta na Heres e a bermuda Patogê na Via Vogue — e ativar contato direto com a base de clientes e orçamentos em aberto.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "HERES — REELS: gravar reel da regata gola solta mostrando as variações de cor — abertura com a peça no cabide/arara, closeup do tecido e do caimento da gola, peça vestida com giro pra mostrar o caimento, 3-4 cortes rápidos trocando de cor, fechar com CTA de WhatsApp na tela (15-20seg)",
-      "HERES — STORIES: postar foto da regata (a mesma do site) + sticker/chamada pra ação direcionando pro WhatsApp",
-      "VIA VOGUE — REELS: gravar reel da bermuda Patogê em detalhe — abertura rápida no cabide, closeup do tecido e acabamento (bolso, costura, elástico/botão), peça vestida em plano inteiro com movimento (giro ou caminhada), closeup do caimento na perna, fechar com preço em destaque na tela + CTA WhatsApp (regra Patogê: preço sempre visível) (15-20seg)",
+      "HERES — STORIES (4 no dia, sem preço na segunda): 1) manhã/bastidor: 'Bom dia! Hoje é dia de regata gola solta' pegando a peça · 2) meio da manhã/detalhe: closeup da gola e do tecido, sem preço · 3) tarde/urgência: 'só temos 2 dessa cor' ou peça saindo do estoque · 4) fim da tarde/CTA: enquete 'qual cor você prefere?' + 'manda WhatsApp que eu separo'",
+      "VIA VOGUE — REELS: gravar reel da bermuda Patogê em detalhe — abertura rápida no cabide, closeup do tecido e acabamento (bolso, costura, elástico/botão), peça vestida em plano inteiro com movimento (giro ou caminhada), closeup do caimento na perna, fechar SEM mostrar preço + CTA 'manda WhatsApp que eu te conto tudo sobre essa peça' (15-20seg)",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: bermuda Patogê saindo da arara · 2) detalhe: closeup do tecido/acabamento, sem preço · 3) prova social: 'mais pedida da semana' ou cliente que já levou · 4) CTA: caixinha de pergunta 'qual tamanho você usa?' + 'chama no WhatsApp que eu te passo o valor e as opções'",
       "WHATSAPP: enviar mensagem para pelo menos 5 clientes (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem pra pelo menos 5 clientes que já compraram (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
@@ -1818,9 +1820,12 @@ const SEMANA=[
     "theme": "Polo colorida (Via Vogue) + Linho (Heres)",
     "intention": "Girar duas categorias diferentes no mesmo dia: as polos coloridas na Via Vogue e as peças de linho (vestido, short e blusa) na Heres.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "VIA VOGUE — REELS: gravar reel das camisetas polo mostrando as cores disponíveis — closeup do tecido/gola, troca rápida entre as cores (3-4 cortes), peça vestida, fechar com CTA de WhatsApp",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: provando a polo · 2) detalhe: closeup do tecido/gola, sem preço · 3) urgência: cores que estão acabando · 4) CTA: enquete 'qual cor combina mais com você?' + 'me chama que eu te falo o valor'",
       "HERES — STORIES: postar as peças de linho (vestido, short e blusa) — uma foto ou vídeo curto de cada peça",
       "HERES — REELS: gravar reel do linho — mostrar as três peças (vestido, short, blusa) com foco no caimento e na textura do tecido, intercalando com movimento (caminhada, giro)",
+      "HERES — STORIES (4 no dia): 1) bastidor: separando as peças de linho · 2) detalhe: closeup do tecido do linho · 3) prova social: cliente usando linho (se tiver) ou 'combina com esse calor' · 4) CTA: caixinha 'qual peça você quer ver primeiro? vestido, short ou blusa?'",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
@@ -1832,8 +1837,11 @@ const SEMANA=[
     "theme": "T-shirts Patogê (Via Vogue) + Camisas passadas (Heres)",
     "intention": "Reforçar a Patogê com vídeo de detalhes e mostrar o cuidado da Heres com as peças passadas/prontas pra vestir.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "VIA VOGUE — VÍDEO + REELS: gravar vídeo das t-shirts Patogê com detalhes — closeup do tecido, estampa/acabamento, troca de cores/modelos, peça vestida; cortar a versão reels a partir desse vídeo (15-20seg)",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: gravando o vídeo das t-shirts · 2) detalhe: closeup da estampa/acabamento, sem preço · 3) prova social: 'mais pedida da semana' · 4) CTA: 'chama no WhatsApp pra saber o valor e as cores disponíveis'",
       "HERES — REELS: gravar reel com as camisas passadas — mostrar o processo ou o resultado (peça bem passada, pendurada ou vestida), reforçando o cuidado com o tecido",
+      "HERES — STORIES (4 no dia): 1) bastidor: camisa sendo passada · 2) detalhe: closeup do tecido/acabamento já passado · 3) prova social: 'peça pronta pra usar, sem trabalho' · 4) CTA: caixinha de pergunta 'qual tamanho você quer?'",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
@@ -1845,8 +1853,11 @@ const SEMANA=[
     "theme": "Shorts Consciência Jeans (Via Vogue) + Tricoline (Heres)",
     "intention": "Detalhar os shorts jeans na Via Vogue e usar as fotos do site pra vender os conjuntos tricoline lisos da Heres.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "VIA VOGUE — REELS: gravar reel dos shorts Consciência Jeans com foco em detalhes — closeup do tecido/lavagem, bolsos, acabamento, peça vestida com movimento",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: provando o short jeans · 2) detalhe: closeup da lavagem/bolsos, sem preço · 3) urgência: 'chegou ontem, já foram 2' · 4) CTA: enquete 'gostou?' + 'me chama que eu te passo o valor'",
       "HERES — STORIES: postar as fotos do site dos conjuntos tricoline lisos com o link direto + stories vestindo a peça",
+      "HERES — STORIES extra (4 no dia): 1) bastidor: separando os conjuntos tricoline · 2) detalhe: closeup do tecido liso · 3) prova social/estilo: sugestão de combinação (ex: com sandália, acessório) · 4) CTA: link direto do site + 'me chama que eu separo pra você'",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
       "Atender e vender normalmente",
@@ -1858,8 +1869,10 @@ const SEMANA=[
     "theme": "Básicos + Ogochi + Conjuntos de ocasião (Via Vogue)",
     "intention": "Fechar a semana girando básicos e Ogochi na Via Vogue, destacar os conjuntos de maior ticket (saia plissada e alfaiataria) e já puxar as clientes pro fim de semana.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "VIA VOGUE — CONTEÚDO: postar as camisetas básicas e os shorts Ogochi (foto ou reel rápido de cada peça)",
       "VIA VOGUE — CONTEÚDO: mostrar o conjunto saia plissada e o conjunto de alfaiataria — foto ou vídeo destacando o caimento (peças de ticket mais alto, vale a pena um closeup do tecido e um plano corpo inteiro)",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: conjunto alfaiataria no cabide · 2) detalhe: closeup da saia plissada, sem preço · 3) urgência: 'separado pro fim de semana, últimas peças' · 4) CTA: 'te espero na loja ou me chama no WhatsApp pra eu te passar o valor'",
       "WHATSAPP: enviar mensagem para as clientes convidando pra virem à loja no fim de semana (ver Mensagens prontas → Clientes)",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
@@ -1872,8 +1885,11 @@ const SEMANA=[
     "theme": "Vestidos Heres + Via Vogue",
     "intention": "Fechar a semana com os vestidos das duas marcas, aproveitando o movimento de loja no fim de semana.",
     "checklist": [
+      "ABERTURA DA LOJA: assim que abrir, responder TODAS as mensagens/comentários pendentes no Instagram (Heres e Via Vogue) — não deixar acumular, muita gente manda mensagem e só é vista horas depois",
       "HERES — CONTEÚDO: postar vestidos — foto ou reel com detalhes do tecido/caimento e peça vestida",
+      "HERES — STORIES (4 no dia): 1) bastidor: vestido no provador · 2) detalhe: closeup do caimento/tecido · 3) prova social: cliente experimentando (se tiver) · 4) CTA: 'vem na loja hoje' + WhatsApp",
       "VIA VOGUE — CONTEÚDO: postar vestidos — foto ou reel com detalhes do tecido/caimento e peça vestida",
+      "VIA VOGUE — STORIES (4 no dia, SEM preço — levar pro WhatsApp): 1) bastidor: vestido no provador · 2) detalhe: closeup do caimento, sem preço · 3) prova social: cliente experimentando (se tiver) · 4) CTA: 'vem na loja hoje ou me chama no WhatsApp pra eu te passar o valor'",
       "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
       "Atender e vender normalmente",
       "APP: registrar vendas do dia"
