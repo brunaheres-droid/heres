@@ -741,7 +741,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
-const SEMANA_VERSION='2026-09-29-a';
+const SEMANA_VERSION='2026-10-07-b';
 const MENSAGENS_VERSION='2026-09-21-a';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
@@ -1952,17 +1952,17 @@ function irParaBase(di){
 const SEMANA=[
   {
     "dia": "Segunda",
-    "theme": "Prova social Amaré (Heres) + Últimas Patogê (Via Vogue)",
-    "intention": "Abrir a semana mostrando quem já está usando a Amaré e criando urgência nas peças Patogê que restam. Heres: SEM preço na segunda.",
+    "theme": "Bastidor Amaré (Heres) + Masculino 'ela escolhe pra ele' (Via Vogue)",
+    "intention": "Começo de semana com conteúdo de desejo, sem pressão de venda. Heres SEM preço na segunda. Via Vogue abre o masculino falando com a mulher, que é quem compra. (12/10 é feriado: se a loja não abrir, fazer este dia na terça.)",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "HERES — REEL (lente: prova social): cliente real usando peça Amaré (pedir autorização). Gancho na tela: 'Ela levou na quinta. Olha.' Legenda: 'Quando a peça é certa, a cliente volta pra mostrar 🤍 Amaré — peças limitadas, me chama no direct.' SEM preço",
-      "HERES — STORIES (4, sem preço): 1) repost de cliente usando Amaré · 2) detalhe/textura de uma peça · 3) 'restam poucas de [peça]' · 4) caixinha 'quer entrar na lista VIP?'",
-      "VIA VOGUE — REEL: POV cliente experimentando Patogê na loja. Gancho: 'POV: você veio só olhar...' Legenda: 'E saiu com a Patogê nova 🤎 Tamanhos acabando → chama no WhatsApp 👇'",
-      "VIA VOGUE — STORIES (4, SEM preço — levar pro WhatsApp): 1) arara Patogê · 2) 'tamanhos e cores que ainda temos' · 3) cliente que levou · 4) 'me chama que eu te passo o valor'",
-      "WHATSAPP: enviar mensagem para pelo menos 5 clientes (ver Mensagens prontas → Clientes)",
-      "PÓS-VENDA: mandar mensagem pra pelo menos 5 clientes que já compraram (ver Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
+      "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — REEL (lente: textura/close): mão passando no tecido de uma peça Amaré, close do botão e do caimento, termina com o look inteiro em movimento. Texto na tela: 'O detalhe que ninguém vê.' Legenda: 'Peça boa se reconhece no toque 🤍 Amaré, em quantidade limitada. Me chama no direct.' SEM preço",
+      "HERES — STORIES (4, sem preço): 1) close de textura Amaré · 2) peça vestida em movimento · 3) enquete 'qual cor é mais você?' · 4) 'quer ver as peças? me chama'",
+      "VIA VOGUE — REEL MASCULINO 'Ela escolhe pra ele': vendedora monta no balcão um look Ogochi peça por peça (calça, camisa, cinto). Texto na tela: 'Montando o look do seu marido em 10 segundos'. Legenda: 'Sem erro de tamanho e com troca garantida 🤎 Quer que eu separe o dele? Chama no WhatsApp 👇' + preço do look e parcelamento",
+      "VIA VOGUE — STORIES (4, COM preço): 1) look masculino montado · 2) close do tecido e do bolso da calça · 3) preço + parcelamento · 4) 'separo o tamanho dele?'",
+      "PÓS-VENDA: mandar mensagem pra pelo menos 5 clientes que compraram na semana passada (Mensagens prontas → Pós-venda)",
+      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
@@ -1970,16 +1970,17 @@ const SEMANA=[
   },
   {
     "dia": "Terça",
-    "theme": "Teaser Amaré (Heres) + Teaser Patogê (Via Vogue)",
-    "intention": "Criar expectativa nas duas marcas sem mostrar a peça inteira. Amaré lança quinta (01/10), Patogê chega quarta. Hoje é dia de mistério e de avisar as clientes VIP antes de todo mundo.",
+    "theme": "Amaré 1 peça, 3 jeitos (Heres) + Patogê em movimento (Via Vogue)",
+    "intention": "Mostrar versatilidade: a cliente compra quando se imagina usando a peça em várias ocasiões. Preço é opcional; nas peças masculinas, sempre com preço.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "HERES — REEL (lente: textura/close): 7 segundos, close do tecido em movimento, SEM mostrar a peça inteira. Texto na tela: 'Dia 01/10.' Legenda: 'Algumas coisas a gente não explica. Sente. ✦ Amaré, 01/10. Lista VIP vê primeiro — me chama no direct.'",
-      "HERES — STORIES (4): 1) detalhe de botão/costura/etiqueta · 2) silhueta desfocada · 3) contagem regressiva do Instagram 'Amaré 01/10' (ativar lembrete) · 4) caixinha 'quer entrar na lista VIP?'",
-      "VIA VOGUE — STORIES (4, SEM preço): 1) close de etiqueta e tecido: 'Amanhã chega. Adivinha a marca? 👀' · 2) caixinha de palpite · 3) enquete 'vem pra loja ver de perto?' · 4) 'quer ver antes de todo mundo? me chama no WhatsApp'",
-      "WHATSAPP VIP (Via Vogue): mandar pras 10-15 clientes fiéis: 'Oi [nome]! Amanhã chega a Patogê nova e eu quero que você veja antes de todo mundo. Te mando as fotos primeiro? 🤎'",
-      "WHATSAPP VIP (Heres): mandar pras clientes VIP: 'Oi [nome]! Quinta lança a Amaré, coleção nova da Heres, em quantidade limitada. Quer que eu te mande as peças antes de abrir pro público? 🤍'",
-      "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
+      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — REEL '1 peça, 3 jeitos': a mesma peça-chave da Amaré em 3 looks (trabalho, jantar, fim de semana), troca a cada batida da música. Texto na tela: 'Uma peça. Três mulheres.' Legenda: 'Qual é você, 1, 2 ou 3? 👇 Menos roupas no cabide, mais sabedoria ao vestir.'",
+      "HERES — STORIES (4): 1) enquete 1, 2 ou 3 · 2) detalhe da peça · 3) peça vestida (pode ter preço) · 4) 'restam poucos tamanhos, me chama'",
+      "VIA VOGUE — REEL PATOGÊ 'Caminhada': câmera parada, vendedora anda em direção à câmera com o look Patogê, gira e ajeita a peça. Texto na tela: 'Chegou na Via Vogue.' Legenda (pode colocar preço e parcelamento) + 'Separo seu tamanho? Chama no WhatsApp 👇'",
+      "VIA VOGUE — STORIES (4, preço opcional): 1) peça vestida em movimento · 2) close do tecido + 'caimento que não marca' · 3) look completo (pode ter preço + parcelamento) · 4) 'separo seu tamanho?'",
+      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
@@ -1987,17 +1988,17 @@ const SEMANA=[
   },
   {
     "dia": "Quarta",
-    "theme": "Chegada Patogê (Via Vogue) + Bastidor Amaré (Heres)",
-    "intention": "Dia de chegada da Patogê: mostrar a caixa abrindo e a peça no corpo. Na Heres, bastidor da curadoria da Amaré — véspera do lançamento.",
+    "theme": "Prova social Amaré (Heres) + Consciência Jeans 2 looks (Via Vogue)",
+    "intention": "Meio de semana é dia de prova: mostrar quem já levou e quem já usa. Via Vogue com o jeans, que vende o ano inteiro.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "VIA VOGUE — REEL: abrindo as caixas → peça vestida com movimento (giro/caminhada). Gancho na tela: 'Chegou a Patogê que vocês pediram'. Legenda: 'Chegou. A nova Patogê está na Via Vogue 🤎 Peças com o conforto e o caimento que vocês já conhecem, agora com cara de estação nova. Tamanhos limitados → chama no WhatsApp e reserva a sua 👇' (15-20seg)",
-      "VIA VOGUE — STORIES (4, SEM preço — levar pro WhatsApp): 1) peça vestida no corpo · 2) detalhe do tecido/acabamento · 3) 2 combinações da mesma peça · 4) 'reserve pelo WhatsApp 👇' com link",
-      "VIA VOGUE — WHATSAPP VIP: mandar fotos das peças novas pras clientes que responderam ontem ANTES de postar o reel",
-      "HERES — REEL (lente: bastidor): você escolhendo peças da Amaré, detalhes de etiqueta e acabamento. Gancho: 'Por que demorei meses pra essa coleção'. Legenda: 'Não escolho peça pra encher arara. Escolho peça que você vai usar por anos. Amaré chega amanhã.'",
-      "HERES — STORIES (4): 1) arara sendo montada (sem mostrar tudo) · 2) close de uma textura · 3) 'amanhã' + contagem regressiva · 4) lista VIP: 'última chance de ver antes'",
-      "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
+      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — REEL (lente: prova social): cliente ou vendedora usando Amaré na rua, no trabalho ou chegando na loja (pedir autorização). Texto na tela: 'Ela levou. Olha como ficou.' Legenda: 'Quando a peça é certa, a gente sente 🤍 Amaré, peças limitadas.'",
+      "HERES — STORIES (4): 1) repost de cliente usando Amaré · 2) print de mensagem elogiando (sem mostrar o nome) · 3) peça vestida (pode ter preço) · 4) 'quer ver o seu tamanho? me chama'",
+      "VIA VOGUE — REEL CONSCIÊNCIA JEANS '1 jeans, 2 looks': mesma calça com camiseta básica (dia) e com blusa mais arrumada e salto (noite). Texto na tela: 'Do trabalho pro happy hour.' Legenda (pode colocar preço e parcelamento) + 'Qual combina mais com você? 👇'",
+      "VIA VOGUE — STORIES (4, preço opcional): 1) look dia · 2) look noite · 3) close da lavagem e do caimento · 4) 'separo seu tamanho?' (pode ter preço)",
+      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
@@ -2005,18 +2006,17 @@ const SEMANA=[
   },
   {
     "dia": "Quinta",
-    "theme": "LANÇAMENTO AMARÉ (Heres) + Patogê 3 looks (Via Vogue)",
-    "intention": "Dia do lançamento da Amaré: tudo vestido, em movimento, na paleta da marca, SEM preço no feed (preço e condição só no WhatsApp VIP). Na Via Vogue, conteúdo simples: 1 peça Patogê em 3 looks.",
+    "theme": "Por que o look funciona (Heres) + Masculino 'Detalhe de qualidade' (Via Vogue)",
+    "intention": "Dia de educar: mostrar por que a peça vale o preço. Heres explica o look; Via Vogue mostra a qualidade do masculino de perto.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "HERES — WHATSAPP VIP (antes de postar): mandar as peças Amaré com preço e condição pras clientes VIP — elas veem primeiro",
-      "HERES — REEL (lente: movimento): modelo caminhando com o look principal, trilha suave. Texto na tela: 'Amaré chegou.' Legenda: 'Amaré nasceu de um desejo simples: vestir leve, sem perder presença. Peças em quantidade limitada, sem reposição igual. Me chama no direct que eu te mando tudo 🤍' SEM preço",
-      "HERES — STORIES (5): 1) 'chegou' + reel · 2) peça 1 vestida · 3) peça 2 vestida · 4) close de textura · 5) 'preço e tamanhos no WhatsApp VIP' + link",
-      "HERES — BIO: atualizar para 'Menos roupas no cabide, mais sabedoria ao vestir. / Peças atemporais • Enviamos p/ todo Brasil / ✦ Coleção Amaré' e criar destaque 'Amaré'",
-      "VIA VOGUE — REEL: 1 peça Patogê em 3 looks (dia, noite, fim de semana). Gancho: 'Uma peça, 3 ocasiões'. Legenda: 'Qual você usaria: 1, 2 ou 3? 👇 Chama no WhatsApp que eu separo a sua.'",
-      "VIA VOGUE — STORIES (4, SEM preço): 1) enquete 'qual look você usaria? 1, 2 ou 3' · 2) repost das reservas · 3) detalhe da peça · 4) 'me chama que eu te passo o valor'",
-      "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
+      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — CARROSSEL (lente: racional do look): 'Por que esse look funciona': 1) look inteiro · 2) proporção · 3) cor · 4) tecido · 5) 'salva pra montar o seu'. Legenda: 'Menos roupas no cabide, mais sabedoria ao vestir. Salva esse post 🤍'",
+      "HERES — STORIES (4): 1) repost do carrossel · 2) caixinha 'tem dúvida de como usar? pergunta' · 3) peça vestida (pode ter preço) · 4) 'me chama no direct'",
+      "VIA VOGUE — REEL MASCULINO 'Detalhe de qualidade': close na mão mostrando o tecido, o bolso faca, a costura e a etiqueta Ogochi da calça café; termina com a calça dobrada ao lado da camisa. Texto na tela: 'Por que essa calça dura anos'. Legenda com preço e parcelamento + 'Presente certo pra ele 🤎 chama no WhatsApp'",
+      "VIA VOGUE — STORIES (4, COM preço): 1) close do tecido · 2) cores disponíveis lado a lado · 3) preço + parcelamento · 4) 'separo o tamanho dele?'",
+      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
@@ -2024,17 +2024,17 @@ const SEMANA=[
   },
   {
     "dia": "Sexta",
-    "theme": "Amaré combo A/B (Heres) + Grade Patogê e provador (Via Vogue)",
-    "intention": "Mostrar versatilidade da Amaré (mesma peça, duas versões) e apresentar a grade completa da Patogê, já puxando as clientes pro fim de semana.",
+    "theme": "Antes de sair (Heres) + Look de sexta Patogê (Via Vogue)",
+    "intention": "Sexta é dia de desejo para o fim de semana: looks prontos para sair e convite para vir à loja no sábado.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "HERES — REEL (lente: combo A/B): 1 peça Amaré em 2 looks (dia e noite). Gancho: 'Mesma peça. Duas mulheres.' Legenda: 'Uma peça, duas versões de você. Qual é a sua, A ou B? 👇'",
-      "HERES — STORIES (4): 1) enquete A ou B · 2) close do tecido · 3) 'restam poucas de [peça]' · 4) 'me chama no direct'",
-      "VIA VOGUE — CARROSSEL: grade da coleção Patogê, uma peça vestida por foto com o nome da peça. Legenda: 'A Patogê nova completa 🤎 Qual é a sua? Chama no WhatsApp que eu te passo tamanhos e valores.'",
-      "VIA VOGUE — STORIES (4, SEM preço): provador ao vivo com a Jamile ou a Lucimeire vestindo as peças Patogê · CTA 'te espero na loja no fim de semana ou me chama no WhatsApp'",
-      "WHATSAPP: enviar mensagem para as clientes convidando pra virem à loja no fim de semana (ver Mensagens prontas → Clientes → 'Convite fim de semana')",
-      "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem orçamento em aberto pra fechar",
+      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — REEL 'Antes de sair': vendedora termina o look Amaré (ajeita a manga, coloca o brinco, pega a bolsa) e sai andando. 10 segundos. Texto na tela: 'Sexta.' Legenda: 'Pronta em 5 minutos, sem pensar muito 🤍 Amaré.'",
+      "HERES — STORIES (4): 1) look de sexta vestido · 2) close do acessório + peça · 3) peça vestida (pode ter preço) · 4) 'vem ver amanhã na loja ou me chama'",
+      "VIA VOGUE — REEL PATOGÊ 'Look de sexta': look completo Patogê em movimento, com transição do look de trabalho para o look de sair. Texto na tela: 'Look de sexta resolvido.' Legenda (pode colocar preço e parcelamento) + 'te espero amanhã na loja 🤎'",
+      "VIA VOGUE — STORIES (4, preço opcional): 1) look de sexta · 2) peça em 2 cores · 3) peça vestida (pode ter preço) · 4) 'amanhã a loja abre às [horário], te espero'",
+      "WHATSAPP: convidar clientes pra virem à loja no sábado (Mensagens prontas → Clientes → 'Convite fim de semana')",
+      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
@@ -2042,15 +2042,16 @@ const SEMANA=[
   },
   {
     "dia": "Sábado",
-    "theme": "Por que o look funciona (Heres) + Ogochi masculino (Via Vogue)",
-    "intention": "Heres educa e gera desejo explicando o look Amaré. Via Vogue fecha a semana com o masculino Ogochi — produto âncora dos anúncios.",
+    "theme": "Últimos tamanhos Amaré (Heres) + Masculino '1 calça, 3 looks' (Via Vogue)",
+    "intention": "Fechar a semana com urgência na Heres e o terceiro conteúdo masculino da semana na Via Vogue, mostrando a calça âncora em várias ocasiões.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "HERES — CARROSSEL (lente: racional do look): por que essa combinação Amaré funciona (proporção, cor, tecido). Capa: 'Por que esse look funciona'. Legenda: 'Menos roupas no cabide, mais sabedoria ao vestir. Salva pra lembrar na hora de montar o seu.'",
-      "HERES — STORIES (4): 1) cliente experimentando Amaré na loja (se tiver) · 2) close de caimento · 3) 'vem ver de perto hoje' · 4) WhatsApp",
-      "VIA VOGUE — REEL OGOCHI MASCULINO: calça Bolso Faca café vestida, com movimento. Gancho: 'A calça que ele vai usar a semana toda'. Legenda: 'Caimento slim, tecido que não amassa e combina com tudo 🤎 Presente certo ou upgrade dele. Chama no WhatsApp 👇'",
-      "VIA VOGUE — STORIES (4, SEM preço): 1) kit look masculino completo · 2) close do tecido · 3) 'mais vendida da loja' · 4) 'me chama que eu te passo o valor'",
-      "PÓS-VENDA: mandar mensagem pra quem comprou hoje (ver Mensagens prontas → Pós-venda)",
+      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+      "HERES — STORIES (5): 1) arara Amaré com o que sobrou · 2) 'últimos tamanhos de [peça]' · 3) peça vestida (pode ter preço) · 4) cliente experimentando na loja (se tiver) · 5) link do grupo VIP",
+      "HERES — REEL (lente: movimento): caminhada com o look Amaré mais vendido. Texto na tela: 'Ainda dá tempo.' Legenda: 'Amaré está acabando e não tem reposição igual 🤍 Me chama no direct.'",
+      "VIA VOGUE — REEL MASCULINO '1 calça, 3 looks': a calça Ogochi Bolso Faca café fica fixa (na mesa ou no cabide), muda só a parte de cima: camisa social, polo e malha. Troca a cada batida da música. Texto na tela: '1 calça. 3 ocasiões.' Legenda com preço e parcelamento + 'Qual é o estilo dele? 1, 2 ou 3? 👇'",
+      "VIA VOGUE — STORIES (4, COM preço): 1) enquete 'qual look é a cara dele?' · 2) kit completo dobrado na sacola Via Vogue · 3) preço do kit + parcelamento · 4) 'presente pronto, separo pra você?'",
+      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
       "Atender e vender normalmente",
       "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
       "APP: registrar vendas do dia"
