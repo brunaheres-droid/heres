@@ -741,7 +741,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
-const SEMANA_VERSION='2026-10-07-b';
+const SEMANA_VERSION='2026-10-08-a';
 const MENSAGENS_VERSION='2026-09-21-a';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
@@ -829,6 +829,10 @@ function initFirebase(){
     db.collection('heres').doc('contatosBase').onSnapshot(snap=>{
       ST.contatosBase=snap.exists?(snap.data()||{}):{};
       if(document.getElementById('cli-section-base').classList.contains('active'))renderBase();
+      if(document.getElementById('cli-section-crm').classList.contains('active'))renderCRM();
+    });
+    db.collection('heres').doc('crmConfig').onSnapshot(snap=>{
+      ST.crmCfg=snap.exists?(snap.data()||{}):null;
       if(document.getElementById('cli-section-crm').classList.contains('active'))renderCRM();
     });
     db.collection('heres').doc('crmContatos').onSnapshot(snap=>{
@@ -1076,7 +1080,7 @@ function crmDias(d){if(!d)return null;const a=new Date(d+'T12:00:00'),b=new Date
 function crmAtiv(c){const ds=[c.u,c.ua].filter(Boolean).sort();return ds.length?ds[ds.length-1]:null;}
 function crmInfo(c){
   const dAtiv=crmDias(crmAtiv(c));
-  const vip=c.r<=20;
+  const vip=crmVipSet().has(crmKey(c.n));
   let status;
   if(c.c===0)status={t:'Só condicional',cor:'var(--muted)'};
   else if(dAtiv<=30)status={t:'Ativa',cor:'var(--green)'};
@@ -1092,6 +1096,22 @@ function crmInfo(c){
 }
 function crmContato(c){return (ST.crmContatos||{})[crmKey(c.n)]||null;}
 function crmChamadaRecente(c){const x=crmContato(c);if(!x)return false;const d=crmDias(x.d);return d!==null&&d<14;}
+const CRM_NAO_VIP_PADRAO=['KARINE BISPO QUARESMA'];
+function crmCfg(){const c=ST.crmCfg||{};return {naoVip:c.naoVip||CRM_NAO_VIP_PADRAO,simVip:c.simVip||[]};}
+function crmVipSet(){
+  const cfg=crmCfg();const set=new Set(cfg.simVip);let n=0;
+  CRM_DATA.slice().sort((a,b)=>a.r-b.r).forEach(c=>{const k=crmKey(c.n);if(n<20&&!cfg.naoVip.includes(k)&&c.c>0){set.add(k);n++;}});
+  cfg.naoVip.forEach(k=>set.delete(k));
+  return set;
+}
+async function crmToggleVip(idx){
+  if(!relAuthed){alert('Só a Bruna pode alterar VIP (entre em Relatórios com a senha).');return;}
+  const k=crmKey(CRM_DATA[idx].n);const cfg=crmCfg();
+  let naoVip=cfg.naoVip.filter(x=>x!==k),simVip=cfg.simVip.filter(x=>x!==k);
+  if(crmVipSet().has(k))naoVip.push(k);else simVip.push(k);
+  ST.crmCfg={naoVip,simVip};renderCRM();
+  if(db){try{await db.collection('heres').doc('crmConfig').set(ST.crmCfg);}catch(e){}}
+}
 function crmFiltrar(id){
   const base=CRM_DATA.map(c=>({c,i:crmInfo(c)}));
   if(id==='todas')return base;
@@ -1146,7 +1166,7 @@ function renderCRM(){
     if(crmLista==='mandei'&&ct){linhas.unshift(`✉️ Mensagem enviada em ${fmtDate(ct.d)} · lista ${CRM_NOME_LISTA[ct.l]||ct.l}`);if(c.u&&c.u>ct.d)linhas.unshift('🛒 <b style="color:var(--green)">Comprou depois da mensagem!</b>');}
     if(relAuthed)linhas.push(`💰 ${fmt(c.g)} gasto${c.c?' · ticket '+fmt(c.g/c.c):''}${c.kv?' · condicional '+fmt(c.kv):''}`);
     const tags=[];
-    if(i.vip)tags.push('<span class="crm-tag vip">VIP #'+c.r+'</span>');
+    if(i.vip)tags.push('<span class="crm-tag vip">VIP</span>');
     tags.push(`<span class="crm-tag" style="color:${i.status.cor};border-color:${i.status.cor};">${i.status.t}</span>`);
     if(ct)tags.push(`<span class="crm-tag ok">✓ mandou ${ct.d===today()?'hoje':'há '+crmDias(ct.d)+'d'}</span>`);
     return `<div class="crm-card${chamouHoje?' done':''}">
@@ -1158,6 +1178,7 @@ function renderCRM(){
         <button class="btn-sec crm-b" onclick="crmCopiar(${idx},'${tipo}',this)">📋 Copiar</button>`:`<button class="btn-wa crm-b" onclick="crmCopiar(${idx},'${tipo}',this)">📋 Copiar mensagem</button>`}
         <button class="btn-sec crm-b${chamouHoje?' crm-ok':''}" onclick="crmChamei(${idx})">${chamouHoje?'↩ Desfazer':'✓ Já mandei'}</button>
         ${wpp?'':`<button class="btn-sec crm-b" onclick="crmAddWpp(${idx})">+ WhatsApp</button>`}
+        ${relAuthed?`<button class="btn-sec crm-b" onclick="crmToggleVip(${idx})">${i.vip?'☆ Tirar VIP':'★ Tornar VIP'}</button>`:''}
       </div></div>`;
   }).join('');
 }
@@ -2006,15 +2027,16 @@ const SEMANA=[
   },
   {
     "dia": "Quinta",
-    "theme": "Por que o look funciona (Heres) + Masculino 'Detalhe de qualidade' (Via Vogue)",
-    "intention": "Dia de educar: mostrar por que a peça vale o preço. Heres explica o look; Via Vogue mostra a qualidade do masculino de perto.",
+    "theme": "Provador looks pra feriado (Heres + Via Vogue)",
+    "intention": "Feriado na segunda (12/10): a cliente vai viajar, almoçar com a família ou sair. Mostrar looks prontos no provador e chamar pra pedir a condicional, que ela prova em casa com calma.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — CARROSSEL (lente: racional do look): 'Por que esse look funciona': 1) look inteiro · 2) proporção · 3) cor · 4) tecido · 5) 'salva pra montar o seu'. Legenda: 'Menos roupas no cabide, mais sabedoria ao vestir. Salva esse post 🤍'",
-      "HERES — STORIES (4): 1) repost do carrossel · 2) caixinha 'tem dúvida de como usar? pergunta' · 3) peça vestida (pode ter preço) · 4) 'me chama no direct'",
-      "VIA VOGUE — REEL MASCULINO 'Detalhe de qualidade': close na mão mostrando o tecido, o bolso faca, a costura e a etiqueta Ogochi da calça café; termina com a calça dobrada ao lado da camisa. Texto na tela: 'Por que essa calça dura anos'. Legenda com preço e parcelamento + 'Presente certo pra ele 🤎 chama no WhatsApp'",
-      "VIA VOGUE — STORIES (4, COM preço): 1) close do tecido · 2) cores disponíveis lado a lado · 3) preço + parcelamento · 4) 'separo o tamanho dele?'",
+      "HERES — REEL 'Provador looks pra feriado': vendedora entra no provador e sai com 3 looks Amaré (passeio de dia, almoço em família, jantar), um corte por look. Texto na tela: 'Looks pra feriado ✨'. Legenda: 'Feriado chegando e você sem saber o que vestir? Separo os looks e te mando em casa pra provar 🤍 Solicite sua condicional pelo direct ou WhatsApp.'",
+      "HERES — STORIES (5): 1) 'Looks pra feriado' + reel · 2) look 1 vestido (pode ter preço) · 3) look 2 vestido · 4) close do tecido · 5) 'Solicite sua condicional pra looks de feriado 👇' + link do WhatsApp",
+      "VIA VOGUE — STORIES PROVADOR (4, preço opcional): 1) vendedora no provador com calça/bermuda de ticket alto + blusa Heres · 2) segundo look de feriado · 3) look masculino Ogochi pronto (com preço) · 4) 'Solicite sua condicional pra looks de feriado — separo e mando pra você provar em casa 👇'",
+      "WHATSAPP: mandar pras clientes VIP e pras da lista do CRM: 'Oi [nome]! Feriado chegando 🤍 Quer que eu separe uns looks e te mande em condicional pra provar em casa?'",
+      "CONDICIONAL: anotar todos os pedidos de condicional do dia e montar as sacolas ainda hoje (entregar até sexta/sábado)",
       "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
       "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
       "Atender e vender normalmente",
@@ -2042,13 +2064,13 @@ const SEMANA=[
   },
   {
     "dia": "Sábado",
-    "theme": "Últimos tamanhos Amaré (Heres) + Masculino '1 calça, 3 looks' (Via Vogue)",
-    "intention": "Fechar a semana com urgência na Heres e o terceiro conteúdo masculino da semana na Via Vogue, mostrando a calça âncora em várias ocasiões.",
+    "theme": "Amaré no corpo (Heres) + Masculino '1 calça, 3 looks' (Via Vogue)",
+    "intention": "Fechar a semana mostrando a Amaré vestida, sem clima de lançamento: peça bonita no corpo e convite pra condicional do feriado. Via Vogue com o terceiro masculino da semana.",
     "checklist": [
       "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
       "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — STORIES (5): 1) arara Amaré com o que sobrou · 2) 'últimos tamanhos de [peça]' · 3) peça vestida (pode ter preço) · 4) cliente experimentando na loja (se tiver) · 5) link do grupo VIP",
-      "HERES — REEL (lente: movimento): caminhada com o look Amaré mais vendido. Texto na tela: 'Ainda dá tempo.' Legenda: 'Amaré está acabando e não tem reposição igual 🤍 Me chama no direct.'",
+      "HERES — STORIES (5): 1) arara Amaré · 2) peça vestida em movimento · 3) peça vestida (pode ter preço) · 4) cliente experimentando na loja (se tiver) · 5) 'ainda dá tempo de pedir sua condicional pro feriado 👇'",
+      "HERES — REEL (lente: movimento): caminhada com o look Amaré mais pedido. Texto na tela: 'Pronta pro feriado.' Legenda: 'Leve, fresco e sem esforço 🤍 Amaré. Peça sua condicional pelo direct.'",
       "VIA VOGUE — REEL MASCULINO '1 calça, 3 looks': a calça Ogochi Bolso Faca café fica fixa (na mesa ou no cabide), muda só a parte de cima: camisa social, polo e malha. Troca a cada batida da música. Texto na tela: '1 calça. 3 ocasiões.' Legenda com preço e parcelamento + 'Qual é o estilo dele? 1, 2 ou 3? 👇'",
       "VIA VOGUE — STORIES (4, COM preço): 1) enquete 'qual look é a cara dele?' · 2) kit completo dobrado na sacola Via Vogue · 3) preço do kit + parcelamento · 4) 'presente pronto, separo pra você?'",
       "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
