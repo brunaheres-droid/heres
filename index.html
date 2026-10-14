@@ -582,10 +582,6 @@ select:focus,input:focus{border-color:var(--camel);}
       <div class="card-body" id="foco-semana-display"></div>
     </div>
     <div id="semana-edit-bar-wrap"></div>
-    <div class="card" style="margin-top:10px;">
-      <div class="card-header"><span class="card-title">Fotos no Drive (site)</span></div>
-      <div class="card-body" id="fotos-marca-list"></div>
-    </div>
     <div class="semana-day-tabs" id="semana-day-tabs"></div>
     <div id="semana-day-screens"></div>
   </div>
@@ -741,7 +737,7 @@ const CATS_COM_PAG=['fornecedor','despesa','outra'];
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const REL_SENHA='2007',META_PIN='1234',EDIT_PIN='1234';
 const DUP_JANELA_MIN=3;
-const SEMANA_VERSION='2026-10-08-a';
+let SEMANA_VERSION='2026-10-14-c';
 const MENSAGENS_VERSION='2026-09-21-a';
 
 let ST={vendas:[],config:{metaLoja:0,metas:{Bruna:{dia:0,mes:0},Jamile:{dia:0,mes:0},Lucimeire:{dia:0,mes:0}},bonusMeta:100,bonusSite:100,bonusReelValor:50,bonusReelQtd:5},checklist:{},colecao:null,contatosBase:{},reels:[],siteFotos:{},fotosMarca:{}};
@@ -777,8 +773,19 @@ function aplicarCashback(){if(!cashbackDisponivel)return;const val=parseFloat(do
 function ignorarCashback(){cashbackDisponivel=null;document.getElementById('cashback-alert').classList.remove('show');}
 function removerCashback(){cashbackAplicado=false;document.getElementById('cashback-applied').style.display='none';calcPreview();}
 
+const MENSAGENS_NOVAS=[{"titulo": "Verão chegou (com fotos)", "texto": "Oi, [nome]! Chegaram os conjuntos e vestidos de verão 🤍 Olha como ficaram vestidos (mandar junto as fotos e o vídeo). Qual é a sua cor? Separo seu tamanho."}, {"titulo": "Coleção nova — VIP (com fotos)", "texto": "Oi, [nome]! Chegou a coleção nova da Patogê e separei esses looks pensando em você 🤍 (mandar junto as fotos e o vídeo das peças vestidas). Qual você mais gostou? Se quiser, mando em condicional pra você provar em casa."}, {"titulo": "Colcci — chegou (com fotos)", "texto": "Oi, [nome]! Agora a Via Vogue tem Colcci 🤍 Olha como ficaram as peças vestidas (mandar junto as fotos e o vídeo). Qual você mais gostou? Separo seu tamanho."}, {"titulo": "Pré-venda (com fotos)", "texto": "Oi, [nome]! Antes de chegar na loja, estou mostrando a coleção nova só pra algumas clientes 🤍 (mandar junto as fotos). Quer garantir a sua peça com reserva?"}, {"titulo": "Kit masculino Ogochi", "texto": "Oi, [nome]! Montei um kit Ogochi calça + polo que fica perfeito. Quer que eu separe no tamanho dele? Te mando foto e valor 🤎"}, {"titulo": "Arara de oportunidade", "texto": "Oi, [nome]! Montamos uma arara de últimas peças: 3 por R$ 100. São peças únicas, passa aqui pra garantir as suas antes que acabem 🤍"}, {"titulo": "Condicional parada", "texto": "Oi, [nome]! Tudo bem? Ficou com alguma peça da condicional ou prefere devolver? Se quiser, troco por outro tamanho ou te mostro as novidades que chegaram."}, {"titulo": "Orçamento — último contato", "texto": "Oi [nome]! Deixei a peça separada até hoje pra você 🤍 Quer que eu finalize? Se preferir outra opção, te mostro peças parecidas."}];
+const MENSAGENS_REMOVER=["Coleção nova — VIP em dia", "Colcci — marca nova", "Pré-venda — antes de chegar"];
+const MENSAGENS_NOVAS_POS=[{"titulo": "Pedir foto da cliente", "texto": "Oi [nome]! Que bom que você levou a peça 🤍 Se puder me mandar uma foto usando (pode ser sem rosto), eu adoraria! Quem manda foto ganha R$ 20 de cashback na próxima compra."}];
 const MENSAGENS_PADRAO={
   clientes:[
+    {"titulo": "Verão chegou (com fotos)", "texto": "Oi, [nome]! Chegaram os conjuntos e vestidos de verão 🤍 Olha como ficaram vestidos (mandar junto as fotos e o vídeo). Qual é a sua cor? Separo seu tamanho."},
+    {"titulo": "Orçamento — último contato", "texto": "Oi [nome]! Deixei a peça separada até hoje pra você 🤍 Quer que eu finalize? Se preferir outra opção, te mostro peças parecidas."},
+    {"titulo": "Coleção nova — VIP (com fotos)", "texto": "Oi, [nome]! Chegou a coleção nova da Patogê e separei esses looks pensando em você 🤍 (mandar junto as fotos e o vídeo das peças vestidas). Qual você mais gostou? Se quiser, mando em condicional pra você provar em casa."},
+    {"titulo": "Colcci — chegou (com fotos)", "texto": "Oi, [nome]! Agora a Via Vogue tem Colcci 🤍 Olha como ficaram as peças vestidas (mandar junto as fotos e o vídeo). Qual você mais gostou? Separo seu tamanho."},
+    {"titulo": "Pré-venda (com fotos)", "texto": "Oi, [nome]! Antes de chegar na loja, estou mostrando a coleção nova só pra algumas clientes 🤍 (mandar junto as fotos). Quer garantir a sua peça com reserva?"},
+    {"titulo": "Kit masculino Ogochi", "texto": "Oi, [nome]! Montei um kit Ogochi calça + polo que fica perfeito. Quer que eu separe no tamanho dele? Te mando foto e valor 🤎"},
+    {"titulo": "Arara de oportunidade", "texto": "Oi, [nome]! Montamos uma arara de últimas peças: 3 por R$ 100. São peças únicas, passa aqui pra garantir as suas antes que acabem 🤍"},
+    {"titulo": "Condicional parada", "texto": "Oi, [nome]! Tudo bem? Ficou com alguma peça da condicional ou prefere devolver? Se quiser, troco por outro tamanho ou te mostro as novidades que chegaram."},
     {titulo:"VIP — novidade",texto:"Oi, [nome]! Chegaram algumas peças novas e lembrei de você na hora. Tem algumas opções muito a sua cara. Quer que eu te mande?"},
     {titulo:"VIP — atendimento exclusivo",texto:"[Nome], vi uma peça nova que combina muito com o seu estilo. Pensei até em duas combinações para você. Quer que eu te envie?"},
     {titulo:"Cliente forte",texto:"Oi [nome]! Chegou uma peça nova aqui que jurava que era sua cara. Quer que eu te mande foto?"},
@@ -790,6 +797,7 @@ const MENSAGENS_PADRAO={
     {titulo:"Convite fim de semana",texto:"Oi [nome]! Chegaram peças novas essa semana e separei algumas com a sua cara. Passa aqui no fim de semana pra dar uma olhada? Vou adorar te ver 🤍"}
   ],
   posvenda:[
+    {"titulo": "Pedir foto da cliente", "texto": "Oi [nome]! Que bom que você levou a peça 🤍 Se puder me mandar uma foto usando (pode ser sem rosto), eu adoraria! Quem manda foto ganha R$ 20 de cashback na próxima compra."},
     {titulo:"Logo após a compra",texto:"Oi [nome]! Muito obrigada pela compra 🤍 Espero que você ame a peça. Qualquer dúvida sobre cuidado com o tecido ou troca de tamanho, é só me chamar."},
     {titulo:"Aviso de cashback",texto:"Oi [nome]! Já separei seu cashback dessa compra — está disponível pra usar em qualquer peça, é só me chamar quando quiser aproveitar."},
     {titulo:"Reengajamento (15–20 dias depois)",texto:"Oi [nome]! Faz um tempinho que você não aparece por aqui. Chegaram peças novas que acho que têm a sua cara — quer que eu separe algumas pra você dar uma olhada?"},
@@ -805,7 +813,7 @@ function initFirebase(){
     db.collection('heres').doc('reels').onSnapshot(snap=>{ST.reels=snap.exists?(snap.data().list||[]):[];renderComm();});
     db.collection('heres').doc('siteFotos').onSnapshot(snap=>{ST.siteFotos=snap.exists?(snap.data()||{}):{};renderComm();});
     db.collection('heres').doc('fotosMarca').onSnapshot(snap=>{ST.fotosMarca=snap.exists?(snap.data()||{}):{};renderFotosMarca();});
-    db.collection('heres').doc('estrategiaAgosto2026').onSnapshot(snap=>{
+    db.collection('heres').doc(ESTRATEGIA_DOC).onSnapshot(snap=>{
       ESTRATEGIA=snap.exists?snap.data():ESTRATEGIA_PADRAO;
       renderEstrategia();
     });
@@ -822,7 +830,7 @@ function initFirebase(){
     });
     db.collection('heres').doc('mensagensApp').onSnapshot(snap=>{
       const d=snap.exists?snap.data():null;
-      if(d&&d.version===MENSAGENS_VERSION&&(d.clientes||d.posvenda)){ST.colecao=d;}
+      if(d&&d.version===MENSAGENS_VERSION&&(d.clientes||d.posvenda)){const _rm=(d.clientes||[]).some(m=>MENSAGENS_REMOVER.includes(m.titulo));if(_rm)d.clientes=(d.clientes||[]).filter(m=>!MENSAGENS_REMOVER.includes(m.titulo));ST.colecao=d;const tit=new Set((d.clientes||[]).map(m=>m.titulo));const falta=MENSAGENS_NOVAS.filter(m=>!tit.has(m.titulo));const titP=new Set((d.posvenda||[]).map(m=>m.titulo));const faltaP=MENSAGENS_NOVAS_POS.filter(m=>!titP.has(m.titulo));if(falta.length)ST.colecao.clientes=[...falta,...(d.clientes||[])];if(faltaP.length)ST.colecao.posvenda=[...faltaP,...(d.posvenda||[])];if(falta.length||faltaP.length||_rm)saveColecao();}
       else{ST.colecao=JSON.parse(JSON.stringify(MENSAGENS_PADRAO));saveColecao();}
       if(document.getElementById('s-semana').classList.contains('active'))renderDiaMsgList(activeDayIdx,dmTabState[activeDayIdx]||'clientes');
     });
@@ -904,29 +912,43 @@ function renderFocoSemana(){
   if(btn){btn.textContent=focoEditMode?'Salvar':'Editar';btn.classList.toggle('on',focoEditMode);}
 }
 
+const ESTRATEGIA_DOC='estrategiaOutubro2026';
 const ESTRATEGIA_PADRAO={
-  mes:'Agosto 2026',
+  mes:'Outubro 2026',
+  mesKey:'2026-10',
   meta:30000,
   minima:25000,
   excelente:35000,
-  objetivo:'Girar o estoque atual, gerar caixa e preparar a chegada dos novos pedidos sem perder margem e sem depender só de venda a prazo.',
-  campanha:'Heres SS27 Edit · lançamento em sexta-feira, 14/08',
-  foco:'Heres SS27 Edit + produtos de maior ticket + giro inteligente da Via Vogue (Colcci, Patogê, Onça Preta, Origina e Ogochi).',
-  regra:'Agosto = vender + receber + analisar. Não aumentar estoque sem necessidade. Antes de comprar: giro + margem + caixa + demanda.',
+  objetivo:'Vender o estoque que já está na loja, receber o que está em aberto e preparar a chegada dos pedidos de outubro e novembro sem apertar o caixa.',
+  campanha:'Coleção nova Patogê + Colcci · VIP primeiro',
+  foco:'Patogê coleção nova (looks completos) + Colcci + Verão + Kit Ogochi (calça e polo) + Arara de oportunidade',
+  regra:'Outubro = vender o que já tem + receber + cobrar. Nenhum pedido novo até girar o que chega. Condicional só para cliente sem parcela atrasada. Look completo antes de peça avulsa. Orçamento cobrado em no máximo 2 dias. Mensagem de novidade só com foto ou vídeo real da peça vestida.',
   fases:[
-    {date:'10–13 AGO',name:'PRÉ-LANÇAMENTO SS27 EDIT',desc:'Continuar o conteúdo das peças que já estão na loja, criar desejo e preparar as clientes para a sexta. Teasers sem entregar tudo.'},
-    {date:'14–15 AGO',name:'LANÇAMENTO SS27 EDIT',desc:'Sexta é lançamento. Mostrar coleção, looks, detalhes, provador, brinde e chamar clientes prioritárias. Sábado: descobrir e repetir o que mais foi procurado.'},
-    {date:'16–23 AGO',name:'CONVERSÃO + PROVA SOCIAL',desc:'Usar as peças mais procuradas, looks completos, mensagens individuais e conteúdos reais de clientes/equipe. Via Vogue segue ativa todos os dias.'},
-    {date:'24–31 AGO',name:'GIRO + TICKET + ÚLTIMAS UNIDADES',desc:'Dar protagonismo aos produtos que precisam girar e aos looks de maior ticket. Reforçar WhatsApp e site com curadoria, não com excesso de posts.'}
+    {date:'14–18 OUT',name:'LANÇAMENTO PATOGÊ + COLCCI',desc:'A coleção nova chegou e as clientes ainda não viram. Mostrar looks completos (calça wide leg, flare, reta over + blusa/colete + cinto). WhatsApp individual primeiro para as clientes VIP em dia.'},
+    {date:'19–25 OUT',name:'VERÃO + MASCULINO + PRÉ-VENDA',desc:'Conjuntos e vestidos de verão, kit Ogochi calça slim + polo com preço. Pré-venda dos pedidos que vão chegar: mostrar fotos e reservar com sinal.'},
+    {date:'26 OUT–01 NOV',name:'FECHAMENTO DE ESTAÇÃO',desc:'Arara de oportunidade com as peças antigas (3 por R$ 100) e 30% em Consciência Jeans e Pury. Comunicar como "últimas peças", nunca como liquidação. Patogê sem desconto.'},
+    {date:'02–08 NOV',name:'CHEGADA DA COLEÇÃO NOVA',desc:'Evento de lançamento na loja, entrega das reservas da pré-venda e começo do aquecimento da Black Friday.'}
   ],
   canais:[
-    {name:'Instagram',desc:'Gerar desejo e apresentar coleção. Heres com linguagem editorial; Via Vogue com produto, preço e facilidade de compra.'},
-    {name:'WhatsApp',desc:'Principal canal de conversão: clientes prioritárias, follow-up, novidades, SS27 Edit e recuperação de clientes.'},
-    {name:'Site',desc:'Organizar produtos de maior ticket e coleções em destaque. Usar o site como vitrine e facilitar a compra.'},
-    {name:'TikTok',desc:'Testar poucos produtos com potencial de ticket e apelo visual. Medir antes de escalar.'},
-    {name:'Loja',desc:'Vender look completo, oferecer segunda peça e registrar todas as vendas. Atendimento é prioridade.'}
+    {name:'WhatsApp',desc:'Principal canal de venda: mensagem individual com foto de look completo. VIP em dia primeiro. Pré-venda e condicional saem por aqui.'},
+    {name:'Instagram',desc:'Heres com linguagem editorial (Amaré). Via Vogue mostrando a coleção nova da Patogê e a Colcci em looks completos; masculino sempre com preço.'},
+    {name:'Loja',desc:'Vender look completo e oferecer a segunda peça. Arara de oportunidade visível a partir de 26/10. Registrar todas as vendas.'},
+    {name:'TikTok',desc:'Pausado até o endereço de coleta ser corrigido. Depois: peças de verão e da arara de oportunidade.'},
+    {name:'Site',desc:'Destacar a coleção nova da Patogê e as peças de verão.'}
   ],
-  focos:['SS27 Edit','Calças','Polos','Blazers/jaquetas','Looks completos','Colcci','Patogê','Onça Preta','Origina','Ogochi masculino']
+  prioridades:[
+    {name:'EMPURRAR AGORA',desc:'Calças Patogê novas (wide leg, flare G5, reta over, jogger) — tem 38 e 40 · coletes e camisas da coleção · Colcci · conjuntos e vestidos de verão · Amaré.'},
+    {name:'KIT / COMBO',desc:'Calça slim bolso faca Ogochi (muito estoque, quase não vendeu) → kit calça + polo ou camisa ML. Camisetas e polos Ogochi giram bem: manter.'},
+    {name:'ARARA DE OPORTUNIDADE',desc:'Croppeds, shorts, macaquinhos, vestidos e conjuntos antigos (2024 ou antes): 3 por R$ 100 ou R$ 49,90.'},
+    {name:'30% OFF',desc:'Consciência Jeans e Pury com 30%. Patogê e coleção nova sem desconto.'},
+    {name:'NÃO COMPRAR',desc:'Nada novo até girar o que chegou e o que ainda vai chegar em outubro/novembro.'}
+  ],
+  destaque:{titulo:'🎁 Coleção nova Patogê + Colcci',linhas:[
+    '<b>Para quem:</b> primeiro as clientes VIP que estão em dia (Círculo Via Vogue), depois a base.',
+    '<b>Como:</b> foto de look completo no WhatsApp e oferta de condicional para provar em casa.',
+    '<b>Mensagem:</b> não falar em "promoção"; apresentar como peças escolhidas para ela.'
+  ]},
+  focos:['Patogê nova','Colcci','Verão','Kit Ogochi','Arara de oportunidade','Amaré']
 };
 
 function toggleStrategyEdit(){
@@ -952,7 +974,7 @@ async function saveEstrategia(){
     foco:document.getElementById('str-foco').value.trim(),
     regra:document.getElementById('str-regra').value.trim()
   };
-  if(db){try{await db.collection('heres').doc('estrategiaAgosto2026').set(ESTRATEGIA);}catch(e){}}
+  if(db){try{await db.collection('heres').doc(ESTRATEGIA_DOC).set(ESTRATEGIA);}catch(e){}}
   renderEstrategia();
   document.getElementById('strategy-edit').classList.remove('show');
 }
@@ -960,7 +982,8 @@ function renderEstrategia(){
   const el=document.getElementById('strategy-display');
   if(!el)return;
   const d=Object.assign({},ESTRATEGIA_PADRAO,ESTRATEGIA||{});
-  const vendaMes=(ST.vendas||[]).filter(v=>String(v.data||'').slice(0,7)==='2026-08').reduce((a,v)=>a+Number(v.valor||0),0);
+  const mesKey=d.mesKey||new Date().toISOString().slice(0,7);
+  const vendaMes=(ST.vendas||[]).filter(v=>String(v.data||'').slice(0,7)===mesKey).reduce((a,v)=>a+Number(v.valor||0),0);
   const pct=d.meta?Math.min(100,vendaMes/d.meta*100):0;
   el.innerHTML=`
     <div class="strategy-hero">
@@ -977,7 +1000,7 @@ function renderEstrategia(){
     <div class="strategy-card"><div class="hd">📌 Campanha principal</div><div class="bd">
       <div style="font-size:14px;font-weight:700;">${d.campanha}</div>
       <div class="prog-bar"><div class="prog-fill ${pct>=70?'good':pct>=40?'warn':''}" style="width:${pct}%"></div></div>
-      <div style="font-size:10px;color:var(--muted);margin-top:5px;">${pct.toFixed(0)}% da meta de agosto</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px;">${pct.toFixed(0)}% da meta do mês</div>
     </div></div>
     <div class="strategy-card"><div class="hd">🔥 Foco comercial</div><div class="bd">
       ${String(d.foco||'').split('+').map(x=>`<span class="focus-pill">${x.trim()}</span>`).join('')}
@@ -988,12 +1011,13 @@ function renderEstrategia(){
     <div class="strategy-card"><div class="hd">📱 Papel de cada canal</div><div class="bd">
       ${(d.canais||[]).map(x=>`<div class="channel-row"><div class="channel-name">${x.name}</div><div class="channel-desc">${x.desc}</div></div>`).join('')}
     </div></div>
-    <div class="strategy-card"><div class="hd">🎁 SS27 Edit</div><div class="bd">
-      <div class="channel-desc"><b>Lançamento:</b> sexta-feira, 14/08.</div>
-      <div class="channel-desc" style="margin-top:6px;"><b>Brinde:</b> chaveiro de urso + sacola Heres nas compras a partir de <b>R$ 149,90</b>.</div>
-      <div class="channel-desc" style="margin-top:6px;"><b>Mensagem:</b> não vender como “tendência”; apresentar como uma curadoria Heres.</div>
-    </div></div>
-    <div class="strategy-card"><div class="hd">🚨 Regra de agosto</div><div class="bd"><div style="font-size:12px;line-height:1.6;">${d.regra}</div></div></div>
+    ${(d.prioridades||[]).length?`<div class="strategy-card"><div class="hd">📦 Estoque: o que fazer com cada grupo</div><div class="bd">
+      ${(d.prioridades||[]).map(x=>`<div class="channel-row"><div class="channel-name">${x.name}</div><div class="channel-desc">${x.desc}</div></div>`).join('')}
+    </div></div>`:''}
+    ${d.destaque?`<div class="strategy-card"><div class="hd">${d.destaque.titulo}</div><div class="bd">
+      ${(d.destaque.linhas||[]).map((l,k)=>`<div class="channel-desc"${k?' style="margin-top:6px;"':''}>${l}</div>`).join('')}
+    </div></div>`:''}
+    <div class="strategy-card"><div class="hd">🚨 Regra do mês</div><div class="bd"><div style="font-size:12px;line-height:1.6;">${d.regra}</div></div></div>
   `;
 }
 function renderHojeEstrategia(){
@@ -1069,7 +1093,7 @@ const CRM_LISTAS=[
   {id:'todas',lbl:'Todas'}
 ];
 const CRM_MSG={
-  vip:'Oi [nome]! Tudo bem? 🤍 Chegaram peças novas e lembrei de você na hora. Separei algumas que têm muito a sua cara, posso te mandar as fotos?',
+  vip:'Oi [nome]! Tudo bem? 🤍 Chegou a coleção nova da Patogê e a Colcci, e lembrei de você na hora. Separei esses looks pensando em você (mandar junto as fotos das peças vestidas). Qual você mais gostou?',
   cond:'Oi [nome]! Tudo bem? 🤍 Chegaram novidades lindas por aqui e lembrei de você. Quer que eu separe algumas peças pra você provar em casa, sem compromisso?',
   sumidas:'Oi [nome], quanto tempo! 🤍 A loja está cheia de novidades e sentimos sua falta por aqui. Posso te mostrar o que chegou?',
   segunda:'Oi [nome]! Tudo bem? 🤍 Como ficou a peça que você levou? Chegaram novidades que combinam muito com ela, quer ver?',
@@ -1861,6 +1885,7 @@ function renderDayScreen(di){
   const tot=d.checklist.length;const done=d.checklist.filter((_,ci)=>isChkDone(di,ci)).length;const pct=tot?Math.round(done/tot*100):0;
   const ed=semanaEditMode;let html='';
 
+  {const w=SEMANAS_MES[SEMANA_ATUAL_IDX];html+=`<div style="font-size:11px;font-weight:700;color:var(--terra);text-transform:uppercase;letter-spacing:.06em;margin:4px 0 8px;">${w.titulo}</div>`;if(SEMANA_FORA_DO_PLANO)html+=`<div style="font-size:12px;background:var(--gold-bg);color:var(--gold-txt);border:1px solid var(--camel2);border-radius:8px;padding:8px 10px;margin-bottom:8px;">⚠️ A programação planejada terminou em ${w.fim.split('-').reverse().slice(0,2).join('/')}. Pedir a nova programação para a Bruna.</div>`;}
   html+=`<div class="intention-box"><div class="intention-accent"></div><div class="intention-txt"><div class="intention-theme">${d.theme}</div>${ed?edEl(di,['intention']):d.intention}</div></div>`;
 
   html+=`<div class="section-label">O que fazer hoje</div>`;
@@ -1905,7 +1930,7 @@ function copiarTexto(texto,btnEl){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(texto).then(done).catch(()=>{prompt('Copie a mensagem:',texto);});}
   else{prompt('Copie a mensagem:',texto);}
 }
-const DIA_TIER_LABEL=['Hoje: ativação da base + orçamentos','Hoje: prévia VIP Patogê + Amaré','Hoje: chegada Patogê — VIP primeiro','Hoje: lançamento Amaré — VIP primeiro','Hoje: convite pro fim de semana','Hoje: fim de semana'];
+let DIA_TIER_LABEL=['Hoje: coleção nova Patogê — VIP em dia primeiro','Hoje: look completo Patogê + condicional','Hoje: Colcci, marca nova','Hoje: kit masculino Ogochi + pré-venda','Hoje: verão + convite pro sábado','Hoje: arara de oportunidade + fim de semana'];
 const DIA_TIER_NIVEL=['todos','todos','todos','todos','todos','todos'];
 function filtroClientesPorDia(di,lista){
   return lista;
@@ -1970,116 +1995,582 @@ function irParaBase(di){
   if(clientesBtn){nav('clientes',clientesBtn);setTimeout(()=>{cliTab('base');baseFiltro(nivel);},0);}
 }
 
-const SEMANA=[
-  {
+const SEMANAS_MES=[
+ {
+  "id": "s1",
+  "inicio": "2026-10-12",
+  "fim": "2026-10-18",
+  "titulo": "Semana 1 · 12 a 18/10 · Lançamento Patogê + Colcci",
+  "labels": [
+   "Hoje: coleção nova Patogê — VIP em dia primeiro",
+   "Hoje: look completo Patogê + condicional",
+   "Hoje: Colcci — mandar SEMPRE com fotos",
+   "Hoje: kit masculino Ogochi + pré-venda",
+   "Hoje: verão + convite pro sábado",
+   "Hoje: arara de oportunidade + fim de semana"
+  ],
+  "dias": [
+   {
     "dia": "Segunda",
-    "theme": "Bastidor Amaré (Heres) + Masculino 'ela escolhe pra ele' (Via Vogue)",
-    "intention": "Começo de semana com conteúdo de desejo, sem pressão de venda. Heres SEM preço na segunda. Via Vogue abre o masculino falando com a mulher, que é quem compra. (12/10 é feriado: se a loja não abrir, fazer este dia na terça.)",
+    "theme": "Amaré textura (Heres) + Chegou a coleção nova Patogê (Via Vogue)",
+    "intention": "A coleção nova da Patogê chegou e as clientes ainda não viram. Hoje é dia de apresentar, VIP primeiro. Heres SEM preço na segunda.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — REEL (lente: textura/close): mão passando no tecido de uma peça Amaré, close do botão e do caimento, termina com o look inteiro em movimento. Texto na tela: 'O detalhe que ninguém vê.' Legenda: 'Peça boa se reconhece no toque 🤍 Amaré, em quantidade limitada. Me chama no direct.' SEM preço",
-      "HERES — STORIES (4, sem preço): 1) close de textura Amaré · 2) peça vestida em movimento · 3) enquete 'qual cor é mais você?' · 4) 'quer ver as peças? me chama'",
-      "VIA VOGUE — REEL MASCULINO 'Ela escolhe pra ele': vendedora monta no balcão um look Ogochi peça por peça (calça, camisa, cinto). Texto na tela: 'Montando o look do seu marido em 10 segundos'. Legenda: 'Sem erro de tamanho e com troca garantida 🤎 Quer que eu separe o dele? Chama no WhatsApp 👇' + preço do look e parcelamento",
-      "VIA VOGUE — STORIES (4, COM preço): 1) look masculino montado · 2) close do tecido e do bolso da calça · 3) preço + parcelamento · 4) 'separo o tamanho dele?'",
-      "PÓS-VENDA: mandar mensagem pra pelo menos 5 clientes que compraram na semana passada (Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL (lente: textura/close): mão passando no tecido de uma peça Amaré, close do botão e do caimento, termina com o look inteiro em movimento. Texto na tela: 'O detalhe que ninguém vê.' Legenda: 'Peça boa se reconhece no toque 🤍 Amaré, em quantidade limitada. Me chama no direct.' SEM preço",
+     "HERES — STORIES (4, sem preço): 1) close de textura Amaré · 2) peça vestida em movimento · 3) enquete 'qual cor é mais você?' · 4) 'quer ver as peças? me chama'",
+     "VIA VOGUE — REEL 'Chegou': câmera passando pela arara da coleção nova da Patogê (calças wide leg, flare, reta over, coletes e camisas Patogê) e termina com um look completo vestido. Texto na tela: 'Coleção nova Patogê na Via Vogue.' Legenda: 'Chegou e é peça única por tamanho 🤎 Separo o seu? Chama no WhatsApp 👇'",
+     "VIA VOGUE — STORIES (4): 1) arara da coleção nova · 2) look completo vestido · 3) close da lavagem e do caimento · 4) 'separo seu tamanho? te mando em condicional'",
+     "WHATSAPP VIP: mandar as 3 fotos + o vídeo dos looks Patogê vestidos e, logo embaixo, a mensagem 'Coleção nova — VIP em dia' (Mensagens prontas) para as clientes do Círculo Via Vogue que estão em dia",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  },
-  {
+   },
+   {
     "dia": "Terça",
-    "theme": "Amaré 1 peça, 3 jeitos (Heres) + Patogê em movimento (Via Vogue)",
-    "intention": "Mostrar versatilidade: a cliente compra quando se imagina usando a peça em várias ocasiões. Preço é opcional; nas peças masculinas, sempre com preço.",
+    "theme": "Amaré 1 peça, 3 jeitos (Heres) + Look completo Patogê (Via Vogue)",
+    "intention": "Ticket alto vem de look completo: calça + blusa ou colete + cinto. Mostrar o look inteiro e oferecer a condicional.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — REEL '1 peça, 3 jeitos': a mesma peça-chave da Amaré em 3 looks (trabalho, jantar, fim de semana), troca a cada batida da música. Texto na tela: 'Uma peça. Três mulheres.' Legenda: 'Qual é você, 1, 2 ou 3? 👇 Menos roupas no cabide, mais sabedoria ao vestir.'",
-      "HERES — STORIES (4): 1) enquete 1, 2 ou 3 · 2) detalhe da peça · 3) peça vestida (pode ter preço) · 4) 'restam poucos tamanhos, me chama'",
-      "VIA VOGUE — REEL PATOGÊ 'Caminhada': câmera parada, vendedora anda em direção à câmera com o look Patogê, gira e ajeita a peça. Texto na tela: 'Chegou na Via Vogue.' Legenda (pode colocar preço e parcelamento) + 'Separo seu tamanho? Chama no WhatsApp 👇'",
-      "VIA VOGUE — STORIES (4, preço opcional): 1) peça vestida em movimento · 2) close do tecido + 'caimento que não marca' · 3) look completo (pode ter preço + parcelamento) · 4) 'separo seu tamanho?'",
-      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL '1 peça, 3 jeitos': a mesma peça Amaré em 3 looks (trabalho, jantar, fim de semana), troca a cada batida da música. Texto na tela: 'Uma peça. Três mulheres.' Legenda: 'Qual é você, 1, 2 ou 3? 👇'",
+     "HERES — STORIES (4): 1) enquete 1, 2 ou 3 · 2) detalhe da peça · 3) peça vestida (pode ter preço) · 4) 'restam poucos tamanhos, me chama'",
+     "VIA VOGUE — REEL 'Look do pé à cabeça': vendedora monta no manequim ou vestida um look Patogê completo (calça + colete ou camisa + cinto), peça por peça. Texto na tela: 'Look pronto, só vestir.' Legenda: 'Quer que eu monte o seu? Te mando em condicional pra provar em casa 🤎'",
+     "VIA VOGUE — STORIES (4): 1) look completo · 2) a mesma calça com outra parte de cima · 3) close do colete ou da camisa · 4) 'monto o seu look? me chama 👇'",
+     "WHATSAPP: oferecer look completo para quem comprou só 1 ou 2 peças nos últimos meses (Mensagens prontas → '3–4 produtos — aumentar ticket')",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  },
-  {
+   },
+   {
     "dia": "Quarta",
-    "theme": "Prova social Amaré (Heres) + Consciência Jeans 2 looks (Via Vogue)",
-    "intention": "Meio de semana é dia de prova: mostrar quem já levou e quem já usa. Via Vogue com o jeans, que vende o ano inteiro.",
+    "theme": "Prova social Amaré (Heres) + Colcci, marca nova (Via Vogue)",
+    "intention": "Meio de semana é dia de prova social na Heres e de apresentar a Colcci, que é novidade na Via Vogue.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — REEL (lente: prova social): cliente ou vendedora usando Amaré na rua, no trabalho ou chegando na loja (pedir autorização). Texto na tela: 'Ela levou. Olha como ficou.' Legenda: 'Quando a peça é certa, a gente sente 🤍 Amaré, peças limitadas.'",
-      "HERES — STORIES (4): 1) repost de cliente usando Amaré · 2) print de mensagem elogiando (sem mostrar o nome) · 3) peça vestida (pode ter preço) · 4) 'quer ver o seu tamanho? me chama'",
-      "VIA VOGUE — REEL CONSCIÊNCIA JEANS '1 jeans, 2 looks': mesma calça com camiseta básica (dia) e com blusa mais arrumada e salto (noite). Texto na tela: 'Do trabalho pro happy hour.' Legenda (pode colocar preço e parcelamento) + 'Qual combina mais com você? 👇'",
-      "VIA VOGUE — STORIES (4, preço opcional): 1) look dia · 2) look noite · 3) close da lavagem e do caimento · 4) 'separo seu tamanho?' (pode ter preço)",
-      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL (lente: prova social): se tiver foto/vídeo de cliente usando Amaré, usar (com autorização). Se não tiver, gravar cliente provando no provador (pedir na hora: 'posso filmar só o look, sem rosto?') ou a vendedora usando a peça no dia a dia (chegando na loja, almoço, fim do expediente). Texto na tela: 'Amaré no dia a dia.' Legenda: 'Quando a peça é certa, a gente sente 🤍 Amaré, peças limitadas.'",
+     "HERES — STORIES (4): 1) foto de cliente ou do provador (sem rosto, se ela preferir) · 2) print de mensagem elogiando (sem mostrar o nome) · 3) peça vestida (pode ter preço) · 4) 'quer ver o seu tamanho? me chama'",
+     "FOTO DE CLIENTE: mandar 'Pedir foto da cliente' (Mensagens prontas → Pós-venda) pra quem levou Amaré. Em toda venda no provador, pedir pra fotografar o look (pode ser sem rosto)",
+     "VIA VOGUE — REEL 'Agora tem Colcci': abrir a sacola/caixa e mostrar as peças Colcci (camisetas e vestido canelado) vestidas em sequência. Texto na tela: 'Colcci chegou na Via Vogue.' Legenda (pode ter preço) + 'Qual você levaria? 👇'",
+     "VIA VOGUE — STORIES (4): 1) 'novidade: Colcci' · 2) camiseta Colcci vestida com jeans Consciência · 3) vestido canelado vestido · 4) 'separo pra você?'",
+     "WHATSAPP COLCCI: vestir e fotografar 3 peças Colcci (camiseta com jeans, vestido canelado) + 1 vídeo curto. Mandar as fotos/vídeo e, logo embaixo, a mensagem 'Colcci — chegou (com fotos)' para pelo menos 10 clientes. Quem já recebeu a mensagem sem foto: mandar agora só as fotos com 'Olha como ficaram as peças da Colcci 🤍 qual você mais gostou?'",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  },
-  {
+   },
+   {
     "dia": "Quinta",
-    "theme": "Provador looks pra feriado (Heres + Via Vogue)",
-    "intention": "Feriado na segunda (12/10): a cliente vai viajar, almoçar com a família ou sair. Mostrar looks prontos no provador e chamar pra pedir a condicional, que ela prova em casa com calma.",
+    "theme": "Amaré pra viagem e praia (Heres) + Kit masculino Ogochi (Via Vogue)",
+    "intention": "Verão chegando: Heres mostra Amaré pronta para viajar. Via Vogue vende o kit calça slim + polo, que gira o estoque parado de calça. Masculino SEMPRE com preço. Dia também de pré-venda dos pedidos que vão chegar.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — REEL 'Provador looks pra feriado': vendedora entra no provador e sai com 3 looks Amaré (passeio de dia, almoço em família, jantar), um corte por look. Texto na tela: 'Looks pra feriado ✨'. Legenda: 'Feriado chegando e você sem saber o que vestir? Separo os looks e te mando em casa pra provar 🤍 Solicite sua condicional pelo direct ou WhatsApp.'",
-      "HERES — STORIES (5): 1) 'Looks pra feriado' + reel · 2) look 1 vestido (pode ter preço) · 3) look 2 vestido · 4) close do tecido · 5) 'Solicite sua condicional pra looks de feriado 👇' + link do WhatsApp",
-      "VIA VOGUE — STORIES PROVADOR (4, preço opcional): 1) vendedora no provador com calça/bermuda de ticket alto + blusa Heres · 2) segundo look de feriado · 3) look masculino Ogochi pronto (com preço) · 4) 'Solicite sua condicional pra looks de feriado — separo e mando pra você provar em casa 👇'",
-      "WHATSAPP: mandar pras clientes VIP e pras da lista do CRM: 'Oi [nome]! Feriado chegando 🤍 Quer que eu separe uns looks e te mande em condicional pra provar em casa?'",
-      "CONDICIONAL: anotar todos os pedidos de condicional do dia e montar as sacolas ainda hoje (entregar até sexta/sábado)",
-      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
-      "ORÇAMENTO: entrar em contato com quem tem pedido ou condicional em aberto pra fechar",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Na mala': vendedora dobra e coloca na mala 3 peças Amaré e termina com um look vestido. Texto na tela: 'O que vai na mala.' Legenda: 'Leve, fresco e sem esforço 🤍 Amaré. Peça sua condicional pelo direct.'",
+     "HERES — STORIES (4): 1) mala aberta com as peças · 2) look vestido · 3) close do tecido (pode ter preço) · 4) 'separo pra sua viagem?'",
+     "VIA VOGUE — REEL KIT OGOCHI '1 calça, 3 looks': a calça slim bolso faca fica fixa, muda só a parte de cima (polo, camisa ML, camiseta). Texto na tela: '1 calça. 3 ocasiões.' Legenda com preço do kit + parcelamento + 'Separo no tamanho dele? 👇'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) kit dobrado na sacola Via Vogue · 2) close do bolso e do tecido · 3) preço do kit + parcelamento · 4) 'presente pronto, separo pra você?'",
+     "PRÉ-VENDA: mandar 'Pré-venda — antes de chegar' (Mensagens prontas) com fotos das peças que vão chegar para as clientes VIP em dia. Anotar reservas e sinal",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  },
-  {
+   },
+   {
     "dia": "Sexta",
-    "theme": "Antes de sair (Heres) + Look de sexta Patogê (Via Vogue)",
-    "intention": "Sexta é dia de desejo para o fim de semana: looks prontos para sair e convite para vir à loja no sábado.",
+    "theme": "Antes de sair (Heres) + Verão Via Vogue",
+    "intention": "Sexta é dia de desejo para o fim de semana: looks de verão prontos para sair e convite para vir à loja no sábado.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — REEL 'Antes de sair': vendedora termina o look Amaré (ajeita a manga, coloca o brinco, pega a bolsa) e sai andando. 10 segundos. Texto na tela: 'Sexta.' Legenda: 'Pronta em 5 minutos, sem pensar muito 🤍 Amaré.'",
-      "HERES — STORIES (4): 1) look de sexta vestido · 2) close do acessório + peça · 3) peça vestida (pode ter preço) · 4) 'vem ver amanhã na loja ou me chama'",
-      "VIA VOGUE — REEL PATOGÊ 'Look de sexta': look completo Patogê em movimento, com transição do look de trabalho para o look de sair. Texto na tela: 'Look de sexta resolvido.' Legenda (pode colocar preço e parcelamento) + 'te espero amanhã na loja 🤎'",
-      "VIA VOGUE — STORIES (4, preço opcional): 1) look de sexta · 2) peça em 2 cores · 3) peça vestida (pode ter preço) · 4) 'amanhã a loja abre às [horário], te espero'",
-      "WHATSAPP: convidar clientes pra virem à loja no sábado (Mensagens prontas → Clientes → 'Convite fim de semana')",
-      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Antes de sair': vendedora termina o look Amaré (ajeita a manga, coloca o brinco, pega a bolsa) e sai andando. 10 segundos. Texto na tela: 'Sexta.' Legenda: 'Pronta em 5 minutos, sem pensar muito 🤍 Amaré.'",
+     "HERES — STORIES (4): 1) look de sexta vestido · 2) close do acessório + peça · 3) peça vestida (pode ter preço) · 4) 'vem ver amanhã na loja ou me chama'",
+     "VIA VOGUE — REEL 'Verão chegou': sequência de conjuntos e vestidos longos de verão vestidos, um por batida da música. Texto na tela: 'Seu verão começa aqui.' Legenda (pode ter preço) + 'te espero amanhã na loja 🤎'",
+     "VIA VOGUE — STORIES (4, preço opcional): 1) conjunto de verão vestido · 2) vestido longo em movimento · 3) peça vestida (pode ter preço) · 4) 'amanhã a loja abre às [horário], te espero'",
+     "WHATSAPP: convidar clientes pra virem à loja no sábado (Mensagens prontas → Clientes → 'Convite fim de semana')",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  },
-  {
+   },
+   {
     "dia": "Sábado",
-    "theme": "Amaré no corpo (Heres) + Masculino '1 calça, 3 looks' (Via Vogue)",
-    "intention": "Fechar a semana mostrando a Amaré vestida, sem clima de lançamento: peça bonita no corpo e convite pra condicional do feriado. Via Vogue com o terceiro masculino da semana.",
+    "theme": "Amaré no corpo (Heres) + Arara de oportunidade (Via Vogue)",
+    "intention": "Fechar a semana com a Amaré vestida e com a arara de últimas peças, que transforma estoque antigo em caixa. Nunca chamar de liquidação: são 'últimas peças'.",
     "checklist": [
-      "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
-      "CRM: lista 'Hoje' → mandar mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
-      "HERES — STORIES (5): 1) arara Amaré · 2) peça vestida em movimento · 3) peça vestida (pode ter preço) · 4) cliente experimentando na loja (se tiver) · 5) 'ainda dá tempo de pedir sua condicional pro feriado 👇'",
-      "HERES — REEL (lente: movimento): caminhada com o look Amaré mais pedido. Texto na tela: 'Pronta pro feriado.' Legenda: 'Leve, fresco e sem esforço 🤍 Amaré. Peça sua condicional pelo direct.'",
-      "VIA VOGUE — REEL MASCULINO '1 calça, 3 looks': a calça Ogochi Bolso Faca café fica fixa (na mesa ou no cabide), muda só a parte de cima: camisa social, polo e malha. Troca a cada batida da música. Texto na tela: '1 calça. 3 ocasiões.' Legenda com preço e parcelamento + 'Qual é o estilo dele? 1, 2 ou 3? 👇'",
-      "VIA VOGUE — STORIES (4, COM preço): 1) enquete 'qual look é a cara dele?' · 2) kit completo dobrado na sacola Via Vogue · 3) preço do kit + parcelamento · 4) 'presente pronto, separo pra você?'",
-      "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
-      "Atender e vender normalmente",
-      "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
-      "APP: registrar vendas do dia"
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — STORIES (5): 1) arara Amaré · 2) peça vestida em movimento · 3) peça vestida (pode ter preço) · 4) cliente experimentando na loja (se tiver) · 5) 'peça sua condicional pelo direct 👇'",
+     "HERES — REEL (lente: movimento): caminhada com o look Amaré mais pedido da semana. Texto na tela: 'Sábado.' Legenda: 'Leve e sem esforço 🤍 Amaré.'",
+     "LOJA: montar/repor a arara de oportunidade com as peças antigas (3 por R$ 100) em lugar visível",
+     "VIA VOGUE — STORIES ARARA (4, COM preço): 1) arara de últimas peças · 2) 3 peças escolhidas na mão · 3) '3 por R$ 100' · 4) 'peça única, corre 👇'",
+     "WHATSAPP: mandar 'Arara de oportunidade' (Mensagens prontas) para clientes de ticket menor e para as 'Sumidas' do CRM",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
     ]
-  }
+   }
+  ]
+ },
+ {
+  "id": "s2",
+  "inicio": "2026-10-19",
+  "fim": "2026-10-25",
+  "titulo": "Semana 2 · 19 a 25/10 · Verão + masculino + pré-venda",
+  "labels": [
+   "Hoje: verão chegou (com fotos)",
+   "Hoje: kit Ogochi calça + camisa",
+   "Hoje: Patogê segunda chance",
+   "Hoje: confirmar reservas da pré-venda",
+   "Hoje: convite pro sábado",
+   "Hoje: masculino + separar a arara"
+  ],
+  "dias": [
+   {
+    "dia": "Segunda",
+    "theme": "Detalhe Amaré (Heres) + Verão chegou (Via Vogue)",
+    "intention": "Semana de verão e pré-venda. Heres SEM preço na segunda. Via Vogue abre o verão com os conjuntos que chegaram (Sunshine, Sea, Areia).",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL (lente: detalhe): close da costura, do botão e da etiqueta de uma peça Amaré, termina com a peça vestida. Texto na tela: 'Feito pra durar.' Legenda: 'Menos peças, melhores escolhas 🤍 Amaré.' SEM preço",
+     "HERES — STORIES (4, sem preço): 1) detalhe da peça · 2) peça vestida · 3) enquete 'você usaria no trabalho ou no fim de semana?' · 4) 'me chama pra ver as cores'",
+     "VIA VOGUE — REEL 'Verão chegou': conjuntos Sunshine, Sea e Areia vestidos, um por batida da música. Texto na tela: 'Seu verão começa aqui.' Legenda (pode ter preço) + 'Qual cor é a sua? 👇'",
+     "VIA VOGUE — STORIES (4, preço opcional): 1) arara de verão · 2) conjunto vestido em movimento · 3) close do tecido · 4) 'separo seu tamanho?'",
+     "WHATSAPP: mandar fotos/vídeo dos conjuntos de verão VESTIDOS + mensagem 'Verão chegou (com fotos)' para pelo menos 10 clientes",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Terça",
+    "theme": "Amaré no trabalho (Heres) + Kit Ogochi calça + camisa (Via Vogue)",
+    "intention": "Heres mostra a Amaré no dia a dia de trabalho. Via Vogue empurra a calça slim bolso faca (muito estoque) em kit com camisa manga longa. Masculino SEMPRE com preço.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Look de trabalho': vendedora monta um look de trabalho com Amaré, do cabide até vestida. Texto na tela: 'Segunda a sexta resolvido.' Legenda: 'Elegante sem esforço 🤍 Amaré.'",
+     "HERES — STORIES (4): 1) look de trabalho vestido · 2) detalhe da peça · 3) peça vestida (pode ter preço) · 4) 'separo pra você?'",
+     "VIA VOGUE — REEL KIT 'Calça + camisa': calça slim bolso faca + camisa ML Ogochi montados no balcão e depois vestidos. Texto na tela: 'Look social pronto.' Legenda com preço do kit + parcelamento + 'Separo no tamanho dele? 👇'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) kit dobrado na sacola · 2) calça em 3 cores · 3) preço do kit + parcelamento · 4) 'separo pra você?'",
+     "WHATSAPP: mandar foto do kit vestido + mensagem 'Kit masculino Ogochi' para clientes que já compraram masculino",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quarta",
+    "theme": "Prova de provador Amaré (Heres) + Patogê segunda chance (Via Vogue)",
+    "intention": "Quem viu a coleção Patogê na semana passada e não respondeu recebe um look diferente. Prova social na Heres com cliente no provador.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL (lente: provador): cliente provando Amaré no provador, só o look, sem rosto (pedir na hora). Se não tiver cliente, a vendedora. Texto na tela: 'Provou e levou.' Legenda: 'Quando a peça é certa, a gente sente 🤍 Amaré.'",
+     "HERES — STORIES (4): 1) provador · 2) print de elogio (sem nome) · 3) peça vestida (pode ter preço) · 4) 'quer provar? te mando em condicional'",
+     "VIA VOGUE — REEL PATOGÊ '1 calça, 2 looks': mesma calça Patogê com colete (dia) e com camisa (noite). Texto na tela: 'Do dia pra noite.' Legenda + 'Separo seu tamanho? 👇'",
+     "VIA VOGUE — STORIES (4): 1) look dia · 2) look noite · 3) close do caimento · 4) 'te mando em condicional?'",
+     "WHATSAPP: para quem recebeu a coleção Patogê e não respondeu, mandar fotos de OUTRO look vestido + 'Oi [nome]! Montei outro look com a coleção nova, olha que lindo 🤍 quer provar em casa?'",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quinta",
+    "theme": "Amaré na mala (Heres) + Vestidos longos e biquínis (Via Vogue)",
+    "intention": "Verão e viagem. Dia de fechar a pré-venda: confirmar quem reservou peças dos pedidos que vão chegar.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Na mala': 3 peças Amaré dobradas na mala e um look vestido no final. Texto na tela: 'O que vai na mala.' Legenda: 'Leve e sem esforço 🤍 Amaré.'",
+     "HERES — STORIES (4): 1) mala aberta · 2) look vestido · 3) close do tecido (pode ter preço) · 4) 'separo pra sua viagem?'",
+     "VIA VOGUE — REEL 'Vestido longo': vestidos longos (Luau, poá, listrado, franja) vestidos em movimento, um por batida. Texto na tela: 'Qual é o seu?' Legenda (pode ter preço) + 'separo pra você 👇'",
+     "VIA VOGUE — STORIES (4): 1) vestido longo vestido · 2) biquíni + saída · 3) peça com preço · 4) 'separo seu tamanho?'",
+     "PRÉ-VENDA: confirmar as reservas com cada cliente, combinar o sinal por Pix e anotar tamanho e cor numa lista",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sexta",
+    "theme": "Antes de sair (Heres) + Look de sexta Patogê + Colcci (Via Vogue)",
+    "intention": "Sexta é dia de desejo e convite para o sábado.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Antes de sair': vendedora termina o look Amaré e sai andando. Texto na tela: 'Sexta.' Legenda: 'Pronta em 5 minutos 🤍 Amaré.'",
+     "HERES — STORIES (4): 1) look de sexta · 2) acessório + peça · 3) peça vestida (pode ter preço) · 4) 'vem ver amanhã na loja'",
+     "VIA VOGUE — REEL 'Look de sexta': calça Patogê + camiseta Colcci, transição do look de trabalho para o de sair. Texto na tela: 'Look de sexta resolvido.' Legenda + 'te espero amanhã 🤎'",
+     "VIA VOGUE — STORIES (4): 1) look de sexta · 2) camiseta Colcci em 2 cores · 3) peça com preço · 4) 'amanhã a loja abre às [horário]'",
+     "WHATSAPP: convidar clientes pra virem no sábado (Mensagens prontas → 'Convite fim de semana'), com foto de 1 look vestido",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sábado",
+    "theme": "Amaré no corpo (Heres) + Polos '1 calça, 3 looks' (Via Vogue)",
+    "intention": "Fechar a semana com a Amaré vestida e o masculino Ogochi, que gira bem.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — STORIES (5): 1) arara Amaré · 2) peça vestida em movimento · 3) peça vestida (pode ter preço) · 4) cliente provando (se tiver) · 5) 'peça sua condicional 👇'",
+     "HERES — REEL (lente: movimento): caminhada com o look Amaré mais pedido. Texto na tela: 'Sábado.' Legenda: 'Leve e sem esforço 🤍 Amaré.'",
+     "VIA VOGUE — REEL MASCULINO '1 calça, 3 looks': calça slim fixa, muda a parte de cima (polo, camisa ML, camiseta). Texto na tela: '1 calça. 3 ocasiões.' Legenda com preço + 'Qual é o estilo dele? 👇'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) enquete 'qual look é a cara dele?' · 2) kit na sacola · 3) preço + parcelamento · 4) 'separo pra você?'",
+     "LOJA: separar as peças antigas que vão para a arara de oportunidade e as Consciência Jeans e Pury que vão ter 30% (começa segunda)",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "s3",
+  "inicio": "2026-10-26",
+  "fim": "2026-11-01",
+  "titulo": "Semana 3 · 26/10 a 01/11 · Fechamento de estação",
+  "labels": [
+   "Hoje: arara de oportunidade",
+   "Hoje: Consciência Jeans 30%",
+   "Hoje: Pury 30%",
+   "Hoje: arara + aviso da pré-venda",
+   "Hoje: último fim de semana com 30%",
+   "Hoje: último dia do desconto"
+  ],
+  "dias": [
+   {
+    "dia": "Segunda",
+    "theme": "Detalhe Amaré (Heres) + Começa o fechamento de estação (Via Vogue)",
+    "intention": "Semana de transformar estoque parado em caixa: arara de oportunidade (3 por R$ 100) e 30% em Consciência Jeans e Pury. Patogê e Colcci SEM desconto. Falar 'últimas peças', nunca 'liquidação'.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "LOJA: montar a arara de oportunidade em lugar visível e etiquetar Consciência Jeans e Pury com 30%",
+     "HERES — REEL (lente: textura): close do tecido Amaré + peça vestida. Texto na tela: 'O detalhe que ninguém vê.' SEM preço",
+     "HERES — STORIES (4, sem preço): 1) close · 2) peça vestida · 3) enquete · 4) 'me chama pra ver'",
+     "VIA VOGUE — REEL 'Últimas peças': vendedora passa a mão na arara de oportunidade e tira 3 peças. Texto na tela: '3 peças por R$ 100.' Legenda: 'Peças únicas, últimas unidades 🤎 Corre que acaba.'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) arara · 2) 3 peças na mão · 3) '3 por R$ 100' · 4) 'Consciência Jeans e Pury com 30% essa semana 👇'",
+     "WHATSAPP: mandar foto da arara + mensagem 'Arara de oportunidade' para clientes de ticket menor e para as 'Sumidas' do CRM",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Terça",
+    "theme": "Amaré 1 peça, 3 jeitos (Heres) + Consciência Jeans 30% (Via Vogue)",
+    "intention": "Jeans vende o ano inteiro: com 30%, é a hora de girar a Consciência Jeans.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL '1 peça, 3 jeitos': a mesma peça Amaré em 3 looks. Texto na tela: 'Uma peça. Três mulheres.' Legenda: 'Qual é você? 👇'",
+     "HERES — STORIES (4): 1) enquete 1, 2 ou 3 · 2) detalhe · 3) peça vestida (pode ter preço) · 4) 'restam poucos tamanhos'",
+     "VIA VOGUE — REEL CONSCIÊNCIA JEANS '1 jeans, 2 looks': mesma calça com camiseta (dia) e com blusa + salto (noite). Texto na tela: 'Consciência Jeans com 30%.' Legenda com preço de/por + 'separo seu tamanho? 👇'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) look dia · 2) look noite · 3) preço de/por · 4) 'só essa semana'",
+     "WHATSAPP: mandar foto do jeans vestido + 'Oi [nome]! Essa semana a Consciência Jeans está com 30% 🤍 separei os modelos no seu tamanho, quer ver?' para quem já comprou jeans",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quarta",
+    "theme": "Prova social Amaré (Heres) + Pury 30% (Via Vogue)",
+    "intention": "Meio de semana com prova social na Heres e Pury com 30% na Via Vogue.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL (lente: prova social): foto de cliente usando Amaré (com autorização) ou provador sem rosto. Texto na tela: 'Amaré no dia a dia.'",
+     "HERES — STORIES (4): 1) cliente ou provador · 2) print de elogio · 3) peça vestida (pode ter preço) · 4) 'quer provar? me chama'",
+     "VIA VOGUE — REEL PURY: peças Pury vestidas em sequência. Texto na tela: 'Pury com 30%.' Legenda com preço de/por + 'qual você levaria? 👇'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) peça Pury vestida · 2) close · 3) preço de/por · 4) 'só até sábado'",
+     "WHATSAPP: mandar fotos das peças Pury vestidas + mensagem do 30% para clientes que já compraram Pury",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quinta",
+    "theme": "Amaré pra viagem (Heres) + Arara 3 por R$ 100 (Via Vogue)",
+    "intention": "Reforçar a arara e confirmar as reservas da pré-venda: os pedidos chegam na semana que vem.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Na mala': peças Amaré na mala + look vestido. Texto na tela: 'O que vai na mala.'",
+     "HERES — STORIES (4): 1) mala · 2) look · 3) close (pode ter preço) · 4) 'separo pra você?'",
+     "VIA VOGUE — REEL 'Monte seu trio': vendedora monta 3 combinações diferentes com peças da arara. Texto na tela: '3 peças, R$ 100.' Legenda: 'Peça única 🤎'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) trio 1 · 2) trio 2 · 3) '3 por R$ 100' · 4) 'corre que acaba'",
+     "PRÉ-VENDA: avisar as clientes com reserva que os pedidos chegam na semana que vem e confirmar tamanho e cor",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sexta",
+    "theme": "Antes de sair (Heres) + Último fim de semana com 30% (Via Vogue)",
+    "intention": "Urgência real: o desconto acaba no sábado.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — REEL 'Antes de sair': look Amaré pronto e saindo. Texto na tela: 'Sexta.'",
+     "HERES — STORIES (4): 1) look de sexta · 2) acessório · 3) peça vestida (pode ter preço) · 4) 'vem ver amanhã'",
+     "VIA VOGUE — REEL 'Última chance': Consciência Jeans + Pury + arara, cortes rápidos. Texto na tela: 'Até amanhã.' Legenda: '30% em Consciência Jeans e Pury e 3 por R$ 100 só até sábado 🤎'",
+     "VIA VOGUE — STORIES (4, COM preço): 1) 'último fim de semana' · 2) jeans com preço de/por · 3) arara · 4) 'amanhã a loja abre às [horário]'",
+     "WHATSAPP: mandar foto + 'Oi [nome]! Amanhã é o último dia dos 30% em Consciência Jeans e Pury 🤍 quer que eu separe algo pra você?'",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sábado",
+    "theme": "Amaré no corpo (Heres) + Último dia do fechamento (Via Vogue)",
+    "intention": "Último dia do desconto. À noite, tirar as etiquetas de 30%.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — STORIES (5): 1) arara Amaré · 2) peça em movimento · 3) peça vestida (pode ter preço) · 4) cliente provando (se tiver) · 5) 'peça sua condicional 👇'",
+     "VIA VOGUE — STORIES (5, COM preço): 1) 'último dia' · 2) arara · 3) jeans de/por · 4) Pury de/por · 5) 'até as [horário]'",
+     "VIA VOGUE — REEL: cliente ou vendedora saindo com a sacola Via Vogue. Texto na tela: 'Garantiu?'",
+     "FECHAMENTO DO DIA: tirar as etiquetas de 30%, reorganizar a arara e anotar o que sobrou",
+     "PREPARAR: liberar espaço na loja para os pedidos que chegam na semana que vem",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "s4",
+  "inicio": "2026-11-02",
+  "fim": "2026-11-08",
+  "titulo": "Semana 4 · 02 a 08/11 · Chegada da coleção nova",
+  "labels": [
+   "Hoje: avisar a pré-venda",
+   "Hoje: receber e cadastrar",
+   "Hoje: reservas + Círculo VIP",
+   "Hoje: lançamento — mandar com fotos",
+   "Hoje: convite pro sábado",
+   "Hoje: lista VIP da Black Friday"
+  ],
+  "dias": [
+   {
+    "dia": "Segunda",
+    "theme": "Chegando (Heres + Via Vogue)",
+    "intention": "02/11 é feriado (Finados): se a loja não abrir, fazer este dia na terça. Semana da chegada dos pedidos: teaser sem mostrar tudo.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES — STORIES (4, sem preço): 1) caixa fechada 'chegando' · 2) close de um tecido novo · 3) enquete 'quer ver primeiro?' · 4) 'me chama pra entrar na lista'",
+     "VIA VOGUE — REEL 'Chegando': caixas sendo abertas, só detalhes (etiqueta, tecido, cor). Texto na tela: 'Novidade chegando.' Legenda: 'Quem quer ver primeiro? Comenta 🤎'",
+     "VIA VOGUE — STORIES (4): 1) caixas · 2) close de tecido · 3) 'lista de quem vê primeiro' · 4) link do WhatsApp",
+     "WHATSAPP: avisar as clientes da pré-venda que as peças estão chegando e que entregamos esta semana",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Terça",
+    "theme": "Recebimento dos pedidos",
+    "intention": "Dia de receber, conferir e preparar. Peça que não está no Bling não vende.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "RECEBIMENTO: conferir os pedidos com a nota (quantidade, tamanho, cor) e avisar a Bruna de qualquer diferença",
+     "BLING: cadastrar as peças novas no Bling com preço e estoque",
+     "FOTOS: fotografar e filmar vestidas as peças novas (pelo menos 1 look de cada marca) para o lançamento",
+     "PRÉ-VENDA: separar as peças reservadas com o nome de cada cliente",
+     "HERES + VIA VOGUE — STORIES: 3 stories de bastidor do recebimento (sem mostrar as peças inteiras)",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quarta",
+    "theme": "Entrega das reservas + Convite VIP",
+    "intention": "Quem reservou recebe primeiro. Clientes do Círculo são convidadas para ver antes de todo mundo.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "PRÉ-VENDA: entregar ou chamar para retirar as reservas e receber o restante do pagamento",
+     "WHATSAPP CÍRCULO: mandar fotos dos looks novos vestidos + 'Oi [nome]! A coleção nova chegou e você vê antes de todo mundo 🤍 quer que eu separe ou te mande em condicional?' (só para VIP em dia)",
+     "HERES — REEL (lente: textura): close de peça Amaré + look. Texto na tela: 'O detalhe que ninguém vê.'",
+     "VIA VOGUE — STORIES (4): 1) 'chegou' · 2) look novo vestido · 3) close · 4) 'amanhã mostro tudo'",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Quinta",
+    "theme": "Lançamento da coleção nova (Via Vogue) + Amaré (Heres)",
+    "intention": "Dia de mostrar tudo: looks completos, ticket alto. Condicional só para cliente sem parcela atrasada.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "VIA VOGUE — REEL 'Chegou': arara completa + 3 looks vestidos, um por batida. Texto na tela: 'Coleção nova na Via Vogue.' Legenda: 'Separo o seu? Chama no WhatsApp 👇'",
+     "VIA VOGUE — STORIES (5): 1) arara · 2) look 1 · 3) look 2 · 4) look 3 (pode ter preço) · 5) 'separo seu tamanho?'",
+     "HERES — STORIES (4): 1) Amaré vestida · 2) detalhe · 3) peça (pode ter preço) · 4) 'me chama'",
+     "WHATSAPP: mandar fotos/vídeo dos looks novos vestidos + mensagem de novidade para pelo menos 15 clientes da base",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sexta",
+    "theme": "Evento de lançamento na loja",
+    "intention": "Loja arrumada, provador pronto, look completo em destaque. Quem levar look completo ganha brinde.",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "LOJA: vitrine e manequins com os looks novos, provador arrumado, brinde separado para quem levar look completo",
+     "VIA VOGUE — STORIES AO VIVO (5+): clientes provando (sem rosto, se preferirem), looks saindo, sacolas",
+     "VIA VOGUE — REEL 'Lançamento': cortes do dia na loja. Texto na tela: 'Foi assim o lançamento.'",
+     "HERES — STORIES (3): Amaré no meio do lançamento, 'a curadoria Heres continua aqui'",
+     "WHATSAPP: convidar para o sábado quem não veio, com foto de 1 look vestido",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   },
+   {
+    "dia": "Sábado",
+    "theme": "Prova social do lançamento + aquecimento Black Friday",
+    "intention": "Mostrar quem levou e começar a lista VIP da Black Friday (27/11).",
+    "checklist": [
+     "ABERTURA: responder mensagens do WhatsApp e Direct do Instagram (Heres e Via Vogue)",
+     "FOTOS PARA O WHATSAPP (antes do CRM): fotografar e filmar VESTIDAS as peças do foco do dia — 3 fotos + 1 vídeo de 10 segundos, na luz da loja, sem foto de catálogo. Mensagem de novidade SEMPRE vai junto com as fotos/vídeo. Mensagem sem foto não conta",
+     "CRM: abrir Clientes → 🎯 CRM → lista 'Hoje', copiar e mandar a mensagem para pelo menos 8 clientes e marcar '✓ Já mandei'",
+     "ORÇAMENTO (prazo máximo 2 dias): cobrar todos os orçamentos de ontem (Mensagens prontas → 'Fechar orçamento de ontem') e dar a última resposta aos de 2 dias atrás ('Orçamento — último contato'). Depois de 2 dias, sai da lista: se ela não fechou, oferecer outra peça ou encerrar",
+     "HERES + VIA VOGUE — STORIES (5): 1) repost de clientes · 2) looks mais vendidos · 3) peça com preço · 4) 'restam poucos tamanhos' · 5) 'lista VIP da Black: me chama'",
+     "VIA VOGUE — REEL: os 3 looks mais vendidos da semana. Texto na tela: 'Os mais levados.'",
+     "BLACK FRIDAY: anotar o WhatsApp de todas as clientes que pedirem para entrar na lista VIP da Black",
+     "PÓS-LANÇAMENTO: mandar 'Pedir foto da cliente' (Mensagens prontas → Pós-venda) para quem comprou na semana",
+     "ANOTAR para a Bruna: o que mais vendeu, o que mais pediram e não tinha, tamanhos que faltaram",
+     "CONDICIONAL: antes de liberar, conferir no Bling se a cliente não tem parcela atrasada. Ligar para quem está com condicional parada há mais de 7 dias (Mensagens prontas → 'Condicional parada')",
+     "PÓS-VENDA: mandar mensagem pra quem comprou ontem (Mensagens prontas → Pós-venda)",
+     "Atender e vender normalmente: sempre oferecer o look completo e a segunda peça",
+     "FECHAMENTO: responder mensagens do WhatsApp e Direct do Instagram antes de fechar (Heres e Via Vogue)",
+     "APP: registrar vendas do dia"
+    ]
+   }
+  ]
+ }
 ];
+const _hojeISO=(()=>{const b=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Sao_Paulo'}));return b.getFullYear()+'-'+String(b.getMonth()+1).padStart(2,'0')+'-'+String(b.getDate()).padStart(2,'0');})();
+let SEMANA_ATUAL_IDX=SEMANAS_MES.findIndex(w=>_hojeISO>=w.inicio&&_hojeISO<=w.fim);
+const SEMANA_FORA_DO_PLANO=SEMANA_ATUAL_IDX<0&&_hojeISO>SEMANAS_MES[SEMANAS_MES.length-1].fim;
+if(SEMANA_ATUAL_IDX<0)SEMANA_ATUAL_IDX=SEMANA_FORA_DO_PLANO?SEMANAS_MES.length-1:0;
+const SEMANA=JSON.parse(JSON.stringify(SEMANAS_MES[SEMANA_ATUAL_IDX].dias));
+SEMANA_VERSION+='-'+SEMANAS_MES[SEMANA_ATUAL_IDX].id;
+DIA_TIER_LABEL=SEMANAS_MES[SEMANA_ATUAL_IDX].labels;
 
 const _diaSemanaHoje=new Date().getDay();activeDayIdx=(_diaSemanaHoje>=1&&_diaSemanaHoje<=6)?_diaSemanaHoje-1:0;
 document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Sao_Paulo'});
